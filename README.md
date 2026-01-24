@@ -2,7 +2,9 @@
 
 A clean **Kotlin Multiplatform (KMP)** starter generated with the **Kotlin Multiplatform Wizard** and then updated to work smoothly with **Android Gradle Plugin (AGP) 9.0.0**.
 
-This repository is published as a **GitHub Template** — click **“Use this template”** to create your own project in seconds.
+Here is [a Medium article](https://blog.watermelonkode.com/how-to-update-the-android-gradle-plugin-to-version-9-0-0-in-a-kotlin-multiplatform-kmp-agp-9-6a2261a6a8fd) to explain all changes. Moreover, this repository is published as a **GitHub Template** — click **“Use this template”** to create your own project in seconds.
+
+<img width="600" alt="watermelonKode KMP" src="https://github.com/user-attachments/assets/0fd9986c-b656-4e69-a075-e9643d6151e0" />
 
 ---
 
