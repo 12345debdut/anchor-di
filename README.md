@@ -94,13 +94,9 @@ This template is structured with those realities in mind.
 
 ---
 
-## Related article (deep dive)
+## watermelonKode🍉 on socıal media
 
-I wrote a step-by-step Medium post explaining the migration process I used:
-
-```text
-https://blog.watermelonkode.com/how-to-update-the-android-gradle-plugin-to-version-9-0-0-in-a-kotlin-multiplatform-kmp-agp-9-6a2261a6a8fd
-```
+We are new but try to help Kotlin Multiplatform community. Feel free to follow us on socail media for more KMP + CMP contents, apps, GitHub repositories, Medium articles, news and more: https://linktr.ee/watermelonKode
 
 ---
 
