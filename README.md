@@ -6,6 +6,8 @@ Here is [a Medium article](https://blog.watermelonkode.com/how-to-update-the-and
 
 <img width="600" alt="watermelonKode KMP" src="https://github.com/user-attachments/assets/0fd9986c-b656-4e69-a075-e9643d6151e0" />
 
+<img width="600" alt="Screenshot 2026-01-23 at 19 55 24" src="https://github.com/user-attachments/assets/e0af20d2-a736-45ca-baa9-f2164c5e1b24" />
+
 ---
 
 ## Why this template?
@@ -94,7 +96,7 @@ This template is structured with those realities in mind.
 
 ---
 
-## watermelonKode🍉 on socıal media
+## watermelonKode🍉 on social media
 
 We are new but try to help Kotlin Multiplatform community. Feel free to follow us on socail media for more KMP + CMP contents, apps, GitHub repositories, Medium articles, news and more: https://linktr.ee/watermelonKode
 
