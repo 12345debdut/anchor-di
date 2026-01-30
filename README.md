@@ -1,89 +1,240 @@
-# Anchor DI
+# ⚓ Anchor-DI
 
-**Hilt-like dependency injection for Kotlin Multiplatform** with compile-time code generation via KSP. Works in `commonMain` across Android, iOS, and Desktop.
+**Anchor-DI** is a **compile-time dependency injection framework for Kotlin Multiplatform (KMP)** with first-class support for **Compose Multiplatform (CMP)**.
+
+It brings a **Hilt / Dagger–like developer experience** to KMP while remaining:
+- 🚫 Reflection-free
+- ⚡ Compile-time validated
+- 🌍 Fully multiplatform (Android, iOS, Desktop, Web)
+- 🎨 Compose-first
 
 ---
 
-## Quick start
+## ✨ Why Anchor-DI?
 
-1. **Add dependencies** (see [docs/README.md](docs/README.md) for full setup):
+Dependency Injection in Kotlin Multiplatform is still a hard problem.
+
+| Existing Solution | Limitation |
+|------------------|------------|
+| Koin | Runtime DI, slower startup, runtime failures |
+| Hilt / Dagger | Android-only |
+| Manual DI | Boilerplate-heavy, error-prone |
+| Reflection-based DI | Not multiplatform-safe |
+
+**Anchor-DI solves this by shifting all DI logic to compile time.**
+
+---
+
+## 🎯 Design Principles
+
+- **Compile-time dependency graph**
+- **No Service Locator**
+- **No runtime reflection**
+- **Strict validation**
+- **Predictable behavior**
+- **Multiplatform by design**
+
+If it compiles — it works.
+
+---
+
+## 🧱 High-Level Architecture
+
+Anchor-DI uses **KSP (Kotlin Symbol Processing)** to analyze your source code and generate a **static dependency graph** during compilation.
+
+### What gets validated at compile time:
+- Missing bindings
+- Dependency cycles
+- Scope violations
+- Duplicate providers
+- Invalid multibindings
+
+💥 Any violation fails the build.
+
+---
+
+## 🌍 Multiplatform First
+
+- Generated code lives in `commonMain`
+- No JVM-only APIs
+- Platform-specific dependencies use `expect / actual`
 
 ```kotlin
-implementation(project(":anchor-di-api"))
-implementation(project(":anchor-di-runtime"))
-implementation(project(":anchor-di-compose"))  // For anchorInject(), viewModelAnchor()
-add("kspCommonMainMetadata", project(":anchor-di-ksp"))
-add("kspAndroid", project(":anchor-di-ksp"))
-add("kspIosArm64", project(":anchor-di-ksp"))
-add("kspIosSimulatorArm64", project(":anchor-di-ksp"))
+expect class PlatformContext
 ```
 
-2. **Define bindings** with `@Inject`, `@Module`, `@Provides`, `@Binds`, `@InstallIn(SingletonComponent::class)` or `@InstallIn(ViewModelComponent::class)`.
-
-3. **Initialize** at app startup: `Anchor.init(*getAnchorContributors())`.
-
-4. **Inject**: `Anchor.inject<T>()`, or in Compose: `viewModelAnchor<MyViewModel>()`, `anchorInject<Repo>()`.
-
-Full API, ViewModel scope, custom scopes, and troubleshooting: **[docs/README.md](docs/README.md)**.
-
----
-
-## Features
-
-- **Constructor injection** — `@Inject` on primary constructor
-- **Singleton & scoped** — `@Singleton`, `@Scoped(Scope::class)`, `@ViewModelScoped`
-- **Modules** — `@Module`, `@InstallIn(SingletonComponent::class)` / `@InstallIn(ViewModelComponent::class)` / custom components
-- **ViewModel** — `@AnchorViewModel` + `viewModelAnchor()` in Compose Multiplatform
-- **Custom components** — `@InstallIn(MyScope::class)` with `Anchor.withScope(MyScope::class)` or `Anchor.scopedContainer(MyScope::class)`
-- **KMP** — commonMain, zero reflection, KSP per target
-
----
-
-## Project structure
-
-```
-.
-├── anchor-di-api/       # Annotations (Inject, Module, InstallIn, Scoped, …)
-├── anchor-di-runtime/   # Container, Anchor, scopes
-├── anchor-di-ksp/       # KSP code generator
-├── anchor-di-compose/   # anchorInject(), viewModelAnchor(), ActivityScope
-├── composeApp/          # Sample app using Anchor DI
-├── androidApp/           # Android entry point
-├── iosApp/               # iOS entry point
-└── docs/                 # DESIGN.md, README, SCOPES_AND_CUSTOM_COMPONENTS.md
+```kotlin
+@Module
+object PlatformModule {
+    @Provides
+    fun providePlatformContext(): PlatformContext
+}
 ```
 
-**Anchor DI in this app:** The [composeApp](composeApp) module uses Anchor DI for repositories, ViewModels, and platform bindings. See `composeApp/src/commonMain/kotlin/.../di/` and [docs/README.md](docs/README.md).
+---
+
+## 🧩 Core Concepts
+
+### Modules
+
+Modules define how objects are created.
+
+```kotlin
+@Module
+object NetworkModule {
+
+    @Singleton
+    @Provides
+    fun provideHttpClient(): HttpClient = HttpClient()
+}
+```
 
 ---
 
-## Also included: KMP + AGP 9 template
+### Constructor Injection
 
-This repo is built on a **Kotlin Multiplatform** starter aligned with **AGP 9.0**. You get:
-
-- Shared KMP module (`composeApp`) with Compose Multiplatform
-- Android app module (`androidApp`), iOS app (`iosApp`)
-- Gradle Kotlin DSL, version catalog
-
-See the [Medium article](https://blog.debdut.com/how-to-update-the-android-gradle-plugin-to-version-9-0-0-in-a-kotlin-multiplatform-kmp-agp-9-6a2261a6a8fd) for AGP 9 + KMP details. Use **“Use this template”** on GitHub to create your own project.
+```kotlin
+class UserRepository @Inject constructor(
+    private val api: UserApi
+)
+```
 
 ---
 
-## Requirements
+### Components
 
-- Android Studio (recent KMP + AGP 9 tooling)
-- Xcode (for iOS)
-- JDK compatible with your Gradle / AGP setup
+Components are **entry points** into the dependency graph.
+
+```kotlin
+@Component
+interface AppComponent {
+    fun userRepository(): UserRepository
+}
+```
+
+Anchor-DI generates the implementation at compile time.
 
 ---
 
-## Running the sample
+## 🔐 Scoping Model
 
-- **Android:** Run the `androidApp` configuration or `./gradlew :androidApp:assembleDebug`.
-- **iOS:** Open `iosApp/iosApp.xcodeproj` in Xcode, set your **Team** (or `TEAM_ID` in `iosApp/Configuration/Config.xcconfig`) for code signing, then **Product → Run**. See [docs/README.md#running-the-ios-app-in-xcode](docs/README.md#running-the-ios-app-in-xcode) for details.
+Anchor-DI supports explicit, validated scopes:
+
+- `@Singleton`
+- `@ScreenScope`
+- `@ViewModelScope`
+- Custom scopes
+
+```kotlin
+@ScreenScope
+class HomeViewModel @Inject constructor(
+    private val repository: UserRepository
+)
+```
+
+### Compile-Time Scope Rules
+- ❌ No injecting short-lived dependencies into long-lived scopes
+- ❌ No scope cycles
+- ❌ No scope leaks
 
 ---
 
-## License
+## 🔀 Multibinding
 
-Apache-2.0 (see [LICENSE](LICENSE)).
+Supports **Set** and **Map** multibindings (Dagger-style).
+
+### Into Set
+
+```kotlin
+@IntoSet
+@Provides
+fun provideAnalyticsTracker(): Tracker
+```
+
+### Into Map
+
+```kotlin
+@IntoMap
+@StringKey("firebase")
+@Provides
+fun provideFirebaseTracker(): Tracker
+```
+
+---
+
+## 🎨 Compose Multiplatform Integration
+
+Designed for **Compose Multiplatform** from day one:
+
+- App-level container created once
+- Scoped containers per Screen / ViewModel
+- Works with:
+    - Android process recreation
+    - iOS lifecycle boundaries
+    - Desktop recomposition
+
+No reflection. No magic. Only generated code.
+
+---
+
+## 🔄 Build Flow
+
+1. Developer writes annotated code
+2. KSP runs during compilation
+3. Anchor-DI generates:
+    - Factories
+    - Containers
+    - Scope holders
+4. App uses generated code directly
+
+**Runtime overhead is near zero.**
+
+---
+
+## 🚀 Benefits
+
+- ⚡ Faster startup
+- 🧠 Compile-time safety
+- 🧩 Deterministic dependency graphs
+- 📦 Minimal runtime footprint
+- 🌍 True Kotlin Multiplatform support
+
+---
+
+## 🛠️ Project Status
+
+🚧 **Early-stage / active development**
+
+Planned milestones:
+- Core annotation API
+- KSP validation engine
+- Multibinding implementation
+- Compose lifecycle integration
+- Maven Central publishing
+- Documentation & samples
+
+---
+
+## 🧪 Who Should Use Anchor-DI?
+
+- Kotlin Multiplatform SDK authors
+- Compose Multiplatform applications
+- Performance-sensitive apps
+- Teams wanting predictable DI
+- Android developers missing Hilt on iOS 😉
+
+---
+
+## 🤝 Contributing
+
+Contributions, RFCs, and discussions are welcome.
+
+This project aims to become a **foundational DI solution for Kotlin Multiplatform**.
+
+---
+
+## 📜 License
+
+```
+TBD
+```
