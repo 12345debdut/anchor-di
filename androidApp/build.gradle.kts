@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.watermelonkode.androidapp"
+    namespace = "com.debdut.androidapp"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.watermelonkode.androidapp"
+        applicationId = "com.debdut.androidapp"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1 // You can add this code into libs.versions.toml file.
@@ -43,6 +43,7 @@ java {
 
 dependencies {
     implementation(project(":composeApp"))
+    implementation(project(":anchor-di-runtime"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

@@ -1,4 +1,4 @@
-rootProject.name = "SimpleTemplate"
+rootProject.name = "anchor-di"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -31,5 +31,9 @@ dependencyResolutionManagement {
     }
 }
 
+include(":anchor-di-api")
+include(":anchor-di-runtime")
+include(":anchor-di-compose")
+include(":anchor-di-ksp")
 include(":composeApp")
 include(":androidApp")
