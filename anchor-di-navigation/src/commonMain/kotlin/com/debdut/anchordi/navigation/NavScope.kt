@@ -5,19 +5,22 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 
 /**
- * Scope for navigation-scoped DI. Provided by [NavScopeContainer] with a [scopeKeyForEntry] lambda
- * so you can call [NavigationScopedContent](entry) and pass the route/entry; the scope key is
+ * Type-safe scope for navigation-scoped DI. Provided by [NavScopeContainer] with a [scopeKeyForEntry]
+ * lambda so you can call [NavigationScopedContent](entry) with the typed [Entry]; the scope key is
  * derived via [scopeKeyForEntry].
+ *
+ * @param Entry The type of back-stack entries (e.g. [NavKey][androidx.navigation3.runtime.NavKey],
+ *   or your sealed route type). Use the same type as your back stack list.
  */
-interface NavScope {
+interface NavScope<Entry : Any> {
 
     /** Maps a back-stack entry (route) to the scope key used for [NavigationScopeRegistry]. */
-    val scopeKeyForEntry: (Any) -> Any
+    val scopeKeyForEntry: (Entry) -> Any
 
     /**
      * Provides navigation scope for this destination using [NavigationScopeRegistry].
      *
-     * Pass the **entry** (route/key for this screen). The scope key is derived via [scopeKeyForEntry],
+     * Pass the **entry** (route for this screen). The scope key is derived via [scopeKeyForEntry],
      * so the mapping lives in one place in [NavScopeContainer]. Wrap destination content so that
      * [navigationScopedInject] and [navViewModelAnchor] work.
      *
@@ -25,12 +28,12 @@ interface NavScope {
      * pushing another screen). Scopes for removed entries are disposed by [NavScopeContainer].
      *
      * @param entry The back-stack entry for this destination (e.g. [ProductListRoute], or `key` in
-     *   `entry<ProductDetailsRoute> { key -> ... }`). Same object you pass to [scopeKeyForEntry] in [NavScopeContainer].
+     *   `entry<ProductDetailsRoute> { key -> ... }`). Type-safe [Entry].
      * @param content Composable content that can use [navigationScopedInject] and [navViewModelAnchor].
      */
     @Composable
     fun NavigationScopedContent(
-        entry: Any,
+        entry: Entry,
         content: @Composable () -> Unit,
     ) {
         val scopeKey = scopeKeyForEntry(entry)
@@ -46,14 +49,16 @@ interface NavScope {
 }
 
 /** Default implementation: [scopeKeyForEntry] is identity (entry is used as scope key). */
-internal object DefaultNavScope : NavScope {
+internal object DefaultNavScope : NavScope<Any> {
     override val scopeKeyForEntry: (Any) -> Any = { it }
 }
 
 /**
- * Implementation of [NavScope] that uses the given [scopeKeyForEntry] lambda.
+ * Type-safe implementation of [NavScope] that uses the given [scopeKeyForEntry] lambda.
  * Created by [NavScopeContainer]; prefer using [NavScopeContainer] rather than constructing this directly.
+ *
+ * @param Entry The type of back-stack entries; same as [NavScopeContainer] [Entry].
  */
-class NavScopeImpl(
-    override val scopeKeyForEntry: (Any) -> Any,
-) : NavScope
+class NavScopeImpl<Entry : Any>(
+    override val scopeKeyForEntry: (Entry) -> Any,
+) : NavScope<Entry>

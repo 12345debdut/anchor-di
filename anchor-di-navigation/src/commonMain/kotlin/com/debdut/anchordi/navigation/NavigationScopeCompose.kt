@@ -34,33 +34,40 @@ val LocalNavViewModelScope = compositionLocalOf<AnchorContainer?> { null }
  * inside. When the back stack shrinks (e.g. user pops), scopes for entries no longer in the stack
  * are disposed via [NavigationScopeRegistry.dispose].
  *
- * Example (Navigation 3):
+ * Example (Navigation 3 with typed [NavKey][androidx.navigation3.runtime.NavKey]):
  * ```
  * val backStack = rememberNavBackStack(config, ProductListRoute)
- * NavScopeContainer(backStack, scopeKeyForEntry = { entry -> when (entry) { ... } }) {
- *     NavDisplay(backStack = backStack, onBack = { backStack.removeLastOrNull() }, entryProvider {
- *         entry<ProductListRoute> { NavigationScopedContent(ProductListRoute) { ProductListScreen(...) } }
- *         entry<ProductDetailsRoute> { key -> NavigationScopedContent(key) { ProductDetailsScreen(...) } }
- *     })
+ * NavScopeContainer<NavKey>(backStack, scopeKeyForEntry = { entry ->
+ *   when (entry) {
+ *     is ProductListRoute -> ProductListRoute
+ *     is ProductDetailsRoute -> entry.id
+ *     else -> entry
+ *   }
+ * }) {
+ *   NavDisplay(backStack = backStack, onBack = { backStack.removeLastOrNull() }, entryProvider {
+ *     entry<ProductListRoute> { NavigationScopedContent(ProductListRoute) { ProductListScreen(...) } }
+ *     entry<ProductDetailsRoute> { key -> NavigationScopedContent(key) { ProductDetailsScreen(...) } }
+ *   })
  * }
  * ```
  *
+ * @param Entry The type of back-stack entries (e.g. [NavKey], or your sealed route type). Type-safe.
  * @param backStack The current back stack (e.g. from [rememberNavBackStack]); must be observable
  *   (e.g. SnapshotStateList) so that when it changes this effect runs.
- * @param scopeKeyForEntry Mapping from back stack entry to the scope key. Pass the **entry** to [NavigationScopedContent];
+ * @param scopeKeyForEntry Mapping from [Entry] to the scope key. Pass the typed **entry** to [NavigationScopedContent];
  *   the framework derives the scope key via this lambda (single source of truth).
- * @param content Composable content with [NavScope] receiver; put [NavDisplay] and [NavigationScopedContent](entry) here.
+ * @param content Composable content with [NavScope][NavScope] receiver; put [NavDisplay] and [NavigationScopedContent](entry) here.
  */
 @Composable
-fun NavScopeContainer(
-    backStack: List<*>,
-    scopeKeyForEntry: (Any) -> Any,
-    content: @Composable NavScope.() -> Unit = {}
+fun <Entry : Any> NavScopeContainer(
+    backStack: List<Entry>,
+    scopeKeyForEntry: (Entry) -> Any,
+    content: @Composable NavScope<Entry>.() -> Unit = {}
 ) {
     val navScope = NavScopeImpl(scopeKeyForEntry)
     val previousKeys = remember { mutableSetOf<Any>() }
     LaunchedEffect(backStack.size, backStack.lastOrNull()) {
-        val currentKeys = backStack.map { scopeKeyForEntry(it as Any) }.toSet()
+        val currentKeys = backStack.map { scopeKeyForEntry(it) }.toSet()
         (previousKeys - currentKeys).forEach { NavigationScopeRegistry.dispose(it) }
         previousKeys.clear()
         previousKeys.addAll(currentKeys)
