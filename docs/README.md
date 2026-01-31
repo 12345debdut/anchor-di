@@ -68,19 +68,21 @@ val repository = Anchor.inject<UserRepository>()
 | `@Singleton` | One instance per app |
 | `@Scoped(Scope::class)` | One instance per scope |
 | `@ViewModelScoped` | One instance per ViewModel (same as `@Scoped(ViewModelComponent::class)`) |
+| `@NavigationScoped` | One instance per navigation destination (Compose; use with NavigationScopedContent + navigationScopedInject()) |
 | `@Module` | Declares a module |
 | `@InstallIn(SingletonComponent::class)` | Where module is installed (app-wide) |
 | `@InstallIn(ViewModelComponent::class)` | Where module is installed (ViewModel scope) |
+| `@InstallIn(NavigationComponent::class)` | Where module is installed (navigation destination scope) |
 | `@Provides` | Manual factory in module |
 | `@Binds` | Interface → implementation |
 | `@Named("id")` | Qualifier for disambiguation |
 
 ## Architecture
 
-- **anchor-di-api**: Annotations only (`@Inject`, `@Module`, `@Provides`, `@Binds`, `@InstallIn`, `@Singleton`, `@Scoped`, `@ViewModelScoped`, `@Named`, `@Qualifier`). No runtime dependency.
+- **anchor-di-api**: Annotations only (`@Inject`, `@Module`, `@Provides`, `@Binds`, `@InstallIn`, `@Singleton`, `@Scoped`, `@ViewModelScoped`, `@NavigationScoped`, `@Named`, `@Qualifier`). No runtime dependency.
 - **anchor-di-runtime**: Container ([Anchor], [AnchorContainer]), [Key], [Binding] (Unscoped/Singleton/Scoped), [Factory], [ComponentBindingContributor]. Resolves dependencies at runtime; no reflection in hot path (uses `reified` and generated code).
 - **anchor-di-ksp**: Symbol processor that discovers `@Inject` classes and `@Module` classes, validates (missing bindings, circular dependencies, @Binds shape), and generates a [ComponentBindingContributor] implementation that registers all bindings.
-- **anchor-di-compose**: Compose helpers: `anchorInject()` (remember + inject), `viewModelAnchor()` (viewModel + Anchor.withScope(ViewModelComponent)).
+- **anchor-di-compose**: Compose helpers: `anchorInject()`, `viewModelAnchor()`, `NavigationScopedContent` + `navigationScopedInject()` for navigation-scoped bindings (Android).
 
 Data flow: **annotations** → **KSP** generates contributor → **Anchor.init(contributors)** builds container → **inject / withScope** resolve from container.
 
@@ -155,6 +157,26 @@ fun Screen(viewModel: MyViewModel = viewModelAnchor()) { ... }
 ```
 
 `anchorInject()` and `viewModelAnchor()` work in **commonMain** across Android, iOS, and Desktop.
+
+### Navigation-scoped (Compose, Android)
+
+For **Compose Navigation** (Jetpack Navigation Compose), use **NavigationComponent** for bindings that live per destination (one instance per `NavBackStackEntry`, cleared when the destination is popped). Wrap destination content in `NavigationScopedContent(navBackStackEntry)` and use `navigationScopedInject<T>()` inside it.
+
+```kotlin
+@NavigationScoped
+class ScreenState @Inject constructor() { ... }
+
+NavHost(navController, startDestination = "home") {
+    composable("home") {
+        NavigationScopedContent(requireNotNull(it)) {
+            val state = navigationScopedInject<ScreenState>()
+            HomeScreen(state)
+        }
+    }
+}
+```
+
+Add `androidx.navigation:navigation-compose` to the **androidMain** dependencies of the module that uses `NavigationScopedContent` (anchor-di-compose already depends on it for Android).
 
 ## Multi-module
 

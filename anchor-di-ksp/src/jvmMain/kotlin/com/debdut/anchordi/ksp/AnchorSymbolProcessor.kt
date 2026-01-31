@@ -28,6 +28,8 @@ class AnchorSymbolProcessor(
         private const val FQN_NAMED = "com.debdut.anchordi.Named"
         private const val FQN_SINGLETON_COMPONENT = "com.debdut.anchordi.SingletonComponent"
         private const val FQN_VIEW_MODEL_COMPONENT = "com.debdut.anchordi.ViewModelComponent"
+        private const val FQN_NAVIGATION_COMPONENT = "com.debdut.anchordi.NavigationComponent"
+        private const val FQN_NAVIGATION_SCOPED = "com.debdut.anchordi.NavigationScoped"
     }
 
     private var invoked = false
@@ -128,12 +130,15 @@ class AnchorSymbolProcessor(
             val simpleName = classDecl.simpleName.asString()
             val hasViewModelScoped = classDecl.primaryConstructor?.hasAnnotation(FQN_VIEW_MODEL_SCOPED) == true
                 || classDecl.hasAnnotation(FQN_VIEW_MODEL_SCOPED)
+            val hasNavigationScoped = classDecl.primaryConstructor?.hasAnnotation(FQN_NAVIGATION_SCOPED) == true
+                || classDecl.hasAnnotation(FQN_NAVIGATION_SCOPED)
             val scopedAnnotation = classDecl.primaryConstructor?.findAnnotation(FQN_SCOPED)
                 ?: classDecl.findAnnotation(FQN_SCOPED)
             val hasSingleton = classDecl.primaryConstructor?.hasAnnotation(FQN_SINGLETON) == true
                 || classDecl.hasAnnotation(FQN_SINGLETON)
             val binding = when {
                 hasViewModelScoped -> "Binding.Scoped(\"$FQN_VIEW_MODEL_COMPONENT\", ${simpleName}_Factory())"
+                hasNavigationScoped -> "Binding.Scoped(\"$FQN_NAVIGATION_COMPONENT\", ${simpleName}_Factory())"
                 scopedAnnotation != null -> {
                     val scopeClass = getScopedClassName(scopedAnnotation) ?: return@forEach
                     "Binding.Scoped(\"$scopeClass\", ${simpleName}_Factory())"
@@ -278,6 +283,7 @@ class AnchorSymbolProcessor(
         return when {
             str.contains("SingletonComponent") -> FQN_SINGLETON_COMPONENT
             str.contains("ViewModelComponent") -> FQN_VIEW_MODEL_COMPONENT
+            str.contains("NavigationComponent") -> FQN_NAVIGATION_COMPONENT
             else -> null
         }
     }
@@ -305,11 +311,13 @@ class AnchorSymbolProcessor(
                 val returnType = func.returnType?.resolve()?.declaration?.qualifiedName?.asString()
                     ?: return@forEach
                 val hasViewModelScoped = func.hasAnnotation(FQN_VIEW_MODEL_SCOPED)
+                val hasNavigationScoped = func.hasAnnotation(FQN_NAVIGATION_SCOPED)
                 val scopedAnnotation = func.findAnnotation(FQN_SCOPED)
                 val hasSingleton = func.hasAnnotation(FQN_SINGLETON)
                 val (bindingPrefix, bindingSuffix) = when {
-                    scopeClassName != null || hasViewModelScoped -> {
-                        val scope = scopeClassName ?: FQN_VIEW_MODEL_COMPONENT
+                    scopeClassName != null || hasViewModelScoped || hasNavigationScoped -> {
+                        val scope = scopeClassName
+                            ?: (if (hasViewModelScoped) FQN_VIEW_MODEL_COMPONENT else FQN_NAVIGATION_COMPONENT)
                         "Binding.Scoped(\"$scope\", " to ")"
                     }
                     scopedAnnotation != null -> {

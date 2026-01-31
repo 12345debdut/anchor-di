@@ -28,5 +28,8 @@ kotlin {
             implementation(libs.compose.runtime)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
         }
+        androidMain.dependencies {
+            implementation(libs.androidx.navigation.compose)
+        }
     }
 }

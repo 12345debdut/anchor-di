@@ -90,6 +90,7 @@ Components are **entry points** into the dependency graph. You install modules i
 
 - **SingletonComponent** — application-wide; bindings live for the app lifetime.
 - **ViewModelComponent** — one instance per ViewModel; use with `viewModelAnchor()`.
+- **NavigationComponent** — one instance per navigation destination (Compose); use with `NavigationScopedContent` and `navigationScopedInject()`.
 - **Custom components** — any top-level `object` or class; enter with `Anchor.withScope(MyScope::class)` or `Anchor.scopedContainer(MyScope::class)`.
 
 ---
@@ -188,7 +189,45 @@ Both `viewModelAnchor()` and `anchorInject()` work in **commonMain** (Android, i
 
 ---
 
-### 5. Custom Components and Custom Scoping
+### 5. Navigation-scoped objects (Compose)
+
+For **Compose Navigation** (e.g. Jetpack Navigation Compose on Android), you can scope objects to a **navigation destination**: one instance per destination, cleared when the destination is popped from the back stack. Use **NavigationComponent** and the compose helpers.
+
+**1. Define navigation-scoped bindings:**
+
+```kotlin
+@NavigationScoped
+class ScreenState @Inject constructor() { ... }
+
+@Module
+@InstallIn(NavigationComponent::class)
+object DestinationModule {
+    @Provides
+    fun provideDestinationHelper(): DestinationHelper = DestinationHelperImpl()
+}
+```
+
+**2. Wrap destination content and inject:**
+
+On Android, wrap each NavHost destination with `NavigationScopedContent(navBackStackEntry)` and use `navigationScopedInject<T>()` inside it:
+
+```kotlin
+NavHost(navController, startDestination = "home") {
+    composable("home") {
+        NavigationScopedContent(requireNotNull(it)) {
+            val state = navigationScopedInject<ScreenState>()
+            val helper = navigationScopedInject<DestinationHelper>()
+            HomeScreen(state, helper)
+        }
+    }
+}
+```
+
+`NavigationScopedContent` creates one NavigationComponent scope per `NavBackStackEntry`; when the user navigates away and the destination is popped, the scope is released. Use **navigation-scoped** for state or services that should live as long as the destination (e.g. screen-level cache, destination-specific analytics). For ViewModel-scoped dependencies, keep using `viewModelAnchor()` inside the same destination.
+
+---
+
+### 6. Custom Components and Custom Scoping
 
 **When to use:** SingletonComponent (app lifetime) and ViewModelComponent (ViewModel lifetime) cover most cases. Use a **custom component** when you need a scope that matches *your* lifecycle — e.g. one instance per Activity, per screen, or per user session — and you want to control when that scope starts and ends.
 
@@ -282,6 +321,7 @@ val navigator = activityScope.get<ScreenNavigator>()
 | **Unscoped** | *(none)* | New instance on every request | Anywhere (root or inside a scope). |
 | **Singleton** | `@Singleton` | One instance for the whole app | Anywhere; cached at the root. |
 | **ViewModel-scoped** | `@ViewModelScoped` or `@InstallIn(ViewModelComponent::class)` | One instance per ViewModel | Only inside ViewModel scope (e.g. via `viewModelAnchor()`). |
+| **Navigation-scoped** | `@NavigationScoped` or `@InstallIn(NavigationComponent::class)` | One instance per navigation destination | Only inside navigation scope (e.g. `NavigationScopedContent` + `navigationScopedInject()`). |
 | **Custom-scoped** | `@Scoped(MyScope::class)` or `@InstallIn(MyScope::class)` | One instance per scope instance | Only inside that scope (`Anchor.withScope(MyScope::class) { }` or `Anchor.scopedContainer(MyScope::class)`). |
 
 Unscoped and singleton bindings are resolved from the **root** container. Scoped bindings are resolved only when the current resolution is happening **inside** the right scope; otherwise you get *"Scoped binding for X requires a scope"*.
@@ -296,6 +336,8 @@ Unscoped and singleton bindings are resolved from the **root** container. Scoped
 
 3. **ViewModel scope:** ViewModels created with `viewModelAnchor()` are created inside `ViewModelComponent` scope. So the ViewModel and everything it injects (including ViewModel-scoped types like a repository from a module `@InstallIn(ViewModelComponent::class)`) see the same scope. If you create the ViewModel with `viewModel { Anchor.inject<MyViewModel>() }`, resolution runs at the root and ViewModel-scoped dependencies fail.
 
+4. **Navigation scope:** When content is wrapped in `NavigationScopedContent(navBackStackEntry)` (Android), that composable provides a container with `NavigationComponent` scope. Calls to `navigationScopedInject<T>()` inside that content resolve from that container, so Navigation-scoped bindings work. Outside that content, `LocalNavigationScope` is null and `navigationScopedInject()` throws.
+
 ---
 
 ### Annotations in practice
@@ -303,6 +345,8 @@ Unscoped and singleton bindings are resolved from the **root** container. Scoped
 - **`@Singleton`** — Use for app-wide singletons (HTTP client, database, config). Install the module in `SingletonComponent` or put `@Singleton` on the `@Provides` method or `@Inject` class.
 
 - **`@ViewModelScoped`** — Use when the type should live as long as a single ViewModel (e.g. screen state, or a repository used only by that screen). Same effect as installing a module in `ViewModelComponent::class`. Resolve only inside ViewModel scope (e.g. inject into an `@AnchorViewModel` class obtained via `viewModelAnchor()`).
+
+- **`@NavigationScoped`** — Use when the type should live as long as a navigation destination (e.g. destination-level state or helper). Same effect as installing a module in `NavigationComponent::class`. Resolve only inside navigation scope (wrap content in `NavigationScopedContent` and use `navigationScopedInject()`).
 
 - **`@Scoped(MyScope::class)`** — Use for custom scopes. One instance per scope; resolve only inside `Anchor.withScope(MyScope::class) { }` or from `Anchor.scopedContainer(MyScope::class)`.
 
@@ -335,6 +379,7 @@ class HomeViewModel @Inject constructor(
 | Rule | Reason |
 |------|--------|
 | Resolve ViewModel-scoped types only inside ViewModel scope | Use `viewModelAnchor()` for ViewModels that need them; do not use `Anchor.inject<ViewModel>()` or `viewModel { Anchor.inject<...>() }`. |
+| Resolve navigation-scoped types only inside navigation scope | Use `NavigationScopedContent(navBackStackEntry)` and `navigationScopedInject()`; do not call `Anchor.inject<...>()` for Navigation-scoped types from the root. |
 | Resolve custom-scoped types only inside that scope | Use `Anchor.withScope(MyScope::class) { }` or hold a container from `Anchor.scopedContainer(MyScope::class)`. |
 | Do not inject a scoped type into a longer-lived type | e.g. Do not inject a ViewModel-scoped type into a singleton; the singleton outlives the ViewModel and would hold a stale scope. The dependency graph is validated at compile time where possible. |
 

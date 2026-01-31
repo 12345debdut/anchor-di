@@ -72,10 +72,13 @@ class AnchorContainer(
     private fun resolveScoped(key: Key, binding: Binding.Scoped): Any {
         if (currentScopeId != binding.scopeClassName) {
             if (parent == null) {
-                val hint = if (binding.scopeClassName == "com.debdut.anchordi.ViewModelComponent") {
-                    " Use viewModelAnchor() to create ViewModels, or Anchor.withScope(ViewModelComponent::class) { ... }."
-                } else {
-                    " Use Anchor.withScope(${binding.scopeClassName}::class) { ... } or Anchor.scopedContainer(...) to provide the scope."
+                val hint = when (binding.scopeClassName) {
+                    "com.debdut.anchordi.ViewModelComponent" ->
+                        " Use viewModelAnchor() to create ViewModels, or Anchor.withScope(ViewModelComponent::class) { ... }."
+                    "com.debdut.anchordi.NavigationComponent" ->
+                        " Wrap destination content in NavigationScopedContent(navBackStackEntry) { ... } and use navigationScopedInject() inside it."
+                    else ->
+                        " Use Anchor.withScope(${binding.scopeClassName}::class) { ... } or Anchor.scopedContainer(...) to provide the scope."
                 }
                 throw IllegalStateException(
                     "Scoped binding for $key requires a scope.$hint"
