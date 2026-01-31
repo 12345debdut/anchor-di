@@ -10,18 +10,19 @@ import androidx.lifecycle.ViewModel
 import com.debdut.anchordi.Inject
 import com.debdut.anchordi.compose.AnchorViewModel
 import com.debdut.simpletemplate.repository.GreetingRepository
+import kotlin.Lazy
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 @AnchorViewModel
 class MainViewModel @Inject constructor(
-    private val greetingRepository: GreetingRepository
+    private val greetingRepository: Lazy<GreetingRepository>
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<MainUIState> = MutableStateFlow(MainUIState("", false))
     val uiState = _uiState.asStateFlow()
-    private fun getGreeting(): String = greetingRepository.greet()
+    private fun getGreeting(): String = greetingRepository.value.greet()
 
     fun toggleContent() {
         val isShowing = _uiState.value.isContentVisible

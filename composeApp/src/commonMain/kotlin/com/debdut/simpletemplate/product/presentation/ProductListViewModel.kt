@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlin.Lazy
 
 /**
  * ViewModel for the product list screen.
@@ -21,7 +22,7 @@ import kotlinx.coroutines.SupervisorJob
  */
 @AnchorViewModel
 class ProductListViewModel @Inject constructor(
-    private val repository: ProductRepository
+    private val repository: Lazy<ProductRepository>
 ) : ViewModel() {
 
 
@@ -35,7 +36,7 @@ class ProductListViewModel @Inject constructor(
     fun loadProducts() {
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
-            runCatching { repository.getProducts() }
+            runCatching { repository.value.getProducts() }
                 .onSuccess { products ->
                     _uiState.update {
                         it.copy(products = products, isLoading = false, error = null)

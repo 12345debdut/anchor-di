@@ -6,7 +6,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
-import com.debdut.anchordi.navigation.NavigationScopedContent
+import com.debdut.anchordi.navigation.NavScopeContainer
 import com.debdut.simpletemplate.product.presentation.ProductDetailsScreen
 import com.debdut.simpletemplate.product.presentation.ProductListScreen
 import kotlinx.serialization.modules.SerializersModule
@@ -34,25 +34,36 @@ private val productNavConfig = SavedStateConfiguration {
 fun ProductAppRoot() {
     val backStack = rememberNavBackStack(productNavConfig, ProductListRoute)
 
-    NavDisplay(
+    NavScopeContainer(
         backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
-        entryProvider = entryProvider {
-            entry<ProductListRoute> {
-                NavigationScopedContent(ProductListRoute) {
-                    ProductListScreen(
-                        onProductClick = { id -> backStack.add(ProductDetailsRoute(id)) },
-                    )
-                }
+        scopeKeyForEntry = { entry ->
+            when (entry) {
+                is ProductDetailsRoute -> entry.id
+                is ProductListRoute -> ProductListRoute
+                else -> entry
             }
-            entry<ProductDetailsRoute> { key ->
-                NavigationScopedContent(key.id) {
-                    ProductDetailsScreen(
-                        productId = key.id,
-                        onBack = { backStack.removeLastOrNull() },
-                    )
+        }
+    ) {
+        NavDisplay(
+            backStack = backStack,
+            onBack = { backStack.removeLastOrNull() },
+            entryProvider = entryProvider {
+                entry<ProductListRoute> { key ->
+                    NavigationScopedContent(key) {
+                        ProductListScreen(
+                            onProductClick = { id -> backStack.add(ProductDetailsRoute(id)) },
+                        )
+                    }
                 }
-            }
-        },
-    )
+                entry<ProductDetailsRoute> { key ->
+                    NavigationScopedContent(key) {
+                        ProductDetailsScreen(
+                            productId = key.id,
+                            onBack = { backStack.removeLastOrNull() },
+                        )
+                    }
+                }
+            },
+        )
+    }
 }

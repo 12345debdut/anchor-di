@@ -10,6 +10,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlin.Lazy
 import kotlinx.coroutines.launch
 
 /**
@@ -20,7 +21,7 @@ import kotlinx.coroutines.launch
  */
 @AnchorViewModel
 class ProductDetailsViewModel @Inject constructor(
-    private val repository: ProductRepository
+    private val repository: Lazy<ProductRepository>
 ) : ViewModel() {
 
     private val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -32,7 +33,7 @@ class ProductDetailsViewModel @Inject constructor(
         if (id.isBlank()) return
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
-            runCatching { repository.getProduct(id) }
+            runCatching { repository.value.getProduct(id) }
                 .onSuccess { product ->
                     _uiState.update {
                         it.copy(product = product, isLoading = false, error = null)
