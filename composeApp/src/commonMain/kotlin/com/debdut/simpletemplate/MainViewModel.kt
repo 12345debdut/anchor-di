@@ -1,5 +1,11 @@
 package com.debdut.simpletemplate
 
+/**
+ * Main screen ViewModel with injected [GreetingRepository].
+ *
+ * Marked with [AnchorViewModel] so it is created inside [ViewModelComponent] scope via [viewModelAnchor].
+ * Toggles content visibility and fetches the greeting from the repository when first shown.
+ */
 import androidx.lifecycle.ViewModel
 import com.debdut.anchordi.Inject
 import com.debdut.anchordi.compose.AnchorViewModel

@@ -1,9 +1,15 @@
 package com.debdut.anchordi
 
+/**
+ * Marks a type as a DI component (scope entry point).
+ * Used on built-in components ([SingletonComponent], [ViewModelComponent], [NavigationComponent])
+ * or custom scope markers for [InstallIn] and [Anchor.withScope].
+ */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
 @MustBeDocumented
 annotation class Component
+
 /**
  * Placeholder for the Singleton component.
  *

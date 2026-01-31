@@ -1,5 +1,10 @@
 package com.debdut.simpletemplate
 
+/**
+ * Desktop (JVM) entry point for the sample app.
+ * Initializes Anchor DI with KSP-generated contributors, then launches a Compose Desktop window
+ * with [App] as content. Run with: ./gradlew :composeApp:run
+ */
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window

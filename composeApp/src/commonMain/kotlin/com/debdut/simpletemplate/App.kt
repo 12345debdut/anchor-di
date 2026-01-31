@@ -1,5 +1,12 @@
 package com.debdut.simpletemplate
 
+/**
+ * Root Compose UI for the sample app.
+ *
+ * Uses [viewModelAnchor] to obtain [MainViewModel] with injected dependencies (e.g. [GreetingRepository]).
+ * UI state is collected via [collectAsStateWithLifecycle]. The "Click me!" button toggles visibility
+ * of the greeting message and image. Shared across Android, Desktop (JVM), and Web (wasmJs).
+ */
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

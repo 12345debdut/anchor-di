@@ -12,7 +12,10 @@ import com.debdut.simpletemplate.getPlatform
 import com.debdut.simpletemplate.repository.GreetingRepository
 import com.debdut.simpletemplate.repository.GreetingRepositoryImpl
 
-/** App-wide singletons (e.g. platform, config). */
+/**
+ * App-wide singletons (e.g. platform, config).
+ * Installed in [SingletonComponent]; bindings are created once and shared.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
@@ -22,7 +25,10 @@ object AppModule {
     fun providePlatform(): Platform = getPlatform()
 }
 
-/** ViewModel-scoped bindings (one instance per ViewModel). */
+/**
+ * ViewModel-scoped bindings: one instance per ViewModel.
+ * [GreetingRepository] is created when a ViewModel that needs it is created (e.g. [MainViewModel]).
+ */
 @Module
 @InstallIn(ViewModelComponent::class)
 interface RepositoryModule {
