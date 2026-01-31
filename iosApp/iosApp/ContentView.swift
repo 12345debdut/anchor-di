@@ -1,6 +1,6 @@
 import UIKit
 import SwiftUI
-import AnchorDi
+import AnchorDI
 
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {

@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKmpLibrary)
@@ -5,6 +7,9 @@ plugins {
 
 kotlin {
     jvm()
+    wasmJs {
+        browser()
+    }
     androidLibrary {
         namespace = "com.debdut.anchordi.runtime"
         compileSdk = libs.versions.android.compileSdk.get().toInt()

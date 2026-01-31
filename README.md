@@ -447,6 +447,27 @@ No reflection. No magic. Only generated code.
 
 ---
 
+## ▶️ Running the sample apps
+
+- **Desktop (JVM):** From the project root, run:
+  ```bash
+  ./gradlew :composeApp:run
+  ```
+  This launches the Compose Desktop sample app (Anchor DI with ViewModel, repository, and logger). Requires a JDK and the Compose Desktop runtime.
+
+- **Web (Kotlin/Wasm):** From the project root, run:
+  ```bash
+  ./gradlew :composeApp:wasmJsBrowserProductionRun
+  ```
+  When the server is ready, **open in your browser:** `http://localhost:8080/` (or the port shown in the build output). You must open this URL in the browser—do **not** open the build folder (e.g. `file:///...`) or you will see a file list instead of the app. Use Chrome 119+, Firefox 120+, or Safari with Wasm GC support.  
+  To only build production artifacts: `./gradlew :composeApp:wasmJsBrowserDistribution` (output in `composeApp/build/dist/wasmJs/productionExecutable`). To preview that build locally, serve that folder over HTTP (e.g. `cd composeApp/build/dist/wasmJs/productionExecutable && python3 -m http.server 8080`) and open `http://localhost:8080/`.
+
+- **Android:** Open the project in Android Studio and run the `androidApp` or `composeApp` Android configuration.
+
+- **iOS:** Build and run the `iosApp` target from Xcode (or use the Kotlin/Native task for the framework).
+
+---
+
 ## 🛠️ Project Status
 
 🚧 **Early-stage / active development**

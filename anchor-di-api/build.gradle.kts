@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKmpLibrary)
@@ -11,6 +13,9 @@ kotlin {
     }
 
     jvm()
+    wasmJs {
+        browser()
+    }
 
     listOf(
         iosArm64(),

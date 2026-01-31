@@ -1,5 +1,5 @@
 import SwiftUI
-import AnchorDi
+import AnchorDI
 
 @main
 struct iOSApp: App {

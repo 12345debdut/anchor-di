@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKmpLibrary)
@@ -9,6 +11,12 @@ kotlin {
         namespace = "com.debdut.anchordi.compose"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+
+    jvm()
+    wasmJs {
+        browser()
+        binaries.executable()
     }
 
     listOf(
