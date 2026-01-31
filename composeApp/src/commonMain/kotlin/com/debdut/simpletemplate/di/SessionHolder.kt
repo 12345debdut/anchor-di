@@ -16,7 +16,7 @@ object SessionHolder {
 
     /** Call once after [Anchor.init] (e.g. in [App][com.debdut.simpletemplate.App] or platform entry). */
     fun init() {
-        require(Anchor.isInitialized) { "Anchor must be initialized before SessionHolder.init()." }
+        require(Anchor.isInitialized()) { "Anchor must be initialized before SessionHolder.init()." }
         container = Anchor.scopedContainer(SessionComponent::class)
     }
 
