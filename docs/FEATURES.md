@@ -44,9 +44,9 @@ Quick reference for implementing features. Check off as completed.
 ## Phase 4: Ecosystem
 
 - [ ] **4.1** Maven Central / Gradle publish
-- [ ] **4.2** Sample app (composeApp present; document “Anchor DI in this app” in README)
+- [x] **4.2** Sample app (composeApp present; document “Anchor DI in this app” in README)
 - [ ] **4.3** Benchmarks (optional)
-- [ ] **4.4** Contributing guide (CONTRIBUTING.md)
+- [x] **4.4** Contributing guide (CONTRIBUTING.md)
 
 ---
 

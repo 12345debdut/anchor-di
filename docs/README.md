@@ -119,7 +119,7 @@ scope.get<X>()
 // when done, let scope go out of scope
 ```
 
-For how scope resolution works and built-in vs custom components, see [SCOPES_AND_CUSTOM_COMPONENTS.md](SCOPES_AND_CUSTOM_COMPONENTS.md).
+For how scope resolution works and built-in vs custom components, see [SCOPES_AND_CUSTOM_COMPONENTS.md](SCOPES_AND_CUSTOM_COMPONENTS.md). For a **session-like scope with logout** (dispose current scope and create a new one, without CompositionLocal), see [SESSION_AND_LOGOUT.md](SESSION_AND_LOGOUT.md) and the sample app.
 
 ### ViewModel (Compose Multiplatform)
 

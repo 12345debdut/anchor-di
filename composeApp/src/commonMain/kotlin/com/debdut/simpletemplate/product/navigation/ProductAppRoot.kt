@@ -7,6 +7,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.debdut.anchordi.navigation.NavScopeContainer
+import com.debdut.simpletemplate.di.SessionViewModel
 import com.debdut.simpletemplate.product.presentation.ProductDetailsScreen
 import com.debdut.simpletemplate.product.presentation.ProductListScreen
 import kotlinx.serialization.modules.SerializersModule
@@ -27,11 +28,10 @@ private val productNavConfig = SavedStateConfiguration {
 
 /**
  * Root composable for the product app using Navigation 3.
- * Same implementation on Android, iOS, desktop, and web; ViewModels persist per back-stack
- * entry until the destination is removed from the stack.
+ * [sessionViewModel] is passed from [App]; use it for session state and [SessionViewModel.logout].
  */
 @Composable
-fun ProductAppRoot() {
+fun ProductAppRoot(sessionViewModel: SessionViewModel) {
     val backStack = rememberNavBackStack(productNavConfig, ProductListRoute)
 
     NavScopeContainer(
@@ -51,6 +51,7 @@ fun ProductAppRoot() {
                 entry<ProductListRoute> { key ->
                     NavigationScopedContent(key) {
                         ProductListScreen(
+                            sessionViewModel = sessionViewModel,
                             onProductClick = { id -> backStack.add(ProductDetailsRoute(id)) },
                         )
                     }

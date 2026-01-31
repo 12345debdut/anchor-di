@@ -494,7 +494,7 @@ Planned milestones:
 
 ## 🤝 Contributing
 
-Contributions, RFCs, and discussions are welcome.
+Contributions, RFCs, and discussions are welcome. See **[CONTRIBUTING.md](CONTRIBUTING.md)** for how to build, run tests, and contribute.
 
 This project aims to become a **foundational DI solution for Kotlin Multiplatform**.
 

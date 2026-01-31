@@ -22,6 +22,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,8 +31,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.debdut.anchordi.compose.anchorInject
 import com.debdut.anchordi.compose.viewModelAnchor
 import com.debdut.anchordi.navigation.navViewModelAnchor
+import com.debdut.simpletemplate.Platform
+import com.debdut.simpletemplate.di.SessionViewModel
 import com.debdut.simpletemplate.product.data.Product
 
 /** Vertical spacing between list items. */
@@ -44,19 +48,23 @@ private val CardShape = RoundedCornerShape(16.dp)
 private val ImageShape = RoundedCornerShape(12.dp)
 
 /**
- * Product list screen. Uses [viewModelAnchor] so the ViewModel is scoped to the
- * current navigation destination (NavBackStackEntry on Android); it persists when
- * navigating to details and back until the destination is removed from the stack.
+ * Product list screen. Uses [navViewModelAnchor] for list ViewModel and [sessionViewModel]
+ * for session state and [SessionViewModel.logout]. Session-scoped objects live until
+ * [SessionViewModel.logout] is called (new component is created). See docs/SESSION_AND_LOGOUT.md.
  *
+ * @param sessionViewModel Passed from root; use for session state and logout (no CompositionLocal).
  * @param onProductClick Called when a product is tapped; pass product id to navigate to details.
  */
 @Composable
 fun ProductListScreen(
+    sessionViewModel: SessionViewModel,
     onProductClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel = navViewModelAnchor<ProductListViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val sessionState = sessionViewModel.getSessionState()
+    val platform = anchorInject<Platform>()
 
     Column(
         modifier = modifier
@@ -65,6 +73,23 @@ fun ProductListScreen(
     ) {
         // App bar
         ProductListAppBar()
+        // Demo: session (ViewModel + logout) + root inject (Platform)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Session: ${sessionState.sessionId} · ${platform.name}",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                modifier = Modifier.weight(1f),
+            )
+            TextButton(onClick = { sessionViewModel.logout() }) {
+                Text("Logout")
+            }
+        }
 
         when {
             uiState.isLoading && uiState.products.isEmpty() -> {

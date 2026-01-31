@@ -57,6 +57,10 @@ val LocalNavViewModelScope = compositionLocalOf<AnchorContainer?> { null }
  * @param scopeKeyForEntry Mapping from [Entry] to the scope key. Pass the typed **entry** to [NavigationScopedContent];
  *   the framework derives the scope key via this lambda (single source of truth).
  * @param content Composable content with [NavScope][NavScope] receiver; put [NavDisplay] and [NavigationScopedContent](entry) here.
+ *
+ * **Implementation note:** A new [NavScopeImpl] is created each composition (no [remember]); this is
+ * intentional and cheap. The [scopeKeyForEntry] lambda is invoked only when the back stack changes
+ * (disposal) and when [NavigationScopedContent](entry) resolves a scope key.
  */
 @Composable
 fun <Entry : Any> NavScopeContainer(
