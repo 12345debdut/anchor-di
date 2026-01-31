@@ -76,7 +76,7 @@ class AnchorContainer(
                     "com.debdut.anchordi.ViewModelComponent" ->
                         " Use viewModelAnchor() to create ViewModels, or Anchor.withScope(ViewModelComponent::class) { ... }."
                     "com.debdut.anchordi.NavigationComponent" ->
-                        " Wrap destination content in NavigationScopedContent(navBackStackEntry) { ... } and use navigationScopedInject() inside it."
+                        " Wrap destination content in NavigationScopedContent(scopeKey) { ... } (anchor-di-navigation) and use navigationScopedInject() inside it."
                     else ->
                         " Use Anchor.withScope(${binding.scopeClassName}::class) { ... } or Anchor.scopedContainer(...) to provide the scope."
                 }

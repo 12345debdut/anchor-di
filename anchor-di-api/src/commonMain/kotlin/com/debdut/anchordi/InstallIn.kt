@@ -10,7 +10,7 @@ import kotlin.reflect.KClass
  * Built-in components:
  * - [SingletonComponent]: application-wide singleton or unscoped
  * - [ViewModelComponent]: one instance per ViewModel (use with `viewModelAnchor()`)
- * - [NavigationComponent]: one instance per navigation destination (Compose: use NavigationScopedContent and navigationScopedInject())
+ * - [NavigationComponent]: one instance per navigation destination (use anchor-di-navigation: NavigationScopedContent and navigationScopedInject())
  *
  * Custom components: use any top-level `object` or class as the component. Bindings are scoped
  * to that component. Enter the scope with `Anchor.withScope(MyScope::class) { ... }` or

@@ -62,8 +62,8 @@ interface ViewModelComponent {
  * Instances are created once per destination and persist until the destination is removed
  * from the back stack.
  *
- * On Android, wrap destination content in [NavigationScopedContent][com.debdut.anchordi.compose.NavigationScopedContent]
- * and use [navigationScopedInject][com.debdut.anchordi.compose.navigationScopedInject] inside it.
+ * With Compose, wrap destination content in [NavigationScopedContent][com.debdut.anchordi.navigation.NavigationScopedContent]
+ * (anchor-di-navigation) and use [navigationScopedInject][com.debdut.anchordi.navigation.navigationScopedInject] inside it.
  *
  * Usage in [InstallIn]:
  * ```

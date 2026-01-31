@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -36,19 +37,24 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.ktor.client.okhttp)
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
-            // Provides Dispatchers.Main on JVM (required by lifecycle-viewmodel-compose / collectAsStateWithLifecycle)
             implementation(libs.kotlinx.coroutines.swing)
+            implementation(libs.ktor.client.cio)
         }
         wasmJsMain.dependencies {
-            // Compose Web uses same common deps; add npm deps here if needed (e.g. timezone)
+            implementation(libs.ktor.client.js)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
             implementation(project(":anchor-di-api"))
             implementation(project(":anchor-di-runtime"))
             implementation(project(":anchor-di-compose"))
+            implementation(project(":anchor-di-navigation"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
@@ -57,6 +63,11 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.serialization)
+            implementation(libs.jetbrains.navigation3.ui)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
