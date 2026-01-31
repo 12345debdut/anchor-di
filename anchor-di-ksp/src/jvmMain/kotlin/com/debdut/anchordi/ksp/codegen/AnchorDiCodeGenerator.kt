@@ -28,6 +28,7 @@ class AnchorDiCodeGenerator(
         private const val FQN_VIEW_MODEL_SCOPED = "com.debdut.anchordi.ViewModelScoped"
         private const val FQN_NAVIGATION_SCOPED = "com.debdut.anchordi.NavigationScoped"
         private const val FQN_NAMED = "com.debdut.anchordi.Named"
+        private const val FQN_ANCHOR_VIEW_MODEL = "com.debdut.anchordi.compose.AnchorViewModel"
         /** Group key for @Inject bindings not exclusively @Binds in one module. */
         private const val INJECT_GROUP_KEY = "Inject"
     }
@@ -129,6 +130,7 @@ class AnchorDiCodeGenerator(
         injectClasses.forEach { classDecl ->
             val qualifiedName = classDecl.qualifiedName?.asString() ?: return@forEach
             val simpleName = classDecl.simpleName.asString()
+            val hasAnchorViewModel = classDecl.hasAnnotation(FQN_ANCHOR_VIEW_MODEL)
             val hasViewModelScoped = classDecl.primaryConstructor?.hasAnnotation(FQN_VIEW_MODEL_SCOPED) == true
                 || classDecl.hasAnnotation(FQN_VIEW_MODEL_SCOPED)
             val hasNavigationScoped = classDecl.primaryConstructor?.hasAnnotation(FQN_NAVIGATION_SCOPED) == true
@@ -138,7 +140,7 @@ class AnchorDiCodeGenerator(
             val hasSingleton = classDecl.primaryConstructor?.hasAnnotation(FQN_SINGLETON) == true
                 || classDecl.hasAnnotation(FQN_SINGLETON)
             val binding = when {
-                hasViewModelScoped -> "Binding.Scoped(\"${ValidationConstants.FQN_VIEW_MODEL_COMPONENT}\", ${simpleName}_Factory())"
+                hasAnchorViewModel || hasViewModelScoped -> "Binding.Scoped(\"${ValidationConstants.FQN_VIEW_MODEL_COMPONENT}\", ${simpleName}_Factory())"
                 hasNavigationScoped -> "Binding.Scoped(\"${ValidationConstants.FQN_NAVIGATION_COMPONENT}\", ${simpleName}_Factory())"
                 scopedAnnotation != null -> {
                     val scopeClass = getScopedClassName(scopedAnnotation) ?: return@forEach

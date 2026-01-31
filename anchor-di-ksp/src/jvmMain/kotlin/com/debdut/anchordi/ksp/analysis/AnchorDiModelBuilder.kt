@@ -56,6 +56,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
         // Bindings from @Inject classes
         injectClasses.forEach { classDecl ->
             val qualifiedName = classDecl.qualifiedName?.asString() ?: return@forEach
+            val hasAnchorViewModel = classDecl.hasAnnotation(ValidationConstants.FQN_ANCHOR_VIEW_MODEL)
             val hasViewModelScoped = classDecl.primaryConstructor?.hasAnnotation(ValidationConstants.FQN_VIEW_MODEL_SCOPED) == true
                 || classDecl.hasAnnotation(ValidationConstants.FQN_VIEW_MODEL_SCOPED)
             val hasNavigationScoped = classDecl.primaryConstructor?.hasAnnotation(ValidationConstants.FQN_NAVIGATION_SCOPED) == true
@@ -66,7 +67,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                 || classDecl.hasAnnotation(ValidationConstants.FQN_SINGLETON)
             val key = qualifiedName
             val (component, scope) = when {
-                hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_COMPONENT to ValidationConstants.FQN_VIEW_MODEL_SCOPED
+                hasAnchorViewModel || hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_COMPONENT to ValidationConstants.FQN_VIEW_MODEL_SCOPED
                 hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_COMPONENT to ValidationConstants.FQN_NAVIGATION_SCOPED
                 scopedAnnotation != null -> {
                     val scopeClass = getScopedClassName(scopedAnnotation)
@@ -221,13 +222,14 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
 
     fun buildInjectClassDescriptors(injectClasses: List<KSClassDeclaration>): List<InjectClassDescriptor> {
         return injectClasses.map { classDecl ->
+            val hasAnchorViewModel = classDecl.hasAnnotation(ValidationConstants.FQN_ANCHOR_VIEW_MODEL)
             val hasViewModelScoped = classDecl.primaryConstructor?.hasAnnotation(ValidationConstants.FQN_VIEW_MODEL_SCOPED) == true
                 || classDecl.hasAnnotation(ValidationConstants.FQN_VIEW_MODEL_SCOPED)
-            val component = if (hasViewModelScoped) ValidationConstants.FQN_VIEW_MODEL_COMPONENT else "" // Simple logic, sufficient for this validator
+            val component = if (hasAnchorViewModel || hasViewModelScoped) ValidationConstants.FQN_VIEW_MODEL_COMPONENT else ""
             
             InjectClassDescriptor(
                 simpleName = classDecl.simpleName.asString(),
-                hasAnchorViewModel = classDecl.hasAnnotation("com.debdut.anchordi.AnchorViewModel"),
+                hasAnchorViewModel = hasAnchorViewModel,
                 hasViewModelScoped = hasViewModelScoped,
                 component = component,
                 hasInjectConstructor = classDecl.primaryConstructor?.hasAnnotation(FQN_INJECT) == true

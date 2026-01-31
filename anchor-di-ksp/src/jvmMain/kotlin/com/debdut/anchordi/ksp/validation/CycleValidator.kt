@@ -16,9 +16,13 @@ object CycleValidator {
                 val cycleStart = pathOrder.indexOf(node)
                 val cycle = pathOrder.drop(cycleStart) + node
                 val suggestType = cycle.firstOrNull() ?: node
+                val cycleNames = cycle.joinToString(" -> ") { it.substringAfterLast('.') }
                 reporter.error(
-                    "[Anchor DI] Circular dependency: ${cycle.joinToString(" -> ")}. " +
-                        "Break the cycle by using Lazy<$suggestType> or AnchorProvider<$suggestType> for one of the dependencies.",
+                    "[Anchor DI] Circular dependency: a binding cannot depend on itself (directly or indirectly). " +
+                        "Cycle detected: $cycleNames. " +
+                        "The container cannot create any of these types because each one waits on the next. " +
+                        "Fix: break the cycle by injecting Lazy<$suggestType> or AnchorProvider<$suggestType> for one of the dependencies, " +
+                        "so that the dependency is resolved lazily when first used instead of at construction time.",
                     null
                 )
                 return true

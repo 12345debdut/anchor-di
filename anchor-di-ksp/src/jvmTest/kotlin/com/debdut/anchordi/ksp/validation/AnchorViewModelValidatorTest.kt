@@ -18,14 +18,13 @@ class AnchorViewModelValidatorTest {
     }
 
     @Test
-    fun anchorViewModelWithoutViewModelScoped_reportsError() {
+    fun anchorViewModelWithoutViewModelScoped_noErrorWhenComponentSet() {
         val classes = listOf(
             InjectClassDescriptor("MyVM", true, false, ValidationConstants.FQN_VIEW_MODEL_COMPONENT, true)
         )
         val reporter = CollectingReporter()
         AnchorViewModelValidator.validate(classes, reporter)
-        assertEquals(1, reporter.errors.size)
-        assertTrue(reporter.errors[0].message.contains("must be @ViewModelScoped"))
+        assertTrue(reporter.errors.isEmpty())
     }
 
     @Test

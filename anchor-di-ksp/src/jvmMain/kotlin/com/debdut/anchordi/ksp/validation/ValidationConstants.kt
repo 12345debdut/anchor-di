@@ -1,7 +1,7 @@
 package com.debdut.anchordi.ksp.validation
 
 /**
- * FQN constants used by validators. Align with anchor-di-api.
+ * FQN constants used by validators. Align with anchor-di-api and anchor-di-compose.
  */
 object ValidationConstants {
     const val FQN_SINGLETON_COMPONENT = "com.debdut.anchordi.SingletonComponent"
@@ -10,6 +10,8 @@ object ValidationConstants {
     const val FQN_SINGLETON = "com.debdut.anchordi.Singleton"
     const val FQN_VIEW_MODEL_SCOPED = "com.debdut.anchordi.ViewModelScoped"
     const val FQN_NAVIGATION_SCOPED = "com.debdut.anchordi.NavigationScoped"
+    /** @AnchorViewModel lives in anchor-di-compose; classes with it are bound in ViewModelComponent. */
+    const val FQN_ANCHOR_VIEW_MODEL = "com.debdut.anchordi.compose.AnchorViewModel"
 
     val BUILT_IN_COMPONENTS = setOf(
         FQN_SINGLETON_COMPONENT,

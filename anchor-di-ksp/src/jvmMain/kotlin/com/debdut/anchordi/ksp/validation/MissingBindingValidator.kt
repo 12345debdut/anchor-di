@@ -14,9 +14,12 @@ object MissingBindingValidator {
     ) {
         requirements.forEach { (required, requester) ->
             if (!providedKeys.contains(required) && !ValidationConstants.SKIPPED_TYPES.contains(required)) {
+                val typeName = required.substringAfterLast('.')
                 reporter.error(
-                    "[Anchor DI] Missing binding for $required (required by $requester). " +
-                        "Add @Inject constructor, @Provides in a module, or @Binds.",
+                    "[Anchor DI] Missing dependency binding: '$required' is required by '$requester' but has no binding. " +
+                        "The type '$typeName' must be provided so the DI container can create '$requester'. " +
+                        "Fix: add a binding for '$typeName' using one of: (1) @Inject constructor on a concrete class, " +
+                        "(2) @Provides in a module installed in the same or parent component, or (3) @Binds in a module to map an interface to an implementation.",
                     null
                 )
             }

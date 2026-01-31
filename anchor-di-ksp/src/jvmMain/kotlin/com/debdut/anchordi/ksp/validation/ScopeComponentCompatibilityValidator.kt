@@ -11,9 +11,13 @@ object ScopeComponentCompatibilityValidator {
     fun validate(bindings: List<BindingDescriptor>, reporter: ValidationReporter) {
         bindings.forEach { binding ->
             if (!isScopeAllowed(binding.component, binding.scope)) {
+                val componentName = binding.component.substringAfterLast('.')
+                val scopeName = binding.scope?.substringAfterLast('.') ?: "unscoped"
                 reporter.error(
-                    "[Anchor DI] Scope ${binding.scope} is not allowed in component ${binding.component}. " +
-                        "Binding source: ${binding.source}",
+                    "[Anchor DI] Scope not allowed in this component: the scope '$scopeName' cannot be used in component '$componentName'. " +
+                        "Binding source: ${binding.source}. " +
+                        "Each component only allows specific scopes (e.g. SingletonComponent allows only @Singleton, ViewModelComponent only @ViewModelScoped). " +
+                        "Fix: remove the scope annotation from this binding or install it in a component that allows this scope.",
                     null
                 )
             }

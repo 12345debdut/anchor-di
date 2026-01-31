@@ -70,15 +70,18 @@ class AnchorSymbolProcessor(
             .filter { it.validate() }
             .forEach { moduleClasses.add(it) }
 
+        val distinctInject = injectClasses.distinct()
+
         // 3. Build Model (Phase 2: Analysis)
         val components = builder.buildComponents()
-        val bindings = builder.buildBindings(injectClasses.distinct(), moduleClasses)
-        val injectClassDescriptors = builder.buildInjectClassDescriptors(injectClasses.distinct())
+        val bindings = builder.buildBindings(distinctInject, moduleClasses)
+        val injectClassDescriptors = builder.buildInjectClassDescriptors(distinctInject)
         val moduleDescriptors = builder.buildModuleDescriptors(moduleClasses)
-        val (providedKeys, requirements) = builder.buildProvidedKeysAndRequirements(injectClasses.distinct(), moduleClasses)
-        val dependencyGraph = builder.buildDependencyGraph(injectClasses.distinct(), moduleClasses)
+        val (providedKeys, requirements) = builder.buildProvidedKeysAndRequirements(distinctInject, moduleClasses)
+        val dependencyGraph = builder.buildDependencyGraph(distinctInject, moduleClasses)
 
         // 4. Validate (Phase 3: Validation)
+        validator.validateSymbols(distinctInject, moduleClasses)
         validator.validateAll(
             bindings = bindings,
             injectClassDescriptors = injectClassDescriptors,
@@ -93,7 +96,7 @@ class AnchorSymbolProcessor(
         val packageName = "com.debdut.anchordi.generated"
         val generatedFiles = generator.generateAllFiles(
             packageName = packageName,
-            injectClasses = injectClasses.distinct(),
+            injectClasses = distinctInject,
             moduleClasses = moduleClasses,
             baseObjectName = generatedObjectName
         )

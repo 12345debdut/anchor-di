@@ -68,7 +68,7 @@ open class FakeKSDeclaration(
     override val qualifiedName: KSName? = FakeKSName(fqn)
     override val simpleName: KSName = FakeKSName(simple)
     override val annotations: Sequence<KSAnnotation> get() = _annotations.asSequence()
-    override val modifiers: Set<Modifier> = emptySet()
+    open override val modifiers: Set<Modifier> = emptySet()
     override val containingFile: KSFile? = null
     override val docString: String? = null
     override val packageName: KSName = FakeKSName(fqn.substringBeforeLast("."))
@@ -110,10 +110,12 @@ class FakeKSClassDeclaration(
     override val primaryConstructor: KSFunctionDeclaration? get() = _primaryConstructor
     override val superTypes: Sequence<KSTypeReference> get() = emptySequence()
     override val declarations: Sequence<KSDeclaration> get() = _declarations.asSequence()
-    
+    override val modifiers: Set<Modifier> get() = _modifiers
+
     // Test helpers
     var _primaryConstructor: KSFunctionDeclaration? = null
     val _declarations = mutableListOf<KSDeclaration>()
+    val _modifiers = mutableSetOf<Modifier>()
 
     override fun asStarProjectedType(): KSType = FakeKSType(this)
     override fun getAllFunctions(): Sequence<KSFunctionDeclaration> = _declarations.filterIsInstance<KSFunctionDeclaration>().asSequence()
@@ -133,24 +135,35 @@ class FakeKSFunctionDeclaration(
     override val extensionReceiver: KSTypeReference? = null
     override val returnType: KSTypeReference? get() = _returnType
     override val parameters: List<KSValueParameter> get() = _parameters
+    override val modifiers: Set<Modifier> get() = _modifiers
     override fun findOverridee(): KSDeclaration? = null
     override fun asMemberOf(containing: KSType): KSFunctionDeclaration = this
 
     // Test helpers
     var _returnType: KSTypeReference? = null
     val _parameters = mutableListOf<KSValueParameter>()
+    val _modifiers = mutableSetOf<Modifier>()
     
     fun addParameter(name: String, typeFqn: String) {
         _parameters.add(FakeKSValueParameter(name, typeFqn))
+    }
+
+    fun addParameter(name: String, typeDeclaration: KSDeclaration) {
+        _parameters.add(FakeKSValueParameter(name, typeDeclaration.qualifiedName?.asString() ?: "?", typeDeclaration))
     }
 }
 
 class FakeKSValueParameter(
     val argName: String,
-    val typeFqn: String
+    typeFqn: String,
+    typeDeclaration: KSDeclaration? = null
 ) : KSValueParameter, FakeKSNode() {
     override val name: KSName = FakeKSName(argName)
-    override val type: KSTypeReference = FakeKSTypeReference(FakeKSType(FakeKSClassDeclaration(typeFqn, typeFqn.substringAfterLast("."))))
+    override val type: KSTypeReference = if (typeDeclaration != null) {
+        FakeKSTypeReference(FakeKSType(typeDeclaration))
+    } else {
+        FakeKSTypeReference(FakeKSType(FakeKSClassDeclaration(typeFqn, typeFqn.substringAfterLast("."))))
+    }
     override val isVararg: Boolean = false
     override val isNoInline: Boolean = false
     override val isCrossInline: Boolean = false

@@ -25,21 +25,19 @@ object AnchorViewModelValidator {
         injectClasses
             .filter { it.hasAnchorViewModel }
             .forEach { desc ->
-                if (!desc.hasViewModelScoped) {
-                    reporter.error(
-                        "[Anchor DI] @AnchorViewModel ${desc.simpleName} must be @ViewModelScoped",
-                        null
-                    )
-                }
                 if (desc.component != ValidationConstants.FQN_VIEW_MODEL_COMPONENT) {
                     reporter.error(
-                        "[Anchor DI] @AnchorViewModel ${desc.simpleName} must be installed in ViewModelComponent",
+                        "[Anchor DI] @AnchorViewModel must be used with ViewModelComponent: ${desc.simpleName} is bound in a component other than ViewModelComponent. " +
+                            "ViewModels created via viewModelAnchor() run inside ViewModelComponent. " +
+                            "Fix: ensure the binding is installed in ViewModelComponent (e.g. via @InstallIn(ViewModelComponent::class) on the module that provides it).",
                         null
                     )
                 }
                 if (!desc.hasInjectConstructor) {
                     reporter.error(
-                        "[Anchor DI] @AnchorViewModel ${desc.simpleName} must have an @Inject constructor",
+                        "[Anchor DI] @AnchorViewModel classes must be injectable: ${desc.simpleName} is annotated with @AnchorViewModel but has no @Inject constructor. " +
+                            "The DI container needs an @Inject constructor to create the ViewModel. " +
+                            "Fix: add @Inject to the primary (or secondary) constructor.",
                         null
                     )
                 }

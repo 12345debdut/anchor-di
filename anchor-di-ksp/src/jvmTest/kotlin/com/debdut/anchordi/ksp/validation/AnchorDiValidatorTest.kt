@@ -4,6 +4,10 @@ import com.debdut.anchordi.ksp.model.BindingDescriptor
 import com.debdut.anchordi.ksp.model.ComponentDescriptor
 import com.debdut.anchordi.ksp.model.DependencyRequirement
 import com.debdut.anchordi.ksp.model.ModuleDescriptor
+import com.debdut.anchordi.ksp.test.FakeKSClassDeclaration
+import com.debdut.anchordi.ksp.test.FakeKSFunctionDeclaration
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.Modifier
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -73,5 +77,41 @@ class AnchorDiValidatorTest {
 
         assertTrue(reporter.errors.isEmpty())
         assertTrue(reporter.warnings.isEmpty())
+    }
+
+    @Test
+    fun validateSymbols_runsSymbolValidators() {
+        val reporter = CollectingReporter()
+        val validator = AnchorDiValidator(reporter)
+
+        // Interface is not allowed for @Inject
+        val injectClass = FakeKSClassDeclaration("com.example.IApi", "IApi", ClassKind.INTERFACE)
+        val moduleWithBindsToInterface = FakeKSClassDeclaration("com.example.Module", "Module")
+        val bindsFunc = FakeKSFunctionDeclaration("com.example.Module.bind", "bind")
+        bindsFunc.addAnnotation("com.debdut.anchordi.Binds")
+        val interfaceDecl = FakeKSClassDeclaration("com.example.IFoo", "IFoo", ClassKind.INTERFACE)
+        bindsFunc.addParameter("impl", interfaceDecl)
+        moduleWithBindsToInterface._declarations.add(bindsFunc)
+
+        validator.validateSymbols(listOf(injectClass), listOf(moduleWithBindsToInterface))
+
+        val errorMessages = reporter.errors.map { it.message }
+        assertTrue(errorMessages.any { it.contains("interface") && it.contains("com.example.IApi") }, "Should report interface not allowed for @Inject")
+        assertTrue(errorMessages.any { it.contains("@Binds") && it.contains("interface") }, "Should report @Binds to interface")
+    }
+
+    @Test
+    fun validateSymbols_validInput_reportsNoErrors() {
+        val reporter = CollectingReporter()
+        val validator = AnchorDiValidator(reporter)
+
+        val injectClass = FakeKSClassDeclaration("com.example.MyService", "MyService", ClassKind.CLASS)
+        val constructor = FakeKSFunctionDeclaration("com.example.MyService.<init>", "<init>")
+        constructor.addAnnotation("com.debdut.anchordi.Inject")
+        injectClass._primaryConstructor = constructor
+
+        validator.validateSymbols(listOf(injectClass), emptyList())
+
+        assertTrue(reporter.errors.isEmpty())
     }
 }

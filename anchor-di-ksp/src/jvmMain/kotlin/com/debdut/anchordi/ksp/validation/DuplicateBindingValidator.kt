@@ -3,7 +3,7 @@ package com.debdut.anchordi.ksp.validation
 import com.debdut.anchordi.ksp.model.BindingDescriptor
 
 /**
- * Validates that there are no duplicate bindings (same key + qualifier + component).
+ * Validates that each key has exactly one binding per component (no duplicate key + qualifier in the same component).
  */
 object DuplicateBindingValidator {
 
@@ -12,10 +12,14 @@ object DuplicateBindingValidator {
             .groupBy { Triple(it.key, it.qualifier, it.component) }
             .filter { it.value.size > 1 }
             .forEach { (_, dups) ->
+                val first = dups.first()
+                val componentName = first.component.substringAfterLast('.')
                 val sources = dups.joinToString { it.source }
                 reporter.error(
-                    "[Anchor DI] Duplicate binding for ${dups.first().key} in ${dups.first().component}. " +
-                        "Defined in: $sources",
+                    "[Anchor DI] Duplicate binding: each key must have exactly one binding per component. " +
+                        "The type '${first.key}' (qualifier: ${first.qualifier ?: "none"}) is bound more than once in component '$componentName'. " +
+                        "Defined in: $sources. " +
+                        "Fix: remove or consolidate the duplicate; keep only one @Inject constructor, @Provides method, or @Binds for this type in this component.",
                     null
                 )
             }
