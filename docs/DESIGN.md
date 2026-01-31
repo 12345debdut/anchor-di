@@ -171,6 +171,15 @@ annotation class Named(val value: String)
 
 ## 4. Generated Code Shape
 
+Generated code is split into multiple files aligned with the modules and classes you define:
+
+- **`AnchorGenerated_<moduleId>_<ModuleName>_Factories.kt`** / **`_Inject_Factories.kt`** — Internal factory classes for `@Inject` types, split by the same grouping as contributors (one file per module that has @Inject impls, plus `_Inject_Factories.kt` for the rest) so factory files don’t bloat.
+- **`AnchorGenerated_<moduleId>_<ModuleName>.kt`** — One `ComponentBindingContributor` per `@Module` class (e.g. `AppModule`, `LoggerModule`). Each file contains only the bindings from that module: its `@Provides`, `@Binds`, and any `@Inject` class that is the implementation of a `@Binds` in that module only.
+- **`AnchorGenerated_<moduleId>_Inject.kt`** — Bindings for `@Inject` classes that are not exclusively bound by a single module (e.g. ViewModels, standalone singletons).
+- **`AnchorGenerated_<moduleId>.kt`** — Single aggregator that implements `ComponentBindingContributor` and delegates to each per-module and Inject contributor. App code continues to use only this object (e.g. `Anchor.init(AnchorGenerated_composeapp)`).
+
+This keeps generated files aligned with your module structure and avoids one large monolithic file.
+
 ### 4.1 Module Binding (example)
 
 **User code:**

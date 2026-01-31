@@ -1,5 +1,9 @@
 package com.debdut.anchordi
 
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+@MustBeDocumented
+annotation class Component
 /**
  * Placeholder for the Singleton component.
  *
@@ -13,7 +17,8 @@ package com.debdut.anchordi
  * object AppModule { ... }
  * ```
  */
-object SingletonComponent
+@Component
+interface SingletonComponent
 
 /**
  * Component for ViewModel-scoped bindings.
@@ -35,9 +40,12 @@ object SingletonComponent
  * Use [SCOPE_ID] with `Anchor.withScope(scopeId)` when you need the scope ID as a string
  * (e.g. on Kotlin/JS where [KClass.qualifiedName] may be null).
  */
-object ViewModelComponent {
+@Component
+interface ViewModelComponent {
     /** Scope ID used in generated bindings; use with Anchor.withScope(scopeId) for consistency. */
-    const val SCOPE_ID: String = "com.debdut.anchordi.ViewModelComponent"
+    companion object {
+        const val SCOPE_ID: String = "com.debdut.anchordi.ViewModelComponent"
+    }
 }
 
 /**
@@ -58,7 +66,10 @@ object ViewModelComponent {
  * object NavigationModule { ... }
  * ```
  */
-object NavigationComponent {
+@Component
+interface NavigationComponent {
     /** Scope ID used in generated bindings; use with Anchor.withScope(scopeId) for consistency. */
-    const val SCOPE_ID: String = "com.debdut.anchordi.NavigationComponent"
+    companion object {
+        const val SCOPE_ID: String = "com.debdut.anchordi.NavigationComponent"
+    }
 }

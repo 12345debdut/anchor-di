@@ -14,7 +14,7 @@ class AnchorContainer(
     private val currentScopeId: String? = null,
     private val inheritedBindings: Map<Key, Binding>? = null
 ) {
-    val bindings = inheritedBindings?.toMutableMap() ?: mutableMapOf<Key, Binding>()
+    val bindings = inheritedBindings?.toMutableMap() ?: mutableMapOf()
     private val singletonCache = mutableMapOf<Key, Any>()
     private val scopedCache = mutableMapOf<Key, Any>()
     private var initialized = false

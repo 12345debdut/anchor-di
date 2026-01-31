@@ -1,0 +1,77 @@
+package com.debdut.anchordi.ksp.validation
+
+import com.debdut.anchordi.ksp.model.BindingDescriptor
+import com.debdut.anchordi.ksp.model.ComponentDescriptor
+import com.debdut.anchordi.ksp.model.DependencyRequirement
+import com.debdut.anchordi.ksp.model.ModuleDescriptor
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+class AnchorDiValidatorTest {
+
+    @Test
+    fun validateAll_runsAllValidators() {
+        val reporter = CollectingReporter()
+        val validator = AnchorDiValidator(reporter)
+
+        // Setup inputs that should trigger errors in multiple validators to prove they all ran
+        
+        // 1. Missing bindings input
+        val requirements = listOf(
+            DependencyRequirement("RequiredType", "Requester")
+        )
+        val providedKeys = emptySet<String>()
+
+        // 2. Duplicate bindings input
+        val bindings = listOf(
+            BindingDescriptor("Key", null, "Component", null, "Source1"),
+            BindingDescriptor("Key", null, "Component", null, "Source2")
+        )
+
+        // 3. Cycles input
+        val graph = mapOf("A" to setOf("A"))
+
+        // Run validation
+        validator.validateAll(
+            bindings = bindings,
+            injectClassDescriptors = emptyList(),
+            moduleDescriptors = emptyList(),
+            components = emptyMap(),
+            providedKeys = providedKeys,
+            requirements = requirements,
+            dependencyGraph = graph
+        )
+
+        // Verify errors from different validators are present
+        val errorMessages = reporter.errors.map { it.message }
+        
+        // From MissingBindingValidator
+        assertTrue(errorMessages.any { it.contains("Missing binding") }, "Should report missing binding")
+        
+        // From DuplicateBindingValidator
+        assertTrue(errorMessages.any { it.contains("Duplicate binding") }, "Should report duplicate binding")
+        
+        // From CycleValidator
+        assertTrue(errorMessages.any { it.contains("Circular dependency") }, "Should report cycle")
+    }
+
+    @Test
+    fun validateAll_validInput_reportsNoErrors() {
+        val reporter = CollectingReporter()
+        val validator = AnchorDiValidator(reporter)
+
+        validator.validateAll(
+            bindings = emptyList(),
+            injectClassDescriptors = emptyList(),
+            moduleDescriptors = emptyList(),
+            components = emptyMap(),
+            providedKeys = emptySet(),
+            requirements = emptyList(),
+            dependencyGraph = emptyMap()
+        )
+
+        assertTrue(reporter.errors.isEmpty())
+        assertTrue(reporter.warnings.isEmpty())
+    }
+}
