@@ -23,7 +23,7 @@ subprojects {
     if (name in publishableModules) {
         group = project.findProperty("LIBRARY_GROUP")?.toString() ?: "io.github.12345debdut"
         version = project.findProperty("LIBRARY_VERSION")?.toString()
-            ?: project.findProperty("VERSION")?.toString() ?: "0.1.0-SNAPSHOT"
-        apply(from = rootProject.file("gradle/publish-convention.gradle.kts"))
+            ?: project.findProperty("VERSION")?.toString() ?: "0.1.0"
+        apply(plugin = "publish-convention")
     }
 }

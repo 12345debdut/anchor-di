@@ -10,10 +10,102 @@ This document describes how to publish the Anchor DI library modules to Sonatype
   Sign up at [central.sonatype.com](https://central.sonatype.com/). Create or use a verified namespace (e.g. `com.debdut` or `io.github.<username>`).
 
 - **PGP key for signing**  
-  Maven Central requires all artifacts to be signed. Generate a key pair (e.g. with GnuPG) and upload the **public** key to a keyserver (e.g. `keyserver.ubuntu.com`). Keep the **private** key and passphrase secure.
+  Maven Central requires all artifacts to be signed. Generate a key pair (e.g. with GnuPG) and upload the **public** key to a keyserver (e.g. `keyserver.ubuntu.com`). Keep the **private** key and passphrase secure. See **§1.1** below for where each GitHub secret comes from.
 
 - **Maven Central user token**  
   In the Central Portal, go to [Setup Token-Based Authentication](https://central.sonatype.com/usertoken) and generate a user token. Use the username and password from that token for publishing (not your account login).
+
+### 1.1 Where to get SIGNING_KEY_ID, SIGNING_PASSWORD, and GPG_PRIVATE_KEY
+
+These three values come from **one PGP key pair** you create yourself. They are not found anywhere — you generate them once and reuse them for every publish.
+
+| Secret | What it is | Where it comes from |
+|--------|------------|----------------------|
+| **SIGNING_KEY_ID** | Last **8 characters** of your PGP key ID | Shown after you create the key (see step 2 below). |
+| **SIGNING_PASSWORD** | Passphrase that protects your private key | You **choose** this when creating the key (step 1). You must remember it; there is no “lookup”. |
+| **GPG_PRIVATE_KEY** | Your PGP **private** key in text form | You **export** it from your keyring (step 3 below). |
+
+**Step 1 — Install GnuPG (if needed)**
+
+- **macOS:** `brew install gnupg`
+- **Windows:** [Gpg4win](https://www.gpg4win.org/) or [GnuPG](https://gnupg.org/download/)
+- **Linux:** `sudo apt install gnupg` (or your distro’s package manager)
+
+**Step 2 — Create a key pair and get the key ID**
+
+Run:
+
+```bash
+gpg --full-generate-key
+```
+
+- Choose default key type (e.g. RSA and RSA, or ECC).
+- Key size: 4096 for RSA, or accept default for ECC.
+- Expiration: 0 = no expiry (or set a date if you prefer).
+- Enter your **name** and **email** (can be any; often the same as your Sonatype account).
+- Enter a **passphrase** — this is your **SIGNING_PASSWORD**. Store it somewhere safe (e.g. password manager).
+
+When it finishes, list your keys:
+
+```bash
+gpg --list-keys
+```
+
+Example output:
+
+```
+pub   rsa4096 2024-01-15 [SC]
+      F175482952A225BFD4A07A713EE6B5F76620B385CE
+uid           [ultimate] Your Name <you@example.com>
+sub   rsa4096 2024-01-15 [E]
+```
+
+The long hex string (e.g. `F175482952A225BFD4A07A713EE6B5F76620B385CE`) is your **key ID**.  
+**SIGNING_KEY_ID** = last **8** characters: `20B385CE` (use your own key’s last 8 chars).
+
+**Step 3 — Export the private key (for GitHub secret GPG_PRIVATE_KEY)**
+
+Replace `YOUR_KEY_ID` with the **full** key ID from step 2 (the long hex string):
+
+```bash
+gpg --armor --export-secret-keys YOUR_KEY_ID
+```
+
+Example:
+
+```bash
+gpg --armor --export-secret-keys F175482952A225BFD4A07A713EE6B5F76620B385CE
+```
+
+Copy the **entire** output, including the lines:
+
+```
+-----BEGIN PGP PRIVATE KEY BLOCK-----
+...
+-----END PGP PRIVATE KEY BLOCK-----
+```
+
+That block is your **GPG_PRIVATE_KEY**. Paste it into the GitHub secret `GPG_PRIVATE_KEY` (as one multi-line value).
+
+**Step 4 — Upload the public key to a keyserver (required by Maven Central)**
+
+Maven Central checks that your public key is published. Run (use your key ID):
+
+```bash
+gpg --keyserver keyserver.ubuntu.com --send-keys YOUR_KEY_ID
+```
+
+**Summary for GitHub Secrets**
+
+| GitHub secret | Value |
+|---------------|--------|
+| `SIGNING_KEY_ID` | Last 8 characters of your key ID (e.g. `20B385CE`). |
+| `SIGNING_PASSWORD` | The passphrase you entered when creating the key. |
+| `GPG_PRIVATE_KEY` | Full output of `gpg --armor --export-secret-keys YOUR_KEY_ID` (including `-----BEGIN...` and `-----END...`). |
+
+**Local setup (key from file)**
+
+Export your secret key as **binary** (no `--armor`): `gpg --export-secret-keys YOUR_KEY_ID > ~/.gradle/signing-key.gpg`. Then in `~/.gradle/gradle.properties` set `signing.keyFile=~/.gradle/signing-key.gpg` plus `signing.keyId` and `signing.password`. Gradle will read the keyring file directly and avoid “Could not read PGP secret key” issues.
 
 ---
 
@@ -30,28 +122,74 @@ Optional POM metadata (also in `gradle.properties` or root `build.gradle.kts`):
 
 - `POM_NAME`, `POM_DESCRIPTION`, `POM_URL`, `POM_SCM_*`, `POM_LICENSE_*`, `POM_DEVELOPER_*`
 
-### 2.2 Credentials (do not commit)
+### 2.2 Where to store your token (do not commit)
 
-**Option A — `~/.gradle/gradle.properties`**
+**Recommended: user-level Gradle properties**
+
+1. Open (or create) **`~/.gradle/gradle.properties`** in your home directory (not inside the project).
+2. Add these two lines, using the **username** and **password** from your Maven Central token (the ones Central shows when you generate the token):
 
 ```properties
-SONATYPE_USERNAME=<your-central-portal-token-username>
-SONATYPE_PASSWORD=<your-central-portal-token-password>
-
-# Signing (keyring file)
-signing.keyId=<last-8-chars-of-your-key-id>
-signing.password=<key-passphrase>
-signing.secretKeyRingFile=/path/to/secring.gpg
+SONATYPE_USERNAME=<paste your token username here>
+SONATYPE_PASSWORD=<paste your token password here>
 ```
 
-**Option B — In-memory (CI)**
+3. Save the file. Gradle will read it automatically; this file is never committed to git.
+4. **Do not** put these in the project’s `gradle.properties` — that file is usually committed.
 
-Use environment variables or Gradle properties:
+**Alternative: environment variables**
 
-- `ORG_GRADLE_PROJECT_SONATYPE_USERNAME` / `ORG_GRADLE_PROJECT_SONATYPE_PASSWORD` (or `SONATYPE_USERNAME` / `SONATYPE_PASSWORD`)
+- Set `ORG_GRADLE_PROJECT_SONATYPE_USERNAME` and `ORG_GRADLE_PROJECT_SONATYPE_PASSWORD` in your shell or CI. Gradle picks these up as project properties.
+
+**Signing from key file (recommended for local)**
+
+Use a **binary** secret key file so Gradle’s signing plugin reads it directly. That avoids “Could not read PGP secret key” from in-memory ASCII-armored parsing. In `~/.gradle/gradle.properties` add:
+
+```properties
+signing.keyId=<last-8-chars-of-your-key-id>
+signing.password=<key-passphrase>
+signing.keyFile=~/.gradle/signing-key.gpg
+```
+
+**Export the key as BINARY (no `--armor`):**
+
+```bash
+gpg --export-secret-keys YOUR_KEY_ID > ~/.gradle/signing-key.gpg
+```
+
+Do **not** use `gpg --armor --export-secret-keys` — Gradle’s file-based signatory expects a **binary** keyring file. You can use `signing.secretKeyRingFile` instead of `signing.keyFile` (same meaning). Paths starting with `~` are expanded to your home directory.
+
+**Option B — Key content in env (CI)**
+
+For GitHub Actions or CI, pass the key content as a secret (no file on the runner):
+
+- `ORG_GRADLE_PROJECT_SONATYPE_USERNAME` / `ORG_GRADLE_PROJECT_SONATYPE_PASSWORD`
 - `signingInMemoryKeyId` (last 8 chars of key ID)
 - `signingInMemoryKeyPassword` (passphrase)
-- `signingInMemoryKey` (full ASCII-armored private key)
+- `signingInMemoryKey` (full ASCII-armored private key, multi-line)
+
+**Troubleshooting: "has no configured signatory"**
+
+The convention reads signing properties from the **root project** (so `~/.gradle/gradle.properties` is visible). Ensure:
+
+1. **File:** `~/.gradle/gradle.properties` (user home, not the project directory). Properties in the repo’s `gradle.properties` are fine too.
+2. **Properties:** `signing.keyId`, `signing.password`, and `signing.keyFile` (or `signing.secretKeyRingFile`) are all set.
+3. **Key file:** The path in `signing.keyFile` points to an existing file (e.g. `~/.gradle/signing-key.gpg`) that contains the full ASCII-armored private key (`-----BEGIN PGP PRIVATE KEY BLOCK-----` … `-----END PGP PRIVATE KEY BLOCK-----`).
+4. **Path:** On some systems `~` may not expand; use an absolute path (e.g. `/Users/you/.gradle/signing-key.gpg`) if needed.
+
+**Troubleshooting: "Could not read PGP secret key"**
+
+When using a **key file**, Gradle expects a **binary** keyring, not ASCII-armored:
+
+1. **Export as BINARY (no `--armor`):**
+   ```bash
+   gpg --export-secret-keys YOUR_KEY_ID > ~/.gradle/signing-key.gpg
+   ```
+   If you used `gpg --armor --export-secret-keys` before, re-export without `--armor` and overwrite the file.
+
+2. **Passphrase:** `signing.password` must be the passphrase you set when creating the key.
+
+3. **Key ID:** Use the **last 8 hex characters** from `gpg --list-keys --keyid-format short` (e.g. `20B385CE`).
 
 ---
 
@@ -107,27 +245,34 @@ Each is published with coordinates:
 
 ---
 
-## 6. CI (e.g. GitHub Actions)
+## 6. GitHub Actions (manual publish)
 
-- Put **Sonatype username/password** and **signing key (in-memory)** in repository secrets.
-- Run the publish task in a job that has those secrets as env vars (e.g. `ORG_GRADLE_PROJECT_SONATYPE_USERNAME`, `ORG_GRADLE_PROJECT_SONATYPE_PASSWORD`, `signingInMemoryKeyId`, `signingInMemoryKeyPassword`, `signingInMemoryKey`).
-- Publish only on tags or a dedicated “release” workflow; do not publish on every push.
-- **Apple targets** (iOS) require a macOS runner if you publish those variants from CI.
+A **manual workflow** is provided so you can trigger a publish from GitHub with a custom version and module selection.
 
-Example (conceptual):
+### 6.1 How to run
 
-```yaml
-- name: Publish to Sonatype
-  run: ./gradlew publishAllPublicationsToSonatypeRepository --no-configuration-cache
-  env:
-    ORG_GRADLE_PROJECT_SONATYPE_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-    ORG_GRADLE_PROJECT_SONATYPE_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-    SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
-    SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-    SIGNING_KEY: ${{ secrets.GPG_KEY_CONTENTS }}
-```
+1. In your repo, go to **Actions** → **Publish to Maven Central**.
+2. Click **Run workflow**.
+3. Fill in:
+   - **Version** — e.g. `0.1.0` (no `-SNAPSHOT` for a release). For the **first public release** use `0.1.0`.
+   - **Modules** — choose **all** or a single module (`anchor-di-api`, `anchor-di-runtime`, etc.). For first release use **all**.
+   - **Custom modules** (optional) — comma-separated list to publish instead of the dropdown, e.g. `anchor-di-api,anchor-di-runtime,anchor-di-compose`. Leave empty to use the dropdown.
+4. Click **Run workflow**. The job will publish to Sonatype staging.
+5. In [central.sonatype.com](https://central.sonatype.com), open the new staging repository → **Close** → **Release**.
 
-Use the same property names as in §2.2 (e.g. `signingInMemoryKeyId` → `SIGNING_KEY_ID` in your secrets and map to `ORG_GRADLE_PROJECT_signingInMemoryKeyId` if needed).
+### 6.2 Required repository secrets
+
+Add these under **Settings** → **Secrets and variables** → **Actions**:
+
+| Secret name | Description |
+|-------------|-------------|
+| `MAVEN_CENTRAL_USERNAME` | Maven Central user token username (from central.sonatype.com) |
+| `MAVEN_CENTRAL_PASSWORD` | Maven Central user token password |
+| `SIGNING_KEY_ID` | Last **8 characters** of your PGP key ID (e.g. `20B385CE`) |
+| `SIGNING_PASSWORD` | Passphrase for your PGP private key |
+| `GPG_PRIVATE_KEY` | Full ASCII-armored private key (contents of `key.gpg` from `gpg --armor --export-secret-keys KEY_ID`) |
+
+The workflow passes these to Gradle as `ORG_GRADLE_PROJECT_*` and `signingInMemoryKey*` so the publish convention can sign and upload.
 
 ---
 
@@ -155,9 +300,9 @@ Replace `0.1.0` with the published `LIBRARY_VERSION`.
 
 ---
 
-## 8. Convention script
+## 8. Convention plugin
 
-The logic lives in **`gradle/publish-convention.gradle.kts`**:
+The logic lives in **`buildSrc/src/main/kotlin/publish-convention.gradle.kts`** (precompiled script plugin, Gradle 10–compatible):
 
 - Sets **group** and **version** from `LIBRARY_GROUP` / `LIBRARY_VERSION`.
 - Applies **maven-publish** and **signing**.

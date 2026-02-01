@@ -1,20 +1,14 @@
 /**
- * Convention script for publishing Anchor-DI library modules to Sonatype / Maven Central.
- * Applied to: anchor-di-api, anchor-di-runtime, anchor-di-ksp, anchor-di-compose, anchor-di-navigation.
+ * Precompiled script plugin for publishing Anchor-DI modules to Sonatype / Maven Central.
+ * Replaces the deprecated apply(from = ...) script plugin for Gradle 10 compatibility.
  *
  * Requires (in gradle.properties or env):
  *   - LIBRARY_GROUP, LIBRARY_VERSION (or VERSION)
- *   - SONATYPE_USERNAME, SONATYPE_PASSWORD (Maven Central user token from central.sonatype.com)
- *   - Signing: signing.keyId, signing.password, signing.secretKeyRingFile
- *     OR (CI): signingInMemoryKeyId, signingInMemoryKeyPassword, signingInMemoryKey
- *
- * Usage:
- *   ./gradlew publishAllPublicationsToSonatypeRepository   # stage to Sonatype
- *   ./gradlew publishToMavenLocal                           # local only
+ *   - SONATYPE_USERNAME, SONATYPE_PASSWORD
+ *   - Signing: signing.keyId, signing.password, signing.keyFile (binary key) or signingInMemoryKey* (CI)
  */
-
 val libraryGroup: String = project.findProperty("LIBRARY_GROUP") as? String ?: "io.github.12345debdut"
-val libraryVersion: String = project.findProperty("LIBRARY_VERSION") as? String ?: project.findProperty("VERSION") as? String ?: "0.1.0-SNAPSHOT"
+val libraryVersion: String = project.findProperty("LIBRARY_VERSION") as? String ?: project.findProperty("VERSION") as? String ?: "0.1.0"
 
 group = libraryGroup
 version = libraryVersion
@@ -32,9 +26,32 @@ val pomDeveloperName: String = project.findProperty("POM_DEVELOPER_NAME") as? St
 val pomDeveloperUrl: String = project.findProperty("POM_DEVELOPER_URL") as? String ?: "https://github.com/12345debdut"
 
 plugins.apply("maven-publish")
-plugins.apply("signing")
 
-// Sonatype OSSRH staging (use Central Portal user token as username/password)
+val root = rootProject
+val signingKeyId: String? = root.findProperty("signing.keyId") as? String ?: root.findProperty("signingInMemoryKeyId") as? String ?: System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKeyId")?.ifBlank { null }
+val signingPassword: String? = root.findProperty("signing.password") as? String ?: root.findProperty("signingInMemoryKeyPassword") as? String ?: System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKeyPassword")?.ifBlank { null }
+val keyFilePath: String? = root.findProperty("signing.keyFile") as? String ?: root.findProperty("signing.secretKeyRingFile") as? String
+val keyFileAbsolutePath: String? = keyFilePath?.let { path ->
+    val normalized = if (path.startsWith("~")) {
+        System.getProperty("user.home", "").trimEnd('/') + path.drop(1)
+    } else path
+    val file = java.io.File(normalized)
+    if (file.exists()) file.absolutePath else null
+}
+val hasSigningKeyFromFile = keyFileAbsolutePath != null && signingKeyId != null && signingPassword != null
+val signingKeyContent: String? = (root.findProperty("signingInMemoryKey") as? String)?.takeIf { it.isNotBlank() } ?: System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKey")?.takeIf { it.isNotBlank() }
+val hasSigningKeyFromContent = signingKeyContent != null && signingPassword != null
+val hasSigningKey = hasSigningKeyFromFile || hasSigningKeyFromContent
+
+if (hasSigningKey) {
+    if (hasSigningKeyFromFile) {
+        project.extra["signing.keyId"] = signingKeyId!!
+        project.extra["signing.password"] = signingPassword!!
+        project.extra["signing.secretKeyRingFile"] = keyFileAbsolutePath!!
+    }
+    plugins.apply("signing")
+}
+
 val sonatypeUsername: String? = project.findProperty("SONATYPE_USERNAME") as? String ?: System.getenv("ORG_GRADLE_PROJECT_SONATYPE_USERNAME")?.ifBlank { null }
 val sonatypePassword: String? = project.findProperty("SONATYPE_PASSWORD") as? String ?: System.getenv("ORG_GRADLE_PROJECT_SONATYPE_PASSWORD")?.ifBlank { null }
 
@@ -80,16 +97,20 @@ project.extensions.configure<org.gradle.api.publish.PublishingExtension> {
     }
 }
 
-// Sign all publications (required for Maven Central). Skip when no key is configured (e.g. publishToMavenLocal only).
-project.extensions.configure<org.gradle.plugins.signing.SigningExtension> {
-    val signingKeyId: String? = project.findProperty("signing.keyId") as? String ?: project.findProperty("signingInMemoryKeyId") as? String
-    val signingPassword: String? = project.findProperty("signing.password") as? String ?: project.findProperty("signingInMemoryKeyPassword") as? String
-    val signingKey: String? = project.findProperty("signingInMemoryKey") as? String
-    val hasSecretKey = project.findProperty("signing.secretKeyRingFile") != null || (signingKey != null && signingKeyId != null && signingPassword != null)
-    if (signingKey != null && signingKeyId != null && signingPassword != null) {
-        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+if (hasSigningKey) {
+    if (hasSigningKeyFromContent) {
+        project.extensions.configure<org.gradle.plugins.signing.SigningExtension> {
+            val keyId = signingKeyId?.takeIf { it.isNotBlank() }
+            if (keyId != null) {
+                useInMemoryPgpKeys(keyId, signingKeyContent!!, signingPassword!!)
+            } else {
+                useInMemoryPgpKeys(signingKeyContent!!, signingPassword!!)
+            }
+        }
     }
-    if (hasSecretKey || signingKey != null) {
-        sign(project.extensions.getByType<org.gradle.api.publish.PublishingExtension>().publications)
+    project.afterEvaluate {
+        project.extensions.findByType<org.gradle.plugins.signing.SigningExtension>()?.let { signingExt ->
+            signingExt.sign(project.extensions.getByType<org.gradle.api.publish.PublishingExtension>().publications)
+        }
     }
 }

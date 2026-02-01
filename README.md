@@ -25,6 +25,32 @@ Dependency Injection in Kotlin Multiplatform is still a hard problem.
 
 ---
 
+## 📦 Install
+
+First public release: **0.1.0** (beta). Add to your KMP project:
+
+```kotlin
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("io.github.12345debdut:anchor-di-api:0.1.0")
+    implementation("io.github.12345debdut:anchor-di-runtime:0.1.0")
+    implementation("io.github.12345debdut:anchor-di-compose:0.1.0")      // for anchorInject(), viewModelAnchor()
+    implementation("io.github.12345debdut:anchor-di-navigation:0.1.0")    // for NavScopeContainer, navigationScopedInject()
+    add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:0.1.0")
+    add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:0.1.0")
+    add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
+    add("kspIosSimulatorArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
+    // add other KSP targets as needed (e.g. kspJvm, kspKotlin)
+}
+```
+
+See [docs/README.md](docs/README.md) for quick start and [docs/PUBLISHING.md](docs/PUBLISHING.md) for publishing this library.
+
+---
+
 ## 🎯 Design Principles
 
 - **Compile-time dependency graph**
@@ -470,15 +496,10 @@ No reflection. No magic. Only generated code.
 
 ## 🛠️ Project Status
 
-🚧 **Early-stage / active development**
+**First public release: 0.1.0** (beta). Ready to ship.
 
-Planned milestones:
-- Core annotation API
-- KSP validation engine
-- Multibinding implementation
-- Compose lifecycle integration
-- **Maven Central publishing** — configured; see [docs/PUBLISHING.md](docs/PUBLISHING.md) for credentials, signing, and release steps.
-- Documentation & samples
+- Core API, KSP validation, Compose & navigation integration, Maven Central publishing — all configured.
+- Versioning: 0.x for beta; **1.0.0** when the API is stable. See [docs/PUBLISHING.md](docs/PUBLISHING.md) for credentials, signing, and release steps.
 
 ---
 

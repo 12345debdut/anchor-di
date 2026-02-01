@@ -3,6 +3,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKmpLibrary)
+    id("signing")
 }
 
 kotlin {

@@ -25,6 +25,9 @@ gradle/wrapper/gradle-wrapper.jar
 # Local configuration
 local.properties
 keystore.properties
+# Never commit Maven Central / Sonatype credentials
+gradle.properties.local
+**/gradle-credentials.properties
 
 # ───── Android ────────────────────────────────────────────────────────────────
 /.cxx/

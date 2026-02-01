@@ -1,0 +1,104 @@
+# Manual workflow to publish Anchor DI modules to Sonatype / Maven Central.
+# Trigger: Actions → Publish to Maven Central → Run workflow.
+# Required secrets: MAVEN_CENTRAL_USERNAME, MAVEN_CENTRAL_PASSWORD, SIGNING_KEY_ID, SIGNING_PASSWORD, GPG_PRIVATE_KEY
+
+name: Publish to Maven Central
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g. 0.1.0). Do not use -SNAPSHOT for a release.'
+        required: true
+        default: '0.1.0'
+        type: string
+      modules:
+        description: 'Which module(s) to publish'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - anchor-di-api
+          - anchor-di-runtime
+          - anchor-di-ksp
+          - anchor-di-compose
+          - anchor-di-navigation
+      custom_modules:
+        description: 'Optional: comma-separated list to publish instead (e.g. anchor-di-api,anchor-di-runtime). Overrides the dropdown above when non-empty.'
+        required: false
+        default: ''
+        type: string
+
+env:
+  JAVA_VERSION: '21'
+
+jobs:
+  publish:
+    name: Publish to Sonatype
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: Resolve module list
+        id: modules
+        run: |
+          if [ -n "${{ inputs.custom_modules }}" ]; then
+            LIST="${{ inputs.custom_modules }}"
+          else
+            LIST="${{ inputs.modules }}"
+          fi
+          NORMALIZED=$(echo "$LIST" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$')
+          if echo "$NORMALIZED" | grep -qx 'all'; then
+            echo "publish_all=true" >> $GITHUB_OUTPUT
+          else
+            echo "publish_all=false" >> $GITHUB_OUTPUT
+          fi
+          echo "list<<OUTPUT_EOF" >> $GITHUB_OUTPUT
+          echo "$NORMALIZED" >> $GITHUB_OUTPUT
+          echo "OUTPUT_EOF" >> $GITHUB_OUTPUT
+
+      - name: Publish (all modules)
+        if: steps.modules.outputs.publish_all == 'true'
+        run: ./gradlew publishAllPublicationsToSonatypeRepository --no-configuration-cache -PLIBRARY_VERSION=${{ inputs.version }}
+        env:
+          ORG_GRADLE_PROJECT_SONATYPE_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_SONATYPE_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: Publish (selected modules)
+        if: steps.modules.outputs.publish_all != 'true'
+        run: |
+          MODULES="${{ steps.modules.outputs.list }}"
+          TASKS=""
+          for m in $MODULES; do
+            TASKS="$TASKS :$m:publishAllPublicationsToSonatypeRepository"
+          done
+          ./gradlew $TASKS --no-configuration-cache -PLIBRARY_VERSION=${{ inputs.version }}
+        env:
+          ORG_GRADLE_PROJECT_SONATYPE_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_SONATYPE_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: Next step
+        if: success()
+        run: |
+          echo "## Publish complete" >> $GITHUB_STEP_SUMMARY
+          echo "Artifacts were uploaded to Sonatype staging." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next:** Open [central.sonatype.com](https://central.sonatype.com) → find the new staging repository → **Close** it → **Release** it. Artifacts will appear on Maven Central after validation." >> $GITHUB_STEP_SUMMARY
