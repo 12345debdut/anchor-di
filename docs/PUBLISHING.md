@@ -201,7 +201,7 @@ The root `build.gradle.kts` applies the publish convention to:
 - **anchor-di-core**
 - **anchor-di-ksp**
 - **anchor-di-compose**
-- **anchor-di-navigation**
+- **anchor-di-presentation**
 
 Each is published with coordinates:
 
@@ -289,7 +289,7 @@ dependencies {
     implementation("io.github.12345debdut:anchor-di-api:0.1.0")
     implementation("io.github.12345debdut:anchor-di-core:0.1.0")
     implementation("io.github.12345debdut:anchor-di-compose:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-navigation:0.1.0")
+    implementation("io.github.12345debdut:anchor-di-presentation:0.1.0")
     add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:0.1.0")
     add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:0.1.0")
     // … other KSP targets as needed

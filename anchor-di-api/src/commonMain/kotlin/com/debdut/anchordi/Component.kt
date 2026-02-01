@@ -63,7 +63,7 @@ interface ViewModelComponent {
  * from the back stack.
  *
  * With Compose, wrap destination content in [NavigationScopedContent][com.debdut.anchordi.navigation.NavigationScopedContent]
- * (anchor-di-navigation) and use [navigationScopedInject][com.debdut.anchordi.navigation.navigationScopedInject] inside it.
+ * (anchor-di-presentation) and use [navigationScopedInject][com.debdut.anchordi.navigation.navigationScopedInject] inside it.
  *
  * Usage in [InstallIn]:
  * ```

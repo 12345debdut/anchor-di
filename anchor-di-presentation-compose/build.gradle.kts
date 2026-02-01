@@ -30,7 +30,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":anchor-di-navigation"))
+            implementation(project(":anchor-di-presentation"))
             implementation(project(":anchor-di-core"))
             implementation(libs.compose.runtime)
             implementation(libs.androidx.lifecycle.viewmodelCompose)

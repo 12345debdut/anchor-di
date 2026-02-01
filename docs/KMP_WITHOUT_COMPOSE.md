@@ -43,8 +43,8 @@ No API is “missing” for core DI; only the Compose conveniences are not avail
 
 ### 3. **Navigation-scoped DI without Compose**
 
-- **With CMP:** Add **anchor-di-navigation-compose** for `NavScopeContainer`, `NavigationScopedContent`, `navigationScopedInject`, `navViewModelAnchor`.
-- **Without Compose:** Add **anchor-di-navigation** (Compose-free). It provides `NavigationScopeRegistry.getOrCreate(scopeKey)` and `NavigationScopeEntry` (navContainer, viewModelContainer). No Compose dependency. Call `getOrCreate(scopeKey)` when entering a screen and `NavigationScopeRegistry.dispose(scopeKey)` when leaving (e.g. SwiftUI, native UI).
+- **With CMP:** Add **anchor-di-presentation-compose** for `NavScopeContainer`, `NavigationScopedContent`, `navigationScopedInject`, `navViewModelAnchor`.
+- **Without Compose:** Add **anchor-di-presentation** (Compose-free). It provides `NavigationScopeRegistry.getOrCreate(scopeKey)` and `NavigationScopeEntry` (navContainer, viewModelContainer). No Compose dependency. Call `getOrCreate(scopeKey)` when entering a screen and `NavigationScopeRegistry.dispose(scopeKey)` when leaving (e.g. SwiftUI, native UI).
 
 ### 4. **ActivityScope (Android, no Compose)**
 
@@ -63,9 +63,9 @@ No API is “missing” for core DI; only the Compose conveniences are not avail
 | Core DI (api, runtime, ksp) | ✅ Full | Use as-is. |
 | Singleton, custom scopes | ✅ Full | `Anchor.inject`, `withScope`, `scopedContainer`. |
 | ViewModel scope | ✅ Full | Use `ViewModelScopeRegistry.getOrCreate(scopeKey)` / `dispose(scopeKey)`; on Android use anchor-di-android's `getViewModelScope(owner, lifecycle)` or `viewModelScope()` for auto-dispose. |
-| Navigation scope | ✅ Full | Add **anchor-di-navigation** (Compose-free): `NavigationScopeRegistry.getOrCreate(scopeKey)` / `dispose(scopeKey)`. |
+| Navigation scope | ✅ Full | Add **anchor-di-presentation** (Compose-free): `NavigationScopeRegistry.getOrCreate(scopeKey)` / `dispose(scopeKey)`. |
 | `anchorInject()` / `viewModelAnchor()` | ❌ N/A | Compose-only; use `Anchor.inject` and manual ViewModel scope. |
 | ActivityScope (Android) | ✅ Full | Add **anchor-di-android** (Compose-free): `Anchor.withScope(ActivityScope::class) { ... }`. |
 | Docs / samples | ✅ Guide | This doc; main README has a KMP install snippet. Optional: minimal KMP-only sample. |
 
-**First-class KMP support:** Use **anchor-di-api**, **anchor-di-core**, **anchor-di-navigation**, and **anchor-di-android** (Android) for full DI and scopes without any Compose dependency. Use **anchor-di-compose** and **anchor-di-navigation-compose** when you adopt Compose Multiplatform.
+**First-class KMP support:** Use **anchor-di-api**, **anchor-di-core**, **anchor-di-presentation**, and **anchor-di-android** (Android) for full DI and scopes without any Compose dependency. Use **anchor-di-compose** and **anchor-di-presentation-compose** when you adopt Compose Multiplatform.

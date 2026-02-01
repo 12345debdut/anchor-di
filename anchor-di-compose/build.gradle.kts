@@ -39,7 +39,7 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(project(":anchor-di-android"))
-            implementation(project(":anchor-di-navigation-compose"))
+            implementation(project(":anchor-di-presentation-compose"))
             implementation(libs.androidx.navigation.compose)
         }
     }

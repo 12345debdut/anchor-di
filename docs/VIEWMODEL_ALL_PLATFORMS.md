@@ -6,7 +6,7 @@ Anchor DI supports **ViewModelComponent**-scoped bindings (one instance per “o
 
 ## Common API (all platforms)
 
-Use **ViewModelScopeRegistry** (anchor-di-navigation, Compose-free):
+Use **ViewModelScopeRegistry** (anchor-di-presentation, Compose-free):
 
 - **Enter:** `ViewModelScopeRegistry.getOrCreate(scopeKey)` → `AnchorContainer` (ViewModel scope).
 - **Leave:** `ViewModelScopeRegistry.dispose(scopeKey)` when the screen/owner is gone.
@@ -28,7 +28,7 @@ Use a **stable scope key** per screen/owner (e.g. route id, screen id, or the ow
 
 ### Android (without Compose)
 
-Add **anchor-di-android** and **anchor-di-navigation**. Use either:
+Add **anchor-di-android** and **anchor-di-presentation**. Use either:
 
 **Option A — Owner + Lifecycle (recommended):** scope is disposed when the owner is destroyed.
 

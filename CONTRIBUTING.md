@@ -39,7 +39,7 @@ Run all library tests: `./gradlew :anchor-di-core:test :anchor-di-ksp:test`
   - **anchor-di-core:** Container, scopes, `Anchor`; no Compose or nav.
   - **anchor-di-ksp:** Symbol processing and codegen; JVM-only.
   - **anchor-di-compose:** Compose helpers (`anchorInject`, `viewModelAnchor`).
-  - **anchor-di-navigation:** Nav-scoped DI (`NavScopeContainer`, `NavigationScopedContent`, disposal when popped).
+  - **anchor-di-presentation:** Presentation-scoped DI (`NavScopeContainer`, `NavigationScopedContent`, disposal when popped).
 
 ---
 

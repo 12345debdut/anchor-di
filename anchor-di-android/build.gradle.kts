@@ -15,7 +15,7 @@ kotlin {
         androidMain.dependencies {
             implementation(project(":anchor-di-api"))
             implementation(project(":anchor-di-core"))
-            implementation(project(":anchor-di-navigation"))
+            implementation(project(":anchor-di-presentation"))
             implementation(libs.androidx.lifecycle.runtime.ktx)
             implementation(libs.androidx.lifecycle.viewmodel.ktx)
         }
