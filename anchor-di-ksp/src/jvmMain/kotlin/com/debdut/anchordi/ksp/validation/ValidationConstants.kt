@@ -13,7 +13,11 @@ object ValidationConstants {
     /** @AnchorViewModel lives in anchor-di-compose; classes with it are bound in ViewModelComponent. */
     const val FQN_ANCHOR_VIEW_MODEL = "com.debdut.anchordi.compose.AnchorViewModel"
 
-    val BUILT_IN_COMPONENTS = setOf(
+    /**
+     * Built-in component FQNs always recognized even when not discovered via [ComponentResolution]
+     * (e.g. when anchor-di-api is not on the processor classpath). Single place for these names.
+     */
+    val BUILT_IN_COMPONENT_FQNS = setOf(
         FQN_SINGLETON_COMPONENT,
         FQN_VIEW_MODEL_COMPONENT,
         FQN_NAVIGATION_COMPONENT

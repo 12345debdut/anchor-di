@@ -169,7 +169,6 @@ class AnchorDiCodeGenerator(
             val moduleSimpleName = moduleDecl.simpleName.asString()
             val installIn = moduleDecl.findAnnotation(FQN_INSTALL_IN) ?: return@forEach
             val componentScopeId = builder.getComponentScopeIdFromInstallIn(installIn)
-                ?: builder.getComponentScopeIdFromInstallInFallback(installIn)
                 ?: return@forEach
             val isSingletonComponent = componentScopeId == ValidationConstants.FQN_SINGLETON_COMPONENT
             val scopeClassName = when (componentScopeId) {
@@ -385,8 +384,8 @@ class AnchorDiCodeGenerator(
                 val keyQualifier = if (qualifier != null) ", \"$qualifier\"" else ", null"
                 mutableListOf<String>().apply {
                     add("registry.register(Key(\"$returnType\"$keyQualifier), ${bindingPrefix}${factoryLines.first()}")
-                    addAll(factoryLines.drop(1).map { it })
-                    add("        })$bindingSuffix")
+                    addAll(factoryLines.drop(1))
+                    add("        )$bindingSuffix")
                 }
             }
         }

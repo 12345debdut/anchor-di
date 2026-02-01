@@ -1,5 +1,7 @@
 package com.debdut.anchordi.ksp.analysis
 
+import com.debdut.anchordi.ksp.analysis.ComponentResolution.discoverComponentDescriptors
+import com.debdut.anchordi.ksp.analysis.ComponentResolution.discoverComponentFqns
 import com.debdut.anchordi.ksp.model.BindingDescriptor
 import com.debdut.anchordi.ksp.model.BindsMethodDescriptor
 import com.debdut.anchordi.ksp.model.ComponentDescriptor
@@ -16,7 +18,7 @@ import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 /**
- * analyzing KSP symbols and building the Anchor DI model.
+ * Analyzing KSP symbols and building the Anchor DI model.
  */
 class AnchorDiModelBuilder(private val resolver: Resolver) {
 
@@ -27,24 +29,22 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
         private const val FQN_BINDS = "com.debdut.anchordi.Binds"
         private const val FQN_NAMED = "com.debdut.anchordi.Named"
         private const val FQN_SCOPED = "com.debdut.anchordi.Scoped"
-        private const val FQN_COMPONENT = "com.debdut.anchordi.Component"
         private const val FQN_INTO_SET = "com.debdut.anchordi.IntoSet"
         private const val FQN_INTO_MAP = "com.debdut.anchordi.IntoMap"
         private const val FQN_STRING_KEY = "com.debdut.anchordi.StringKey"
     }
 
+    /**
+     * Builds the component map from discovery (@Component on classpath) plus built-ins that are
+     * always recognized (in case anchor-di-api is not on the processor classpath).
+     */
     fun buildComponents(): Map<String, ComponentDescriptor> {
-        val components = mutableMapOf<String, ComponentDescriptor>()
-        ValidationConstants.BUILT_IN_COMPONENTS.forEach { fqn ->
-            components[fqn] = ComponentDescriptor(fqn = fqn, dependencies = emptySet())
+        val discovered = resolver.discoverComponentDescriptors()
+        val withBuiltIns = discovered.toMutableMap()
+        ValidationConstants.BUILT_IN_COMPONENT_FQNS.forEach { fqn ->
+            if (fqn !in withBuiltIns) withBuiltIns[fqn] = ComponentDescriptor(fqn = fqn, dependencies = emptySet())
         }
-        resolver.getSymbolsWithAnnotation(FQN_COMPONENT)
-            .filterIsInstance<KSClassDeclaration>()
-            .forEach { component ->
-                val fqn = component.qualifiedName?.asString() ?: return@forEach
-                components[fqn] = ComponentDescriptor(fqn = fqn, dependencies = emptySet())
-            }
-        return components
+        return withBuiltIns
     }
 
     fun buildBindings(
@@ -99,7 +99,6 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
             val moduleName = moduleDecl.qualifiedName?.asString() ?: return@forEach
             val installIn = moduleDecl.findAnnotation(FQN_INSTALL_IN) ?: return@forEach
             val componentScopeId = getComponentScopeIdFromInstallIn(installIn)
-                ?: getComponentScopeIdFromInstallInFallback(installIn)
                 ?: return@forEach
             
             moduleDecl.declarations.filterIsInstance<KSFunctionDeclaration>().forEach { func ->
@@ -272,7 +271,6 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
         moduleClasses.forEach { moduleDecl ->
             val installIn = moduleDecl.findAnnotation(FQN_INSTALL_IN) ?: return@forEach
             val componentScopeId = getComponentScopeIdFromInstallIn(installIn)
-                ?: getComponentScopeIdFromInstallInFallback(installIn)
                 ?: return@forEach
             moduleDecl.declarations.filterIsInstance<KSFunctionDeclaration>()
                 .filter { it.hasAnnotation(FQN_BINDS) && it.parameters.size == 1 }
@@ -310,7 +308,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
         return moduleClasses.mapNotNull { moduleDecl ->
             val moduleName = moduleDecl.qualifiedName?.asString() ?: return@mapNotNull null
             val installIn = moduleDecl.findAnnotation(FQN_INSTALL_IN)
-            val installInFqn = installIn?.let { getComponentScopeIdFromInstallIn(it) ?: getComponentScopeIdFromInstallInFallback(it) }
+            val installInFqn = installIn?.let { getComponentScopeIdFromInstallIn(it) }
             val functions = moduleDecl.declarations.filterIsInstance<KSFunctionDeclaration>()
             var hasProvidesOrBinds = false
             val bindsMethods = mutableListOf<BindsMethodDescriptor>()
@@ -459,21 +457,18 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
         return Triple(qualifiedName, false, false)
     }
 
+    /**
+     * Resolves the component FQN from @InstallIn(value = X::class) via symbols only.
+     * Prefers KSTypeReference/KSType/KSClassDeclaration; if value is a String (e.g. from fakes),
+     * matches by simpleName against [ComponentResolution.discoverComponentFqns] so no names are hardcoded.
+     */
     fun getComponentScopeIdFromInstallIn(installIn: KSAnnotation): String? {
         val value = installIn.arguments.firstOrNull()?.value ?: return null
         return when (value) {
+            is KSTypeReference -> value.resolve().declaration.qualifiedName?.asString()
             is KSType -> value.declaration.qualifiedName?.asString()
             is KSClassDeclaration -> value.qualifiedName?.asString()
-            else -> null
-        }
-    }
-
-    fun getComponentScopeIdFromInstallInFallback(installIn: KSAnnotation): String? {
-        val str = installIn.arguments.firstOrNull()?.value?.toString() ?: return null
-        return when {
-            str.contains("SingletonComponent") -> ValidationConstants.FQN_SINGLETON_COMPONENT
-            str.contains("ViewModelComponent") -> ValidationConstants.FQN_VIEW_MODEL_COMPONENT
-            str.contains("NavigationComponent") -> ValidationConstants.FQN_NAVIGATION_COMPONENT
+            is String -> resolver.discoverComponentFqns().find { it.substringAfterLast(".") == value }
             else -> null
         }
     }

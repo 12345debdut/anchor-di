@@ -12,18 +12,22 @@ import kotlin.test.assertTrue
 
 class AnchorDiModelBuilderTest {
 
-    private val resolver = FakeResolver()
+    private val resolver = FakeResolver().apply {
+        // Seed @Component symbols so discoverComponentFqns() returns built-ins (single source of truth).
+        symbols[ComponentResolution.FQN_COMPONENT] = listOf(
+            FakeKSClassDeclaration(ValidationConstants.FQN_SINGLETON_COMPONENT, "SingletonComponent"),
+            FakeKSClassDeclaration(ValidationConstants.FQN_VIEW_MODEL_COMPONENT, "ViewModelComponent"),
+            FakeKSClassDeclaration(ValidationConstants.FQN_NAVIGATION_COMPONENT, "NavigationComponent")
+        )
+    }
     private val builder = AnchorDiModelBuilder(resolver)
 
     @Test
     fun buildModuleDescriptors_parsesInstallInAndBinds() {
         val module = FakeKSClassDeclaration("com.example.MyModule", "MyModule")
-        
-        // Add @InstallIn(SingletonComponent::class)
-        // Note: Manual fakes don't support resolving annotation args to types easily unless specific helper logic is added.
-        // But getComponentScopeIdFromInstallInFallback uses string matching.
+        // @InstallIn(SingletonComponent::class): value resolved via discoverComponentFqns() by simpleName.
         module.addAnnotation("com.debdut.anchordi.InstallIn", listOf(
-            FakeKSValueArgument(null, "SingletonComponent") 
+            FakeKSValueArgument(null, "SingletonComponent")
         ))
 
         // Add @Binds method
