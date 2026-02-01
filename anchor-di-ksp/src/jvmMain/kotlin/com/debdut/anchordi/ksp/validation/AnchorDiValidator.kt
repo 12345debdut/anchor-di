@@ -76,11 +76,8 @@ class AnchorDiValidator(
         // 7. Scope compatibility (component allows the scope)
         ScopeComponentCompatibilityValidator.validate(bindings, reporter)
 
-        // 8. Parent component cannot depend on child binding
-        ParentComponentValidator.validate(bindings, requirements, reporter)
-
-        // 9. Longer-lived scope cannot depend on shorter-lived scope
-        ScopeLifetimeValidator.validate(bindings, requirements, reporter)
+        // 8. Scope/lifetime: no dependency with strictly shorter effective lifetime (parent/child or longevity)
+        ScopeLifetimeViolationValidator.validate(bindings, requirements, reporter)
 
         // 10. Missing dependency binding
         MissingBindingValidator.validate(providedKeys, requirements, reporter)
