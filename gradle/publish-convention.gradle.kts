@@ -65,7 +65,7 @@ if (hasSigningKey) {
     plugins.apply("signing")
 }
 
-// Sonatype OSSRH staging (use Central Portal user token as username/password)
+// Central Publisher Portal – OSSRH Staging API (use Central Portal user token at central.sonatype.com/usertoken)
 val sonatypeUsername: String? = project.findProperty("SONATYPE_USERNAME") as? String ?: System.getenv("ORG_GRADLE_PROJECT_SONATYPE_USERNAME")?.ifBlank { null }
 val sonatypePassword: String? = project.findProperty("SONATYPE_PASSWORD") as? String ?: System.getenv("ORG_GRADLE_PROJECT_SONATYPE_PASSWORD")?.ifBlank { null }
 
@@ -73,7 +73,7 @@ project.extensions.configure<org.gradle.api.publish.PublishingExtension> {
     repositories {
         maven {
             name = "sonatype"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            url = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
             credentials {
                 username = sonatypeUsername ?: "unknown"
                 password = sonatypePassword ?: ""

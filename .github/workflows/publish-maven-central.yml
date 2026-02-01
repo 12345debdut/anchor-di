@@ -1,6 +1,7 @@
-# Manual workflow to publish Anchor DI modules to Sonatype / Maven Central.
+# Manual workflow to publish Anchor DI modules to Maven Central via Central Publisher Portal.
 # Trigger: Actions → Publish to Maven Central → Run workflow.
 # Required secrets: MAVEN_CENTRAL_USERNAME, MAVEN_CENTRAL_PASSWORD, SIGNING_KEY_ID, SIGNING_PASSWORD, GPG_PRIVATE_KEY
+# Use a token from https://central.sonatype.com/usertoken (legacy OSSRH tokens return 401).
 
 name: Publish to Maven Central
 
@@ -11,6 +12,11 @@ on:
         description: 'Version to publish (e.g. 0.1.0). Do not use -SNAPSHOT for a release.'
         required: true
         default: '0.1.0'
+        type: string
+      namespace:
+        description: 'Central Portal namespace (e.g. io.github.USERNAME). Must match https://central.sonatype.com/publishing/namespaces'
+        required: true
+        default: 'io.github.12345debdut'
         type: string
       modules:
         description: 'Which module(s) to publish'
@@ -96,10 +102,18 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_PRIVATE_KEY }}
 
+      - name: Upload deployment to Central Publisher Portal
+        if: success()
+        run: |
+          AUTH=$(echo -n "${{ secrets.MAVEN_CENTRAL_USERNAME }}:${{ secrets.MAVEN_CENTRAL_PASSWORD }}" | base64 -w0)
+          curl -sSf -X POST \
+            -H "Authorization: Bearer $AUTH" \
+            "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/${{ inputs.namespace }}"
+
       - name: Next step
         if: success()
         run: |
           echo "## Publish complete" >> $GITHUB_STEP_SUMMARY
-          echo "Artifacts were uploaded to Sonatype staging." >> $GITHUB_STEP_SUMMARY
+          echo "Artifacts were uploaded to the Central Publisher Portal (OSSRH Staging API)." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Next:** Open [central.sonatype.com](https://central.sonatype.com) → find the new staging repository → **Close** it → **Release** it. Artifacts will appear on Maven Central after validation." >> $GITHUB_STEP_SUMMARY
+          echo "**Next:** Open [central.sonatype.com/publishing](https://central.sonatype.com/publishing) → find the new deployment → **Publish** to release to Maven Central (or drop if needed)." >> $GITHUB_STEP_SUMMARY

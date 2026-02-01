@@ -1,19 +1,19 @@
-# Publishing Anchor DI to Sonatype / Maven Central
+# Publishing Anchor DI to Maven Central
 
-This document describes how to publish the Anchor DI library modules to Sonatype (staging) and Maven Central.
+This document describes how to publish the Anchor DI library modules to Maven Central via the **Central Publisher Portal** ([central.sonatype.com](https://central.sonatype.com/)). The legacy OSSRH service (`s01.oss.sonatype.org`) was retired June 30, 2025. This project uses the **Portal OSSRH Staging API** (`ossrh-staging-api.central.sonatype.com`), which works with the same Gradle `maven-publish` workflow and Central Portal tokens.
 
 ---
 
 ## 1. Prerequisites
 
-- **Sonatype / Maven Central account**  
-  Sign up at [central.sonatype.com](https://central.sonatype.com/). Create or use a verified namespace (e.g. `com.debdut` or `io.github.<username>`).
+- **Central Publisher Portal account**  
+  Sign up or log in at [central.sonatype.com](https://central.sonatype.com/). Create or use a verified namespace (e.g. `com.debdut` or `io.github.<username>`). Migrated OSSRH publishers can use their existing username/password to log in.
 
 - **PGP key for signing**  
   Maven Central requires all artifacts to be signed. Generate a key pair (e.g. with GnuPG) and upload the **public** key to a keyserver (e.g. `keyserver.ubuntu.com`). Keep the **private** key and passphrase secure. See **§1.1** below for where each GitHub secret comes from.
 
 - **Maven Central user token**  
-  In the Central Portal, go to [Setup Token-Based Authentication](https://central.sonatype.com/usertoken) and generate a user token. Use the username and password from that token for publishing (not your account login).
+  In the Central Portal, go to [Setup Token-Based Authentication](https://central.sonatype.com/usertoken) and generate a **Portal** user token. Use the username and password from that token for publishing (not your account login). **Legacy OSSRH tokens return 401**; use a token from the Central Portal.
 
 ### 1.1 Where to get SIGNING_KEY_ID, SIGNING_PASSWORD, and GPG_PRIVATE_KEY
 
@@ -219,12 +219,12 @@ Each is published with coordinates:
   ```
   Or per module: `./gradlew :anchor-di-api:publishToMavenLocal`
 
-- **Publish to Sonatype staging (signing required):**
+- **Publish to Central Publisher Portal (signing required):**
   ```bash
   ./gradlew publishAllPublicationsToSonatypeRepository
   ```
-  This uploads to `https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/`.  
-  If credentials are missing, the build will still run but the upload step may fail.
+  This uploads to `https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/`.  
+  If credentials are missing, the build will still run but the upload step may fail. Use a token from [central.sonatype.com/usertoken](https://central.sonatype.com/usertoken).
 
 - **Per-module:**  
   `./gradlew :anchor-di-api:publishKotlinMultiplatformPublicationToSonatypeRepository` (and similar for other publications).
@@ -239,8 +239,8 @@ Each is published with coordinates:
    ```bash
    ./gradlew publishAllPublicationsToSonatypeRepository
    ```
-4. In [Sonatype Central](https://central.sonatype.com/), open the staging repository created by the upload.
-5. **Close** the staging repo, then **Release** it. After validation, artifacts will be available on Maven Central (often within 15–30 minutes).
+4. In [Central Publisher Portal](https://central.sonatype.com/publishing), open the deployment created by the upload.
+5. **Publish** the deployment to release to Maven Central (or **Drop** if needed). After validation, artifacts will be available on Maven Central (often within 15–30 minutes).
 6. For the next development cycle, set **`LIBRARY_VERSION`** back to a snapshot (e.g. `0.1.1-SNAPSHOT`) if desired.
 
 ---
@@ -255,10 +255,11 @@ A **manual workflow** is provided so you can trigger a publish from GitHub with 
 2. Click **Run workflow**.
 3. Fill in:
    - **Version** — e.g. `0.1.0` (no `-SNAPSHOT` for a release). For the **first public release** use `0.1.0`.
+   - **Namespace** — your Central Portal namespace (e.g. `io.github.USERNAME`). Must match [central.sonatype.com/publishing/namespaces](https://central.sonatype.com/publishing/namespaces). Default is `io.github.12345debdut`.
    - **Modules** — choose **all** or a single module (`anchor-di-api`, `anchor-di-core`, etc.). For first release use **all**.
    - **Custom modules** (optional) — comma-separated list to publish instead of the dropdown, e.g. `anchor-di-api,anchor-di-core,anchor-di-compose`. Leave empty to use the dropdown.
-4. Click **Run workflow**. The job will publish to Sonatype staging.
-5. In [central.sonatype.com](https://central.sonatype.com), open the new staging repository → **Close** → **Release**.
+4. Click **Run workflow**. The job publishes to the OSSRH Staging API and then uploads the deployment to the Central Publisher Portal (same IP required).
+5. In [central.sonatype.com/publishing](https://central.sonatype.com/publishing), open the new deployment → **Publish** to release to Maven Central (or **Drop** if needed).
 
 ### 6.2 Required repository secrets
 
@@ -266,8 +267,8 @@ Add these under **Settings** → **Secrets and variables** → **Actions**:
 
 | Secret name | Description |
 |-------------|-------------|
-| `MAVEN_CENTRAL_USERNAME` | Maven Central user token username (from central.sonatype.com) |
-| `MAVEN_CENTRAL_PASSWORD` | Maven Central user token password |
+| `MAVEN_CENTRAL_USERNAME` | Central Portal user token username (from [central.sonatype.com/usertoken](https://central.sonatype.com/usertoken); legacy OSSRH tokens return 401) |
+| `MAVEN_CENTRAL_PASSWORD` | Central Portal user token password |
 | `SIGNING_KEY_ID` | Last **8 characters** of your PGP key ID (e.g. `20B385CE`) |
 | `SIGNING_PASSWORD` | Passphrase for your PGP private key |
 | `GPG_PRIVATE_KEY` | Full ASCII-armored private key (contents of `key.gpg` from `gpg --armor --export-secret-keys KEY_ID`) |
@@ -306,7 +307,7 @@ The logic lives in **`buildSrc/src/main/kotlin/publish-convention.gradle.kts`** 
 
 - Sets **group** and **version** from `LIBRARY_GROUP` / `LIBRARY_VERSION`.
 - Applies **maven-publish** and **signing**.
-- Adds the **Sonatype** and **Maven Local** repositories.
+- Adds the **Central Publisher Portal** (OSSRH Staging API) and **Maven Local** repositories.
 - Configures **POM** (name, description, URL, license, developers, SCM) for all Maven publications.
 - **Signs** all publications when a key is configured (file or in-memory); skips signing when no key is set so that `publishToMavenLocal` works without GPG.
 
