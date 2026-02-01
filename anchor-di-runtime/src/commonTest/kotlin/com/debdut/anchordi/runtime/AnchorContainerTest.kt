@@ -191,6 +191,60 @@ class AnchorContainerTest {
         assertEquals("some.Type", key.typeName)
         assertEquals("qualifier", key.qualifier)
     }
+
+    @Test
+    fun multibindingSet_mergesContributions() {
+        val contributor = object : ComponentBindingContributor {
+            override fun contribute(registry: BindingRegistry) {
+                registry.registerSetContribution(
+                    Key("kotlin.collections.Set<${TestTracker::class.qualifiedName!!}>", null),
+                    object : Factory<Any> {
+                        override fun create(container: AnchorContainer): Any = TestTracker("a")
+                    }
+                )
+                registry.registerSetContribution(
+                    Key("kotlin.collections.Set<${TestTracker::class.qualifiedName!!}>", null),
+                    object : Factory<Any> {
+                        override fun create(container: AnchorContainer): Any = TestTracker("b")
+                    }
+                )
+            }
+        }
+        val container = AnchorContainer(listOf(contributor))
+        val set = container.getSet<TestTracker>()
+        assertEquals(2, set.size)
+        assertTrue(set.any { it.id == "a" })
+        assertTrue(set.any { it.id == "b" })
+        assertSame(set, container.getSet<TestTracker>())
+    }
+
+    @Test
+    fun multibindingMap_mergesContributions() {
+        val contributor = object : ComponentBindingContributor {
+            override fun contribute(registry: BindingRegistry) {
+                registry.registerMapContribution(
+                    Key("kotlin.collections.Map<kotlin.String,${TestTracker::class.qualifiedName!!}>", null),
+                    "firebase",
+                    object : Factory<Any> {
+                        override fun create(container: AnchorContainer): Any = TestTracker("firebase")
+                    }
+                )
+                registry.registerMapContribution(
+                    Key("kotlin.collections.Map<kotlin.String,${TestTracker::class.qualifiedName!!}>", null),
+                    "analytics",
+                    object : Factory<Any> {
+                        override fun create(container: AnchorContainer): Any = TestTracker("analytics")
+                    }
+                )
+            }
+        }
+        val container = AnchorContainer(listOf(contributor))
+        val map = container.getMap<TestTracker>()
+        assertEquals(2, map.size)
+        assertEquals("firebase", map["firebase"]!!.id)
+        assertEquals("analytics", map["analytics"]!!.id)
+        assertSame(map, container.getMap<TestTracker>())
+    }
 }
 
 // Test types (qualified names used in Key)
@@ -198,3 +252,4 @@ private class TestFoo
 private class TestBar
 private class TestScopedService
 private class TestConsumer(val service: TestScopedService)
+private class TestTracker(val id: String)

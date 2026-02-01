@@ -26,12 +26,26 @@ class AnchorContainer(
     private fun initialize() {
         if (initialized) return
         if (inheritedBindings == null) {
+            val setContributions = mutableMapOf<Key, MutableList<Factory<Any>>>()
+            val mapContributions = mutableMapOf<Key, MutableList<Pair<Any, Factory<Any>>>>()
             val registry = object : BindingRegistry {
                 override fun register(key: Key, binding: Binding) {
                     bindings[key] = binding
                 }
+                override fun registerSetContribution(key: Key, factory: Factory<Any>) {
+                    setContributions.getOrPut(key) { mutableListOf() }.add(factory)
+                }
+                override fun registerMapContribution(key: Key, mapKey: Any, factory: Factory<Any>) {
+                    mapContributions.getOrPut(key) { mutableListOf() }.add(mapKey to factory)
+                }
             }
             contributors.forEach { it.contribute(registry) }
+            setContributions.forEach { (key, list) ->
+                bindings[key] = Binding.MultibindingSet(list)
+            }
+            mapContributions.forEach { (key, list) ->
+                bindings[key] = Binding.MultibindingMap(list)
+            }
         }
         initialized = true
     }
@@ -54,6 +68,8 @@ class AnchorContainer(
             is Binding.Unscoped -> binding.factory.create(resolveContainer(binding))
             is Binding.Singleton -> resolveSingleton(key, binding)
             is Binding.Scoped -> resolveScoped(key, binding)
+            is Binding.MultibindingSet -> resolveMultibindingSet(key, binding)
+            is Binding.MultibindingMap -> resolveMultibindingMap(key, binding)
         }
     }
 
@@ -87,6 +103,24 @@ class AnchorContainer(
             return parent.get(key)
         }
         return scopedCache.getOrPut(key) { binding.factory.create(this) }
+    }
+
+    private fun resolveMultibindingSet(key: Key, binding: Binding.MultibindingSet): Any {
+        val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
+        return root.singletonCache.getOrPut(key) {
+            val container = resolveContainer(binding)
+            binding.contributions.map { it.create(container) }.toSet()
+        }
+    }
+
+    private fun resolveMultibindingMap(key: Key, binding: Binding.MultibindingMap): Any {
+        val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
+        return root.singletonCache.getOrPut(key) {
+            val container = resolveContainer(binding)
+            binding.contributions.associate { (mapKey, factory) ->
+                mapKey to factory.create(container)
+            }
+        }
     }
 
     /**
@@ -155,5 +189,27 @@ class AnchorContainer(
         val key = Key(T::class.qualifiedName ?: error("Class ${T::class} has no qualified name"), qualifier)
         @Suppress("UNCHECKED_CAST")
         return get(key) as T
+    }
+
+    /**
+     * Returns a multibound [Set] of [T]. Use when you have @IntoSet contributions;
+     * the key is built as `Set<T>` so it matches the generated multibinding key.
+     */
+    inline fun <reified T : Any> getSet(): Set<T> {
+        val elementName = T::class.qualifiedName ?: error("Class ${T::class} has no qualified name")
+        val key = Key("kotlin.collections.Set<$elementName>", null)
+        @Suppress("UNCHECKED_CAST")
+        return get(key) as Set<T>
+    }
+
+    /**
+     * Returns a multibound [Map] with [String] keys and value type [V]. Use when you have
+     * @IntoMap with @StringKey contributions.
+     */
+    inline fun <reified V : Any> getMap(): Map<String, V> {
+        val valueName = V::class.qualifiedName ?: error("Class ${V::class} has no qualified name")
+        val key = Key("kotlin.collections.Map<kotlin.String,$valueName>", null)
+        @Suppress("UNCHECKED_CAST")
+        return get(key) as Map<String, V>
     }
 }

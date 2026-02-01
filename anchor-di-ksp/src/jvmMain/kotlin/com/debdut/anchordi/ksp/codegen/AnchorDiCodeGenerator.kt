@@ -29,6 +29,9 @@ class AnchorDiCodeGenerator(
         private const val FQN_NAVIGATION_SCOPED = "com.debdut.anchordi.NavigationScoped"
         private const val FQN_NAMED = "com.debdut.anchordi.Named"
         private const val FQN_ANCHOR_VIEW_MODEL = "com.debdut.anchordi.compose.AnchorViewModel"
+        private const val FQN_INTO_SET = "com.debdut.anchordi.IntoSet"
+        private const val FQN_INTO_MAP = "com.debdut.anchordi.IntoMap"
+        private const val FQN_STRING_KEY = "com.debdut.anchordi.StringKey"
         /** Group key for @Inject bindings not exclusively @Binds in one module. */
         private const val INJECT_GROUP_KEY = "Inject"
     }
@@ -323,41 +326,70 @@ class AnchorDiCodeGenerator(
         scopeClassName: String?
     ): List<String> {
         val returnType = func.returnType?.resolve()?.declaration?.qualifiedName?.asString() ?: return emptyList()
-        val hasViewModelScoped = func.hasAnnotation(FQN_VIEW_MODEL_SCOPED)
-        val hasNavigationScoped = func.hasAnnotation(FQN_NAVIGATION_SCOPED)
-        val scopedAnnotation = func.findAnnotation(FQN_SCOPED)
-        val hasSingleton = func.hasAnnotation(FQN_SINGLETON)
-        val (bindingPrefix, bindingSuffix) = when {
-            scopeClassName != null || hasViewModelScoped || hasNavigationScoped -> {
-                val scope = scopeClassName
-                    ?: (if (hasViewModelScoped) ValidationConstants.FQN_VIEW_MODEL_COMPONENT else ValidationConstants.FQN_NAVIGATION_COMPONENT)
-                "Binding.Scoped(\"$scope\", " to ")"
-            }
-            scopedAnnotation != null -> {
-                val scopeClass = getScopedClassName(scopedAnnotation) ?: return emptyList()
-                "Binding.Scoped(\"$scopeClass\", " to ")"
-            }
-            hasSingleton -> "Binding.Singleton(" to ")"
-            else -> "Binding.Unscoped(" to ")"
-        }
-        val qualifier = builder.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
+        val hasIntoSet = func.hasAnnotation(FQN_INTO_SET)
+        val hasIntoMap = func.hasAnnotation(FQN_INTO_MAP)
+        if (hasIntoSet && hasIntoMap) return emptyList() // Invalid; validator can report
+
         val paramNames = func.parameters.map { it.name?.asString() ?: "p" }
         val callArgs = paramNames.joinToString(", ")
-        val keyQualifier = if (qualifier != null) ", \"$qualifier\"" else ", null"
-
-        val lines = mutableListOf<String>()
-        lines.add("registry.register(Key(\"$returnType\"$keyQualifier), ${bindingPrefix}object : Factory<Any> {")
-        lines.add("            override fun create(container: com.debdut.anchordi.runtime.AnchorContainer): Any {")
+        val factoryLines = mutableListOf<String>()
+        factoryLines.add("object : Factory<Any> {")
+        factoryLines.add("            override fun create(container: com.debdut.anchordi.runtime.AnchorContainer): Any {")
         paramNames.forEachIndexed { i, name ->
             val pType = func.parameters[i].type.resolve().declaration.qualifiedName?.asString() ?: "Any"
             val pQualifier = builder.getAnnotationStringValue(func.parameters[i].findAnnotation(FQN_NAMED))
             val getCall = if (pQualifier != null) "container.get<$pType>(\"$pQualifier\")" else "container.get<$pType>()"
-            lines.add("                val $name = $getCall")
+            factoryLines.add("                val $name = $getCall")
         }
-        lines.add("                return $moduleName.${func.simpleName.asString()}($callArgs)")
-        lines.add("            }")
-        lines.add("        })$bindingSuffix")
-        return lines
+        factoryLines.add("                return $moduleName.${func.simpleName.asString()}($callArgs)")
+        factoryLines.add("            }")
+        factoryLines.add("        }")
+
+        return when {
+            hasIntoSet -> {
+                val setKey = "kotlin.collections.Set<$returnType>"
+                mutableListOf<String>().apply {
+                    add("registry.registerSetContribution(Key(\"$setKey\", null), ${factoryLines.first()}")
+                    addAll(factoryLines.drop(1))
+                    add("        })")
+                }
+            }
+            hasIntoMap -> {
+                val mapKeyValue = builder.getAnnotationStringValue(func.findAnnotation(FQN_STRING_KEY)) ?: return emptyList()
+                val mapKeyType = "kotlin.collections.Map<kotlin.String,$returnType>"
+                mutableListOf<String>().apply {
+                    add("registry.registerMapContribution(Key(\"$mapKeyType\", null), \"$mapKeyValue\", ${factoryLines.first()}")
+                    addAll(factoryLines.drop(1))
+                    add("        })")
+                }
+            }
+            else -> {
+                val hasViewModelScoped = func.hasAnnotation(FQN_VIEW_MODEL_SCOPED)
+                val hasNavigationScoped = func.hasAnnotation(FQN_NAVIGATION_SCOPED)
+                val scopedAnnotation = func.findAnnotation(FQN_SCOPED)
+                val hasSingleton = func.hasAnnotation(FQN_SINGLETON)
+                val (bindingPrefix, bindingSuffix) = when {
+                    scopeClassName != null || hasViewModelScoped || hasNavigationScoped -> {
+                        val scope = scopeClassName
+                            ?: (if (hasViewModelScoped) ValidationConstants.FQN_VIEW_MODEL_COMPONENT else ValidationConstants.FQN_NAVIGATION_COMPONENT)
+                        "Binding.Scoped(\"$scope\", " to ")"
+                    }
+                    scopedAnnotation != null -> {
+                        val scopeClass = getScopedClassName(scopedAnnotation) ?: return emptyList()
+                        "Binding.Scoped(\"$scopeClass\", " to ")"
+                    }
+                    hasSingleton -> "Binding.Singleton(" to ")"
+                    else -> "Binding.Unscoped(" to ")"
+                }
+                val qualifier = builder.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
+                val keyQualifier = if (qualifier != null) ", \"$qualifier\"" else ", null"
+                mutableListOf<String>().apply {
+                    add("registry.register(Key(\"$returnType\"$keyQualifier), ${bindingPrefix}${factoryLines.first()}")
+                    addAll(factoryLines.drop(1).map { it })
+                    add("        })$bindingSuffix")
+                }
+            }
+        }
     }
 
     private fun buildBindsRegistrationLines(

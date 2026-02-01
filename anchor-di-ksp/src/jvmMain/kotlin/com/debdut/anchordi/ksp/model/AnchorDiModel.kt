@@ -12,13 +12,18 @@ data class ComponentDescriptor(
 /**
  * Descriptor for a single binding (key + qualifier + component + scope).
  * Used by validators and codegen; built from @Inject classes or @Provides/@Binds.
+ *
+ * For multibindings: [multibindingKind] is "set" or "map"; multiple descriptors
+ * can share the same key (contributions). For map, [mapKey] must be unique per key.
  */
 data class BindingDescriptor(
     val key: String,
     val qualifier: String?,
     val component: String,
     val scope: String?, // null = unscoped
-    val source: String
+    val source: String,
+    val multibindingKind: String? = null, // "set" or "map"
+    val mapKey: String? = null // for map multibinding, the key value (e.g. from @StringKey)
 )
 
 /**

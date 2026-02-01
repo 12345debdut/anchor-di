@@ -71,6 +71,17 @@ object Anchor {
     inline fun <reified T : Any> inject(qualifier: String): T = requireContainer().get<T>(qualifier)
 
     /**
+     * Resolves and returns a multibound [Set] of [T]. Use when you have @IntoSet contributions.
+     */
+    inline fun <reified T : Any> injectSet(): Set<T> = requireContainer().getSet<T>()
+
+    /**
+     * Resolves and returns a multibound [Map] with [String] keys and value type [V]. Use when you have
+     * @IntoMap with @StringKey contributions.
+     */
+    inline fun <reified V : Any> injectMap(): Map<String, V> = requireContainer().getMap<V>()
+
+    /**
      * Returns an [AnchorProvider] for [T] that supplies instances on demand.
      */
     inline fun <reified T : Any> provider(): AnchorProvider<T> = requireContainer().provider<T>()

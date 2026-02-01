@@ -50,6 +50,18 @@ Quick reference for implementing features. Check off as completed.
 
 ---
 
+---
+
+## Multibinding (Phase 2.5)
+
+- [x] **2.5.1** `@IntoSet` — contribute one element to a multibound `Set<T>`
+- [x] **2.5.2** `@IntoMap` with `@StringKey` — contribute one entry to a multibound `Map<String, V>`
+- [x] **2.5.3** Runtime: `Binding.MultibindingSet`, `Binding.MultibindingMap`, `BindingRegistry.registerSetContribution` / `registerMapContribution`
+- [x] **2.5.4** `Anchor.injectSet<T>()` / `Anchor.injectMap<V>()`, `container.getSet<T>()` / `container.getMap<V>()`
+- [x] **2.5.5** KSP: model, validation (duplicate map key), codegen for set/map contributions
+
+---
+
 ## Next steps and improvements
 
 See **[NEXT_STEPS.md](NEXT_STEPS.md)** for:

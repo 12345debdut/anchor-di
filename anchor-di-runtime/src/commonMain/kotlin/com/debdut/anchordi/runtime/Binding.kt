@@ -19,4 +19,16 @@ sealed class Binding {
      * @param scopeClassName Fully-qualified name of the scope class
      */
     data class Scoped(val scopeClassName: String, val factory: Factory<Any>) : Binding()
+
+    /**
+     * Multibinding into a Set: multiple contributions are merged into one set.
+     * Key is the Set element type (e.g. "kotlin.collections.Set<com.example.Tracker>").
+     */
+    data class MultibindingSet(val contributions: List<Factory<Any>>) : Binding()
+
+    /**
+     * Multibinding into a Map: multiple contributions (each with a map key) are merged into one map.
+     * Key is the Map type (e.g. "kotlin.collections.Map<kotlin.String, com.example.Tracker>").
+     */
+    data class MultibindingMap(val contributions: List<Pair<Any, Factory<Any>>>) : Binding()
 }
