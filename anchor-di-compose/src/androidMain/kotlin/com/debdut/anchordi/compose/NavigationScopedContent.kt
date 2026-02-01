@@ -58,6 +58,12 @@ fun NavigationScopedContent(
     // but entry is still in back stack), and disposes only when entry is truly destroyed.
     DisposableEffect(navBackStackEntry) {
         val lifecycle = navBackStackEntry.lifecycle
+        
+        // Handle edge case where lifecycle is already destroyed when we start observing
+        if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
+            NavigationScopeRegistry.dispose(scopeKey)
+        }
+        
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_DESTROY) {
                 NavigationScopeRegistry.dispose(scopeKey)
@@ -67,10 +73,8 @@ fun NavigationScopedContent(
         
         onDispose {
             lifecycle.removeObserver(observer)
-            // Only dispose if the entry is actually destroyed (not just leaving composition)
-            if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
-                NavigationScopeRegistry.dispose(scopeKey)
-            }
+            // Observer handles disposal on ON_DESTROY; no redundant disposal needed here.
+            // The scope persists when composable leaves composition but entry is still alive.
         }
     }
     

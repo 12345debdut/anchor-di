@@ -1,6 +1,7 @@
 package com.debdut.anchordi.runtime
 
 import kotlin.reflect.KClass
+import kotlin.synchronized
 
 /**
  * The dependency injection container. Holds all bindings and resolves dependencies.

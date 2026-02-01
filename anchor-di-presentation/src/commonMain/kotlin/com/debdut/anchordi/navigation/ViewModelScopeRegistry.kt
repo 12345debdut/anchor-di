@@ -12,8 +12,11 @@ import com.debdut.anchordi.runtime.AnchorContainer
  * - **iOS / JVM / JS:** Call [getOrCreate] with a stable key (e.g. screen id, route, ViewController id)
  *   when entering a screen; call [dispose] with the same key when leaving so the scope is released.
  *
- * Backed by [NavigationScopeRegistry] (same key shares nav + viewmodel containers). If you only need
- * ViewModel scope, use this registry; [dispose] clears the entry for that key.
+ * **Important:** This registry is backed by [NavigationScopeRegistry]. Each scope key maps to an
+ * entry containing BOTH a NavigationComponent container and a ViewModelComponent container.
+ * Calling [dispose] releases the entire entry (both containers). If you need to use both
+ * [navigationScopedInject] and [navViewModelAnchor] for the same destination, they will share
+ * the same underlying entry and be disposed together.
  *
  * Thread safety: All operations are thread-safe. Can be called from any thread.
  */
@@ -31,6 +34,13 @@ object ViewModelScopeRegistry {
 
     /**
      * Releases the scope for [scopeKey]. Call when the screen/owner is gone so instances are cleared.
+     *
+     * **Note:** This disposes the entire [NavigationScopeEntry] for this key, including both the
+     * ViewModelComponent container AND the NavigationComponent container. If you're using both
+     * ViewModel-scoped and Navigation-scoped dependencies for the same destination, they share
+     * the same lifecycle and will be disposed together.
+     *
+     * Safe to call multiple times (idempotent).
      */
     fun dispose(scopeKey: Any) {
         NavigationScopeRegistry.dispose(scopeKey)

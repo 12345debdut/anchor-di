@@ -1,6 +1,7 @@
 package com.debdut.anchordi.runtime
 
 import kotlin.concurrent.Volatile
+import kotlin.synchronized
 
 /**
  * Entry point for Anchor DI. Initialize at application startup, then use [inject] to resolve dependencies.
@@ -27,6 +28,10 @@ object Anchor {
     private val lock = Any()
     @Volatile
     private var container: AnchorContainer? = null
+    
+    // Reset listeners are called when Anchor.reset() is invoked.
+    // Used by NavigationScopeRegistry to clear its state when the DI container is reset.
+    private val resetListeners = mutableListOf<() -> Unit>()
 
     /**
      * Initializes the DI container with the given binding contributors.
@@ -137,7 +142,26 @@ object Anchor {
     fun getContainer(): AnchorContainer = requireContainer()
 
     /**
+     * Registers a callback to be invoked when [reset] is called.
+     *
+     * Used internally by NavigationScopeRegistry to clear its state when the DI container
+     * is reset. This ensures that scopes don't hold references to orphaned containers.
+     *
+     * Thread-safe: can be called from any thread.
+     *
+     * @param listener Callback to invoke on reset. Called within the synchronized block.
+     */
+    fun addResetListener(listener: () -> Unit) {
+        synchronized(lock) {
+            resetListeners.add(listener)
+        }
+    }
+
+    /**
      * Resets the container. Use in tests to allow re-initialization with test doubles.
+     *
+     * This also invokes all registered reset listeners (e.g., NavigationScopeRegistry.clear())
+     * to ensure clean state between tests.
      *
      * Thread-safe: can be called from any thread.
      *
@@ -157,6 +181,12 @@ object Anchor {
      */
     fun reset() {
         synchronized(lock) {
+            // Clear all dependent registries first
+            resetListeners.forEach { it() }
+            // Note: We don't clear resetListeners here because they are registered once
+            // during object initialization (e.g., NavigationScopeRegistry.init) and should
+            // persist across reset cycles. Clearing them would break the automatic cleanup
+            // on subsequent resets.
             container = null
         }
     }

@@ -4,6 +4,7 @@ import com.debdut.anchordi.NavigationComponent
 import com.debdut.anchordi.ViewModelComponent
 import com.debdut.anchordi.runtime.Anchor
 import com.debdut.anchordi.runtime.AnchorContainer
+import kotlin.synchronized
 
 /**
  * Registry for per-navigation-entry scopes.
@@ -16,10 +17,19 @@ import com.debdut.anchordi.runtime.AnchorContainer
  * navigation lifecycle indicates enter/exit.
  *
  * Thread safety: All operations are thread-safe. Can be called from any thread.
+ *
+ * **Note:** This registry is automatically cleared when [Anchor.reset][com.debdut.anchordi.runtime.Anchor.reset]
+ * is called, ensuring clean state between tests.
  */
 object NavigationScopeRegistry {
     private val lock = Any()
     private val entries = mutableMapOf<Any, NavigationScopeEntry>()
+
+    init {
+        // Register to be cleared when Anchor.reset() is called.
+        // This ensures scopes don't hold references to orphaned containers between tests.
+        Anchor.addResetListener { clear() }
+    }
 
     /**
      * Returns the navigation scope entry for [scopeKey], creating it if absent.
@@ -51,9 +61,10 @@ object NavigationScopeRegistry {
     fun dispose(scopeKey: Any) {
         synchronized(lock) {
             entries.remove(scopeKey)?.let { entry ->
-                // Clear cached instances to release references for GC
-                entry.navContainer.clear()
-                entry.viewModelContainer.clear()
+                // Clear cached instances to release references for GC.
+                // Use runCatching to ensure both containers are cleared even if one throws.
+                runCatching { entry.navContainer.clear() }
+                runCatching { entry.viewModelContainer.clear() }
             }
         }
     }
@@ -65,10 +76,11 @@ object NavigationScopeRegistry {
      */
     fun clear() {
         synchronized(lock) {
-            // Clear each container's caches before removing entries
+            // Clear each container's caches before removing entries.
+            // Use runCatching to ensure all containers are cleared even if one throws.
             entries.values.forEach { entry ->
-                entry.navContainer.clear()
-                entry.viewModelContainer.clear()
+                runCatching { entry.navContainer.clear() }
+                runCatching { entry.viewModelContainer.clear() }
             }
             entries.clear()
         }

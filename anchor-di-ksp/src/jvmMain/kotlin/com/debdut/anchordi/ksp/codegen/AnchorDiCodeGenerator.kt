@@ -306,7 +306,7 @@ class AnchorDiCodeGenerator(
         params.forEachIndexed { i, param ->
             val name = paramNames[i]
             val (resolvedType, isLazy, isProvider) = builder.resolveParameterType(param)
-            val qualifier = builder.getAnnotationStringValue(param.findAnnotation(FQN_NAMED))
+            val qualifier = KspUtils.getAnnotationStringValue(param.findAnnotation(FQN_NAMED))
             when {
                 isLazy -> sb.appendLine("        val $name = lazy { container.get<$resolvedType>() }")
                 isProvider -> sb.appendLine("        val $name = object : AnchorProvider<$resolvedType> { override fun get() = container.get<$resolvedType>() }")
@@ -339,7 +339,7 @@ class AnchorDiCodeGenerator(
         factoryLines.add("            override fun create(container: com.debdut.anchordi.runtime.AnchorContainer): Any {")
         paramNames.forEachIndexed { i, name ->
             val pType = func.parameters[i].type.resolve().declaration.qualifiedName?.asString() ?: "Any"
-            val pQualifier = builder.getAnnotationStringValue(func.parameters[i].findAnnotation(FQN_NAMED))
+            val pQualifier = KspUtils.getAnnotationStringValue(func.parameters[i].findAnnotation(FQN_NAMED))
             val getCall = if (pQualifier != null) "container.get<$pType>(\"$pQualifier\")" else "container.get<$pType>()"
             factoryLines.add("                val $name = $getCall")
         }
@@ -357,7 +357,7 @@ class AnchorDiCodeGenerator(
                 }
             }
             hasIntoMap -> {
-                val mapKeyValue = builder.getAnnotationStringValue(func.findAnnotation(FQN_STRING_KEY)) ?: return emptyList()
+                val mapKeyValue = KspUtils.getAnnotationStringValue(func.findAnnotation(FQN_STRING_KEY)) ?: return emptyList()
                 val mapKeyType = "kotlin.collections.Map<kotlin.String,$returnType>"
                 mutableListOf<String>().apply {
                     add("registry.registerMapContribution(Key(\"$mapKeyType\", null), \"$mapKeyValue\", ${factoryLines.first()}")
@@ -383,7 +383,7 @@ class AnchorDiCodeGenerator(
                     hasSingleton -> "Binding.Singleton(" to ")"
                     else -> "Binding.Unscoped(" to ")"
                 }
-                val qualifier = builder.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
+                val qualifier = KspUtils.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
                 val keyQualifier = if (qualifier != null) ", \"$qualifier\"" else ", null"
                 mutableListOf<String>().apply {
                     add("registry.register(Key(\"$returnType\"$keyQualifier), ${bindingPrefix}${factoryLines.first()}")
@@ -408,9 +408,9 @@ class AnchorDiCodeGenerator(
             hasSingleton -> "Binding.Singleton("
             else -> "Binding.Unscoped("
         }
-        val qualifier = builder.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
+        val qualifier = KspUtils.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
         val keyQualifier = if (qualifier != null) ", \"$qualifier\"" else ", null"
-        val implQualifier = builder.getAnnotationStringValue(func.parameters.single().findAnnotation(FQN_NAMED))
+        val implQualifier = KspUtils.getAnnotationStringValue(func.parameters.single().findAnnotation(FQN_NAMED))
         val getCall = if (implQualifier != null) {
             "container.get<$implType>(\"$implQualifier\")"
         } else {

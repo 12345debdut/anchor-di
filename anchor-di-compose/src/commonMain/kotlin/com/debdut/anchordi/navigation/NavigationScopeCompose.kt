@@ -2,7 +2,7 @@ package com.debdut.anchordi.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
@@ -79,16 +79,22 @@ fun <Entry : Any> NavScopeContainer(
         }
     }
     
-    // Detect ALL back stack changes by using the full list as the key.
-    // This handles: size changes, last item changes, AND mid-stack replacements.
-    // Using toList() creates a snapshot that triggers recomposition on any list mutation.
-    val backStackSnapshot = backStack.toList()
-    LaunchedEffect(backStackSnapshot) {
-        val currentKeys = backStackSnapshot.map { scopeKeyForEntry(it) }.toSet()
+    // Track current keys and dispose removed ones SYNCHRONOUSLY after each composition.
+    // Using SideEffect (not LaunchedEffect) ensures keys are tracked immediately,
+    // so DisposableEffect.onDispose can properly clean up even if composition exits quickly.
+    //
+    // NOTE: We compute currentKeys directly (no remember) because backStack may be a
+    // SnapshotStateList where mutations don't change the list reference. Using remember(backStack)
+    // would return stale cached values when the list is mutated in place.
+    val currentKeys = backStack.map { scopeKeyForEntry(it) }.toSet()
+    SideEffect {
+        // Dispose scopes for entries that were removed from the back stack
         (previousKeys - currentKeys).forEach { NavigationScopeRegistry.dispose(it) }
+        // Update tracking
         previousKeys.clear()
         previousKeys.addAll(currentKeys)
     }
+    
     content(navScope)
 }
 
