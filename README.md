@@ -548,6 +548,4 @@ This project aims to become a **foundational DI solution for Kotlin Multiplatfor
 
 ## 📜 License
 
-```
-TBD
-```
+Apache License 2.0. See [LICENSE](LICENSE) for details.

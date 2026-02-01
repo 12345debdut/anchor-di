@@ -2,6 +2,8 @@
 
 This document outlines what’s achieved, what’s next, and concrete improvements to consider.
 
+**For a phased plan to make the library production-grade (CI, tests, docs, 1.0 readiness), see [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md).**
+
 ---
 
 ## 1. What We’ve Achieved
@@ -80,10 +82,12 @@ This document outlines what’s achieved, what’s next, and concrete improvemen
 
 ## 4. Suggested order of work
 
-1. **Immediate** — Unit tests for AnchorContainer (and Anchor) + docs polish (ViewModel + troubleshooting).
-2. **Next** — KSP test for generated bindings; ViewModel scope integration test.
-3. **Then** — Custom components (with symbol-based scope ID) + optional SCOPE_ID/withScope(scopeId).
-4. **After** — README focus, Phase 4 (publish, contributing guide, optional benchmarks).
+Aligned with [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md):
+
+1. **Phase A (Stability)** — CI on PRs; ViewModel scope integration test; KSP test strategy; stabilize validator test assertions.
+2. **Phase B (Quality)** — README license; "Scoped binding requires a scope" + ViewModel docs; stronger KSP/runtime errors; ProGuard/R8 guidance.
+3. **Phase C (Hardening)** — Custom components (symbol-based scope ID); scopedContainer/withScope(scopeId) docs; README branding; optional benchmarks.
+4. **Phase D (1.0)** — API stability policy; changelog; release checklist; optional BOM.
 
 ---
 

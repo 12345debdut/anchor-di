@@ -64,9 +64,5 @@ Quick reference for implementing features. Check off as completed.
 
 ## Next steps and improvements
 
-See **[NEXT_STEPS.md](NEXT_STEPS.md)** for:
-
-- **Short-term**: Runtime and KSP tests, ViewModel-scope integration test, docs polish (ViewModelComponent, “requires a scope” troubleshooting).
-- **Medium-term**: Custom components (re-add with symbol-based scope ID), optional `scopedContainer` / `withScope(scopeId)`, stronger error messages, README focus on Anchor DI.
-- **Phase 4**: Publish, contributing guide, optional benchmarks.
-- **Improvements by area**: Code/API, KSP, Compose/ViewModel, docs, testing.
+- **Production-grade plan:** See **[PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)** for phased work: Phase A (CI + integration tests), B (docs + errors + ProGuard), C (custom components + branding), D (1.0 readiness).
+- **Detailed improvements:** See **[NEXT_STEPS.md](NEXT_STEPS.md)** for short/medium-term items, custom components, error messages, and area-by-area notes.
