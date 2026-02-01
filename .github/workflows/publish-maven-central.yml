@@ -24,7 +24,6 @@ on:
           - anchor-di-ksp
           - anchor-di-android
           - anchor-di-presentation
-          - anchor-di-presentation-compose
           - anchor-di-compose
       custom_modules:
         description: 'Optional: comma-separated list to publish instead (e.g. anchor-di-api,anchor-di-core). Overrides the dropdown above when non-empty.'

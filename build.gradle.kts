@@ -24,7 +24,6 @@ val publishableModules = setOf(
     "anchor-di-ksp",
     "anchor-di-android",
     "anchor-di-presentation",
-    "anchor-di-presentation-compose",
     "anchor-di-compose"
 )
 

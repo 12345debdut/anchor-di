@@ -43,7 +43,7 @@ No API is “missing” for core DI; only the Compose conveniences are not avail
 
 ### 3. **Navigation-scoped DI without Compose**
 
-- **With CMP:** Add **anchor-di-presentation-compose** for `NavScopeContainer`, `NavigationScopedContent`, `navigationScopedInject`, `navViewModelAnchor`.
+- **With CMP:** Add **anchor-di-compose** for `NavScopeContainer`, `NavigationScopedContent`, `navigationScopedInject`, `navViewModelAnchor`.
 - **Without Compose:** Add **anchor-di-presentation** (Compose-free). It provides `NavigationScopeRegistry.getOrCreate(scopeKey)` and `NavigationScopeEntry` (navContainer, viewModelContainer). No Compose dependency. Call `getOrCreate(scopeKey)` when entering a screen and `NavigationScopeRegistry.dispose(scopeKey)` when leaving (e.g. SwiftUI, native UI).
 
 ### 4. **ActivityScope (Android, no Compose)**
@@ -68,4 +68,4 @@ No API is “missing” for core DI; only the Compose conveniences are not avail
 | ActivityScope (Android) | ✅ Full | Add **anchor-di-android** (Compose-free): `Anchor.withScope(ActivityScope::class) { ... }`. |
 | Docs / samples | ✅ Guide | This doc; main README has a KMP install snippet. Optional: minimal KMP-only sample. |
 
-**First-class KMP support:** Use **anchor-di-api**, **anchor-di-core**, **anchor-di-presentation**, and **anchor-di-android** (Android) for full DI and scopes without any Compose dependency. Use **anchor-di-compose** and **anchor-di-presentation-compose** when you adopt Compose Multiplatform.
+**First-class KMP support:** Use **anchor-di-api**, **anchor-di-core**, **anchor-di-presentation**, and **anchor-di-android** (Android) for full DI and scopes without any Compose dependency. Use **anchor-di-compose** when you adopt Compose Multiplatform.

@@ -1,6 +1,6 @@
 /**
  * Convention script for publishing Anchor-DI library modules to Sonatype / Maven Central.
- * Applied to: anchor-di-api, anchor-di-core, anchor-di-ksp, anchor-di-android, anchor-di-presentation, anchor-di-presentation-compose, anchor-di-compose.
+ * Applied to: anchor-di-api, anchor-di-core, anchor-di-ksp, anchor-di-android, anchor-di-presentation, anchor-di-compose.
  *
  * Requires (in gradle.properties or env):
  *   - LIBRARY_GROUP, LIBRARY_VERSION (or VERSION)

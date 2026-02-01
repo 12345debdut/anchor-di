@@ -54,7 +54,6 @@ kotlin {
             implementation(project(":anchor-di-api"))
             implementation(project(":anchor-di-core"))
             implementation(project(":anchor-di-compose"))
-            implementation(project(":anchor-di-presentation-compose"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)

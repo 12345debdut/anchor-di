@@ -46,14 +46,14 @@ dependencies {
 }
 ```
 
-**Compose Multiplatform (CMP):** add `anchor-di-compose` and `anchor-di-presentation-compose` for `anchorInject()`, `viewModelAnchor()`, `NavScopeContainer`, `navigationScopedInject()`.
+**Compose Multiplatform (CMP):** add `anchor-di-compose` for `anchorInject()`, `viewModelAnchor()`, `NavScopeContainer`, `navigationScopedInject()`.
 
 ```kotlin
 dependencies {
     implementation("io.github.12345debdut:anchor-di-api:0.1.0")
     implementation("io.github.12345debdut:anchor-di-core:0.1.0")
     implementation("io.github.12345debdut:anchor-di-compose:0.1.0")           // anchorInject(), viewModelAnchor()
-    implementation("io.github.12345debdut:anchor-di-presentation-compose:0.1.0") // NavScopeContainer, navigationScopedInject()
+    // anchor-di-compose includes NavScopeContainer, navigationScopedInject() — no separate artifact needed
     // + KSP as above
 }
 ```

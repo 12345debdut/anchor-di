@@ -34,12 +34,12 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":anchor-di-api"))
             implementation(project(":anchor-di-core"))
+            implementation(project(":anchor-di-presentation"))
             implementation(libs.compose.runtime)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
         }
         androidMain.dependencies {
             implementation(project(":anchor-di-android"))
-            implementation(project(":anchor-di-presentation-compose"))
             implementation(libs.androidx.navigation.compose)
         }
     }
