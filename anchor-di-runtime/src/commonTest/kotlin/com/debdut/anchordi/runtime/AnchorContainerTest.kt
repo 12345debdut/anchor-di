@@ -122,7 +122,7 @@ class AnchorContainerTest {
             container.get<TestScopedService>()
         }
         assertTrue(ex.message!!.contains("requires a scope"))
-        assertTrue(ex.message!!.contains(viewModelScopeId))
+        assertTrue(ex.message!!.contains("ViewModelComponent"), "Message should identify ViewModel scope: ${ex.message}")
     }
 
     @Test

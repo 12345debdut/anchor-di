@@ -28,7 +28,7 @@ class MissingBindingValidatorTest {
         val reporter = CollectingReporter()
         MissingBindingValidator.validate(providedKeys, requirements, reporter)
         assertEquals(1, reporter.errors.size)
-        assertTrue(reporter.errors[0].message.contains("Missing binding"))
+        assertTrue(reporter.errors[0].message.contains("Missing dependency binding"))
         assertTrue(reporter.errors[0].message.contains("pkg.Repo"))
     }
 

@@ -31,7 +31,7 @@ class ModuleInstallInValidatorTest {
         val reporter = CollectingReporter()
         ModuleInstallInValidator.validate(modules, knownComponents, reporter)
         assertEquals(1, reporter.errors.size)
-        assertTrue(reporter.errors[0].message.contains("must declare @InstallIn"))
+        assertTrue(reporter.errors[0].message.contains("must have @InstallIn"))
     }
 
     @Test
@@ -42,6 +42,6 @@ class ModuleInstallInValidatorTest {
         val reporter = CollectingReporter()
         ModuleInstallInValidator.validate(modules, knownComponents, reporter)
         assertEquals(1, reporter.errors.size)
-        assertTrue(reporter.errors[0].message.contains("unknown component"))
+        assertTrue(reporter.errors[0].message.contains("Unknown component"))
     }
 }

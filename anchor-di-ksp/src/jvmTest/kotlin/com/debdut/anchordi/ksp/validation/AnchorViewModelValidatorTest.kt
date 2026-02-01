@@ -1,6 +1,6 @@
 package com.debdut.anchordi.ksp.validation
 
-import com.debdut.anchordi.ksp.validation.AnchorViewModelValidator.InjectClassDescriptor
+import com.debdut.anchordi.ksp.validation.InjectClassDescriptor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

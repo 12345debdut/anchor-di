@@ -494,6 +494,31 @@ No reflection. No magic. Only generated code.
 
 ---
 
+## 📊 Test coverage
+
+Test coverage is measured with [Kover](https://kotlin.github.io/kotlinx-kover/) (JVM tests only). From the project root:
+
+- **HTML report (aggregated for library modules):**
+  ```bash
+  ./gradlew koverHtmlReport
+  ```
+  Opens `build/reports/kover/html/index.html` (open in a browser).
+
+- **XML report (e.g. for CI):**
+  ```bash
+  ./gradlew koverXmlReport
+  ```
+  Output: `build/reports/kover/report.xml`.
+
+- **Coverage summary in log:**
+  ```bash
+  ./gradlew koverLog
+  ```
+
+Coverage includes **anchor-di-runtime** (commonTest/JVM) and **anchor-di-ksp** (jvmTest). Running any of these tasks runs the corresponding tests first.
+
+---
+
 ## 🛠️ Project Status
 
 **First public release: 0.1.0** (beta). Ready to ship.

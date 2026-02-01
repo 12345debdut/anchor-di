@@ -1,5 +1,6 @@
 [versions]
 agp = "9.0.0"
+kover = "0.9.5"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
@@ -71,3 +72,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }

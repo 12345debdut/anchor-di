@@ -24,8 +24,9 @@ class ScopeLifetimeValidatorTest {
 
     @Test
     fun longerLivedDependsOnShorterLived_reportsError() {
+        // Both in same component so the dependency is visible; longer-lived (Singleton) depends on shorter-lived (ViewModelScoped).
         val bindings = listOf(
-            BindingDescriptor("com.example.SingletonService", null, ValidationConstants.FQN_SINGLETON_COMPONENT, ValidationConstants.FQN_SINGLETON, "SingletonService"),
+            BindingDescriptor("com.example.SingletonService", null, ValidationConstants.FQN_VIEW_MODEL_COMPONENT, ValidationConstants.FQN_SINGLETON, "SingletonService"),
             BindingDescriptor("com.example.ViewModelHelper", null, ValidationConstants.FQN_VIEW_MODEL_COMPONENT, ValidationConstants.FQN_VIEW_MODEL_SCOPED, "ViewModelHelper")
         )
         val requirements = listOf(

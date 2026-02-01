@@ -9,6 +9,13 @@ plugins {
     alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.androidKmpLibrary) apply false
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.kover)
+}
+
+// Aggregated test coverage for library modules (JVM tests only)
+dependencies {
+    kover(project(":anchor-di-runtime"))
+    kover(project(":anchor-di-ksp"))
 }
 
 val publishableModules = setOf(
