@@ -12,7 +12,7 @@ plugins {
 
 dependencies {
     implementation(project(":anchor-di-api"))
-    implementation(project(":anchor-di-runtime"))
+    implementation(project(":anchor-di-core"))
     implementation(project(":anchor-di-compose"))  // For anchorInject(), viewModelAnchor()
     add("kspCommonMainMetadata", project(":anchor-di-ksp"))
     add("kspAndroid", project(":anchor-di-ksp"))
@@ -80,7 +80,7 @@ val repository = Anchor.inject<UserRepository>()
 ## Architecture
 
 - **anchor-di-api**: Annotations only (`@Inject`, `@Module`, `@Provides`, `@Binds`, `@InstallIn`, `@Singleton`, `@Scoped`, `@ViewModelScoped`, `@NavigationScoped`, `@Named`, `@Qualifier`). No runtime dependency.
-- **anchor-di-runtime**: Container ([Anchor], [AnchorContainer]), [Key], [Binding] (Unscoped/Singleton/Scoped), [Factory], [ComponentBindingContributor]. Resolves dependencies at runtime; no reflection in hot path (uses `reified` and generated code).
+- **anchor-di-core**: Container ([Anchor], [AnchorContainer]), [Key], [Binding] (Unscoped/Singleton/Scoped), [Factory], [ComponentBindingContributor]. Resolves dependencies at runtime; no reflection in hot path (uses `reified` and generated code).
 - **anchor-di-ksp**: Symbol processor that discovers `@Inject` classes and `@Module` classes, validates (missing bindings, circular dependencies, @Binds shape), and generates a [ComponentBindingContributor] implementation that registers all bindings.
 - **anchor-di-compose**: Compose helpers: `anchorInject()`, `viewModelAnchor()`, `NavigationScopedContent` + `navigationScopedInject()` for navigation-scoped bindings (Android).
 
@@ -222,3 +222,8 @@ This means a type is bound to a scope (e.g. **ViewModelComponent**) but was requ
 ### "No binding found for X"
 
 Add a binding (e.g. `@Inject` constructor, `@Provides` in a module, or `@Binds`), ensure the module is `@InstallIn(SingletonComponent::class)` or `@InstallIn(ViewModelComponent::class)`, and **rebuild** (KSP runs at compile time).
+
+## Other guides
+
+- **[ViewModel on all platforms](VIEWMODEL_ALL_PLATFORMS.md)** — ViewModelComponent-scoped bindings on Android, iOS, JVM, JS with or without Compose; ViewModelScopeRegistry and Android helpers.
+- **[KMP without Compose](KMP_WITHOUT_COMPOSE.md)** — Using Anchor DI in KMP projects that do not use Compose Multiplatform (SwiftUI, Views, or shared logic only); what works and what’s missing.

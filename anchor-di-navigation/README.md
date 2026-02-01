@@ -9,7 +9,7 @@ Use this module when you need **navigation-scoped** DI (one instance per destina
 ```kotlin
 commonMain.dependencies {
     implementation(project(":anchor-di-api"))
-    implementation(project(":anchor-di-runtime"))
+    implementation(project(":anchor-di-core"))
     implementation(project(":anchor-di-navigation"))
 }
 ```
@@ -21,8 +21,10 @@ commonMain.dependencies {
 
 Resolve from `entry.navContainer` or `entry.viewModelContainer` as needed.
 
-**Compose:** This module includes Compose integration: `NavigationScopedContent`, `navigationScopedInject`, `navViewModelAnchor`. Add `anchor-di-navigation` when you need navigation-scoped DI in Compose. **anchor-di-compose** stays independent (viewModelAnchor, anchorInject only).
+**ViewModel scope only (all platforms):** Use `ViewModelScopeRegistry.getOrCreate(scopeKey)` to get a ViewModel-scoped container; call `ViewModelScopeRegistry.dispose(scopeKey)` when the screen/owner is gone. See [docs/VIEWMODEL_ALL_PLATFORMS.md](../docs/VIEWMODEL_ALL_PLATFORMS.md) for ViewModel support on all platforms (Android, iOS, JVM, JS) with or without Compose.
 
-**Dispose when popped:** With Navigation 3 (or any back stack), use `NavScopeContainer(backStack, scopeKeyForEntry) { ... }` and put your `NavDisplay` and `NavigationScopedContent` inside the lambda. The framework observes the back stack and disposes scopes for entries that are removed (e.g. when the user pops), so ViewModels and scoped state are retained for entries still on the stack and released when they are popped.
+**Compose:** For Compose Multiplatform, add **anchor-di-navigation-compose** (depends on this module). It provides `NavScopeContainer`, `NavigationScopedContent`, `navigationScopedInject`, `navViewModelAnchor`. **anchor-di-compose** stays independent (viewModelAnchor, anchorInject only).
+
+**Dispose when popped (CMP):** With Navigation 3 (or any back stack), use `NavScopeContainer(backStack, scopeKeyForEntry) { ... }` from **anchor-di-navigation-compose** and put your `NavDisplay` and `NavigationScopedContent` inside the lambda.
 
 **Non-Compose:** Call `NavigationScopeRegistry.getOrCreate` / `dispose` when entering/leaving a screen (e.g. SwiftUI, native UI).

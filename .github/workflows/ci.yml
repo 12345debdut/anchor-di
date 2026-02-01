@@ -31,4 +31,4 @@ jobs:
           cache: 'gradle'
 
       - name: Run library tests
-        run: ./gradlew :anchor-di-runtime:test :anchor-di-ksp:test --no-daemon
+        run: ./gradlew :anchor-di-core:test :anchor-di-ksp:test --no-daemon

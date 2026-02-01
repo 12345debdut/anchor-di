@@ -29,25 +29,36 @@ Dependency Injection in Kotlin Multiplatform is still a hard problem.
 
 First public release: **0.1.0** (beta). Add to your KMP project:
 
+**KMP (shared + platform UI, no Compose):** use `anchor-di-api`, `anchor-di-core`, and optionally `anchor-di-navigation` (navigation scope registry) and `anchor-di-android` (ActivityScope, Android-only). No Compose dependency.
+
 ```kotlin
-repositories {
-    mavenCentral()
-}
+repositories { mavenCentral() }
 
 dependencies {
     implementation("io.github.12345debdut:anchor-di-api:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-runtime:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-compose:0.1.0")      // for anchorInject(), viewModelAnchor()
-    implementation("io.github.12345debdut:anchor-di-navigation:0.1.0")    // for NavScopeContainer, navigationScopedInject()
+    implementation("io.github.12345debdut:anchor-di-core:0.1.0")
+    implementation("io.github.12345debdut:anchor-di-navigation:0.1.0")   // optional: NavigationScopeRegistry (Compose-free)
+    implementation("io.github.12345debdut:anchor-di-android:0.1.0")     // optional: ActivityScope (Android, Compose-free)
     add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:0.1.0")
     add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:0.1.0")
     add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
     add("kspIosSimulatorArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    // add other KSP targets as needed (e.g. kspJvm, kspKotlin)
 }
 ```
 
-See [docs/README.md](docs/README.md) for quick start and [docs/PUBLISHING.md](docs/PUBLISHING.md) for publishing this library.
+**Compose Multiplatform (CMP):** add `anchor-di-compose` and `anchor-di-navigation-compose` for `anchorInject()`, `viewModelAnchor()`, `NavScopeContainer`, `navigationScopedInject()`.
+
+```kotlin
+dependencies {
+    implementation("io.github.12345debdut:anchor-di-api:0.1.0")
+    implementation("io.github.12345debdut:anchor-di-core:0.1.0")
+    implementation("io.github.12345debdut:anchor-di-compose:0.1.0")           // anchorInject(), viewModelAnchor()
+    implementation("io.github.12345debdut:anchor-di-navigation-compose:0.1.0") // NavScopeContainer, navigationScopedInject()
+    // + KSP as above
+}
+```
+
+See [docs/README.md](docs/README.md) for quick start, [docs/KMP_WITHOUT_COMPOSE.md](docs/KMP_WITHOUT_COMPOSE.md) for KMP without Compose, and [docs/PUBLISHING.md](docs/PUBLISHING.md) for publishing this library.
 
 ---
 
@@ -515,7 +526,7 @@ Test coverage is measured with [Kover](https://kotlin.github.io/kotlinx-kover/) 
   ./gradlew koverLog
   ```
 
-Coverage includes **anchor-di-runtime** (commonTest/JVM) and **anchor-di-ksp** (jvmTest). Running any of these tasks runs the corresponding tests first.
+Coverage includes **anchor-di-core** (commonTest/JVM) and **anchor-di-ksp** (jvmTest). Running any of these tasks runs the corresponding tests first.
 
 ---
 

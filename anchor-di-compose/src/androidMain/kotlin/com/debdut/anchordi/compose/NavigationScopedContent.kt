@@ -5,6 +5,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.navigation.NavBackStackEntry
 import com.debdut.anchordi.NavigationComponent
+import com.debdut.anchordi.navigation.LocalNavigationScope
 import com.debdut.anchordi.runtime.Anchor
 
 /**

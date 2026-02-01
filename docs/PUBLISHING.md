@@ -198,7 +198,7 @@ When using a **key file**, Gradle expects a **binary** keyring, not ASCII-armore
 The root `build.gradle.kts` applies the publish convention to:
 
 - **anchor-di-api**
-- **anchor-di-runtime**
+- **anchor-di-core**
 - **anchor-di-ksp**
 - **anchor-di-compose**
 - **anchor-di-navigation**
@@ -255,8 +255,8 @@ A **manual workflow** is provided so you can trigger a publish from GitHub with 
 2. Click **Run workflow**.
 3. Fill in:
    - **Version** — e.g. `0.1.0` (no `-SNAPSHOT` for a release). For the **first public release** use `0.1.0`.
-   - **Modules** — choose **all** or a single module (`anchor-di-api`, `anchor-di-runtime`, etc.). For first release use **all**.
-   - **Custom modules** (optional) — comma-separated list to publish instead of the dropdown, e.g. `anchor-di-api,anchor-di-runtime,anchor-di-compose`. Leave empty to use the dropdown.
+   - **Modules** — choose **all** or a single module (`anchor-di-api`, `anchor-di-core`, etc.). For first release use **all**.
+   - **Custom modules** (optional) — comma-separated list to publish instead of the dropdown, e.g. `anchor-di-api,anchor-di-core,anchor-di-compose`. Leave empty to use the dropdown.
 4. Click **Run workflow**. The job will publish to Sonatype staging.
 5. In [central.sonatype.com](https://central.sonatype.com), open the new staging repository → **Close** → **Release**.
 
@@ -287,7 +287,7 @@ repositories {
 
 dependencies {
     implementation("io.github.12345debdut:anchor-di-api:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-runtime:0.1.0")
+    implementation("io.github.12345debdut:anchor-di-core:0.1.0")
     implementation("io.github.12345debdut:anchor-di-compose:0.1.0")
     implementation("io.github.12345debdut:anchor-di-navigation:0.1.0")
     add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:0.1.0")

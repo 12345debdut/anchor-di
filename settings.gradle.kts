@@ -32,8 +32,10 @@ dependencyResolutionManagement {
 }
 
 include(":anchor-di-api")
-include(":anchor-di-runtime")
+include(":anchor-di-core")
+include(":anchor-di-android")
 include(":anchor-di-navigation")
+include(":anchor-di-navigation-compose")
 include(":anchor-di-compose")
 include(":anchor-di-ksp")
 include(":composeApp")

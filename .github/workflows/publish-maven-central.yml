@@ -20,12 +20,14 @@ on:
         options:
           - all
           - anchor-di-api
-          - anchor-di-runtime
+          - anchor-di-core
           - anchor-di-ksp
-          - anchor-di-compose
+          - anchor-di-android
           - anchor-di-navigation
+          - anchor-di-navigation-compose
+          - anchor-di-compose
       custom_modules:
-        description: 'Optional: comma-separated list to publish instead (e.g. anchor-di-api,anchor-di-runtime). Overrides the dropdown above when non-empty.'
+        description: 'Optional: comma-separated list to publish instead (e.g. anchor-di-api,anchor-di-core). Overrides the dropdown above when non-empty.'
         required: false
         default: ''
         type: string

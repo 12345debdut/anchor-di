@@ -33,7 +33,7 @@ This document defines what “production grade” means for Anchor DI and lays o
 
 | # | Task | Description | Owner / Notes |
 |---|------|-------------|----------------|
-| A1 | **CI: test on every PR** | Add a GitHub Actions workflow that runs `./gradlew build` (or at least `:anchor-di-runtime:test` and `:anchor-di-ksp:test`) on push/PR to main. | Unblocks safe refactors. |
+| A1 | **CI: test on every PR** | Add a GitHub Actions workflow that runs `./gradlew build` (or at least `:anchor-di-core:test` and `:anchor-di-ksp:test`) on push/PR to main. | Unblocks safe refactors. |
 | A2 | **ViewModel scope integration test** | One test (runtime or composeApp): init Anchor with a contributor that has a ViewModel-scoped binding; enter ViewModel scope; resolve a type that depends on it; assert success. | Validates “requires a scope” path end-to-end. |
 | A3 | **KSP test strategy** | Document or automate: (1) how KspFakes are kept in sync with KSP API, or (2) add a small test module that KSP processes and assert generated code compiles and registers expected bindings. | Reduces breakage on KSP upgrades. |
 | A4 | **Stabilize validator test assertions** | Prefer asserting on stable substrings or error codes rather than full message text where possible; or centralize expected messages in constants. | Fewer brittle failures when copy changes. |

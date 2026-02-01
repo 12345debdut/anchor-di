@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
  * will be scoped to the given scope class. One instance per scope instance.
  *
  * Resolve scoped types only inside Anchor.withScope(scopeClass) { ... } or via a container
- * returned by Anchor.scopedContainer(scopeClass) (from anchor-di-runtime).
+ * returned by Anchor.scopedContainer(scopeClass) (from anchor-di-core).
  *
  * @param value The scope class (e.g. a top-level object or class used with [InstallIn])
  */

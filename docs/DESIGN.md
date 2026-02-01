@@ -19,7 +19,7 @@ Anchor DI aims to provide:
 ```
 anchor-di/
 ├── anchor-di-api/          # Annotations & public API (commonMain)
-├── anchor-di-runtime/      # Runtime container & core logic (commonMain + expect/actual)
+├── anchor-di-core/      # Runtime container & core logic (commonMain + expect/actual)
 ├── anchor-di-ksp/          # KSP processor (JVM only, runs at compile time)
 └── anchor-di-compose/      # Compose Multiplatform extensions (anchorInject, viewModelAnchor)
 ```
@@ -281,7 +281,7 @@ For projects with multiple modules using Anchor DI:
 ## 7. Implementation Order
 
 1. **anchor-di-api** — Annotations only
-2. **anchor-di-runtime** — `AnchorContainer`, `Key`, `Scope`, `BindingRegistry`
+2. **anchor-di-core** — `AnchorContainer`, `Key`, `Scope`, `BindingRegistry`
 3. **anchor-di-ksp** — Processor for `@Inject` constructor → factory
 4. **anchor-di-ksp** — Processor for `@Module`, `@Provides`, `@Binds`
 5. **anchor-di-ksp** — Graph validation, qualifiers, scopes

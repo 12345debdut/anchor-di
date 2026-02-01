@@ -40,7 +40,7 @@ This document outlines what’s achieved, what’s next, and concrete improvemen
 
 | Item | Description | Why |
 |------|-------------|-----|
-| **Publish** | Maven Central (or equivalent) for anchor-di-api, anchor-di-runtime, anchor-di-ksp, anchor-di-compose; version catalog / BOM. | Others can depend on Anchor DI. |
+| **Publish** | Maven Central (or equivalent) for anchor-di-api, anchor-di-core, anchor-di-ksp, anchor-di-compose; version catalog / BOM. | Others can depend on Anchor DI. |
 | **Sample app** | Already present (composeApp); add a short “Anchor DI in this app” section in docs and root README. | Demonstrates real usage. |
 | **Benchmarks** | Optional: startup cost of Anchor.init + first inject, and scoped vs unscoped resolution. | Justify performance and guide optimizations. |
 | **Contributing guide** | CONTRIBUTING.md: branch policy, how to run tests, KSP expectations, doc updates. | Easier external contributions. |
@@ -74,7 +74,7 @@ This document outlines what’s achieved, what’s next, and concrete improvemen
 
 ### 3.5 Testing
 
-- **anchor-di-runtime** — JVM or commonTest (if supported): tests for Anchor.init/reset, get (Unscoped/Singleton/Scoped), createScope, nested scope, missing binding.
+- **anchor-di-core** — JVM or commonTest (if supported): tests for Anchor.init/reset, get (Unscoped/Singleton/Scoped), createScope, nested scope, missing binding.
 - **anchor-di-ksp** — JVM test that runs KSP on a test module and asserts generated file contains expected strings (e.g. Binding.Scoped, correct scope ID).
 - **composeApp** — Optional: one Compose test or Android instrumented test that launches a screen using viewModelAnchor() and a ViewModel-scoped dependency.
 

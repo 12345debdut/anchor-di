@@ -14,16 +14,18 @@ plugins {
 
 // Aggregated test coverage for library modules (JVM tests only)
 dependencies {
-    kover(project(":anchor-di-runtime"))
+    kover(project(":anchor-di-core"))
     kover(project(":anchor-di-ksp"))
 }
 
 val publishableModules = setOf(
     "anchor-di-api",
-    "anchor-di-runtime",
+    "anchor-di-core",
     "anchor-di-ksp",
-    "anchor-di-compose",
-    "anchor-di-navigation"
+    "anchor-di-android",
+    "anchor-di-navigation",
+    "anchor-di-navigation-compose",
+    "anchor-di-compose"
 )
 
 subprojects {

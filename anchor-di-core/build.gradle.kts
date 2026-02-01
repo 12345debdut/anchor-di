@@ -3,6 +3,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKmpLibrary)
+    alias(libs.plugins.kover)
     id("signing")
 }
 
@@ -12,7 +13,7 @@ kotlin {
         browser()
     }
     androidLibrary {
-        namespace = "com.debdut.anchordi.navigation"
+        namespace = "com.debdut.anchordi.runtime"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
@@ -22,7 +23,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "AnchorDiNavigation"
+            baseName = "AnchorDiCore"
             isStatic = true
         }
     }
@@ -30,7 +31,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":anchor-di-api"))
-            implementation(project(":anchor-di-core"))
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
         }
     }
 }

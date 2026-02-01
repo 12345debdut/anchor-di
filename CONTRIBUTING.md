@@ -23,11 +23,11 @@ Thank you for your interest in contributing. This document covers how to run the
 
 ## Tests
 
-- **Runtime (anchor-di-runtime):** `./gradlew :anchor-di-runtime:test` — unit tests for `Anchor`, `AnchorContainer` (init, reset, inject, withScope, singleton, scoped, provider).
+- **Core (anchor-di-core):** `./gradlew :anchor-di-core:test` — unit tests for `Anchor`, `AnchorContainer` (init, reset, inject, withScope, singleton, scoped, provider).
 - **KSP (anchor-di-ksp):** `./gradlew :anchor-di-ksp:test` — unit tests for validators and code generation.
 - **Sample app:** `./gradlew :composeApp:test` — commonTest for composeApp.
 
-Run all library tests: `./gradlew :anchor-di-runtime:test :anchor-di-ksp:test`
+Run all library tests: `./gradlew :anchor-di-core:test :anchor-di-ksp:test`
 
 ---
 
@@ -36,7 +36,7 @@ Run all library tests: `./gradlew :anchor-di-runtime:test :anchor-di-ksp:test`
 - **Kotlin:** Follow standard Kotlin style (e.g. 4-space indent, naming conventions). The project does not enforce a formatter in CI; keep style consistent with existing files.
 - **Modules:**
   - **anchor-di-api:** Annotations and public API only; no runtime logic.
-  - **anchor-di-runtime:** Container, scopes, `Anchor`; no Compose or nav.
+  - **anchor-di-core:** Container, scopes, `Anchor`; no Compose or nav.
   - **anchor-di-ksp:** Symbol processing and codegen; JVM-only.
   - **anchor-di-compose:** Compose helpers (`anchorInject`, `viewModelAnchor`).
   - **anchor-di-navigation:** Nav-scoped DI (`NavScopeContainer`, `NavigationScopedContent`, disposal when popped).

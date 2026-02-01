@@ -33,11 +33,13 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":anchor-di-api"))
-            implementation(project(":anchor-di-runtime"))
+            implementation(project(":anchor-di-core"))
             implementation(libs.compose.runtime)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
         }
         androidMain.dependencies {
+            implementation(project(":anchor-di-android"))
+            implementation(project(":anchor-di-navigation-compose"))
             implementation(libs.androidx.navigation.compose)
         }
     }
