@@ -3,15 +3,17 @@ package com.debdut.anchordi
 /**
  * A built-in qualifier that uses a string to disambiguate bindings.
  *
+ * Use on constructor parameters (constructor injection only). Field injection is not supported.
+ *
  * Example:
  * ```
  * @Provides
  * @Named("baseUrl")
  * fun provideBaseUrl(): String = "https://api.example.com"
  *
- * @Inject
- * @Named("baseUrl")
- * lateinit var baseUrl: String
+ * class MyApi @Inject constructor(
+ *     @Named("baseUrl") private val baseUrl: String
+ * )
  * ```
  */
 @Qualifier

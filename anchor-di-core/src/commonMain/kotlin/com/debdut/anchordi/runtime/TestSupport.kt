@@ -38,6 +38,6 @@ package com.debdut.anchordi.runtime
  * }
  * ```
  *
- * Note: Order matters—earlier contributors override later ones for the same key.
+ * Note: Order matters—later contributors override earlier ones for the same key.
  */
 // Marker for documentation; actual usage is via Anchor.reset() and Anchor.init()

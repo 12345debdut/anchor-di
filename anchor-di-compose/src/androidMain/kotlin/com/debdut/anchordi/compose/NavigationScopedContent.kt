@@ -17,7 +17,7 @@ import com.debdut.anchordi.navigation.NavigationScopeRegistry
  *
  * Wrap the content of each NavHost destination with this so that [navigationScopedInject]
  * can resolve [NavigationScoped][com.debdut.anchordi.NavigationScoped] and
- * [InstallIn][com.debdut.anchordi.InstallIn](NavigationComponent::class) bindings, and
+ * modules with [InstallIn][com.debdut.anchordi.InstallIn](NavigationComponent::class), and
  * [navViewModelAnchor][com.debdut.anchordi.navigation.navViewModelAnchor] can resolve ViewModels.
  *
  * One scope (and one set of scoped instances) is created per [NavBackStackEntry]; when the

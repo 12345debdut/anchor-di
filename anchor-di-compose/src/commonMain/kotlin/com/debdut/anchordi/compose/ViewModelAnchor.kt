@@ -15,8 +15,8 @@ import com.debdut.anchordi.runtime.Anchor
  * [ViewModelStoreOwner].
  *
  * ViewModel creation runs inside [ViewModelComponent] scope, so the ViewModel can inject
- * [ViewModelComponent]-scoped dependencies (e.g. [ViewModelScoped] or
- * [InstallIn][com.debdut.anchordi.InstallIn](ViewModelComponent::class) bindings). Those
+ * [ViewModelComponent]-scoped dependencies (e.g. [ViewModelScoped] or modules with
+ * [InstallIn][com.debdut.anchordi.InstallIn](ViewModelComponent::class)). Those
  * instances persist for the lifetime of this ViewModel and are cleared when the ViewModel is cleared.
  *
  * Example:

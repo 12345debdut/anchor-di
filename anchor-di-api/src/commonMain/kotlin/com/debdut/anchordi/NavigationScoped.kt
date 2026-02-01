@@ -9,7 +9,7 @@ package com.debdut.anchordi
  * destination is removed from the back stack.
  *
  * Resolve navigation-scoped types only inside [NavigationScopedContent][com.debdut.anchordi.navigation.NavigationScopedContent]
- * (anchor-di-presentation) or equivalent; use [navigationScopedInject][com.debdut.anchordi.navigation.navigationScopedInject]
+ * (anchor-di-compose) or equivalent; use [navigationScopedInject][com.debdut.anchordi.navigation.navigationScopedInject]
  * in composables.
  *
  * Example:

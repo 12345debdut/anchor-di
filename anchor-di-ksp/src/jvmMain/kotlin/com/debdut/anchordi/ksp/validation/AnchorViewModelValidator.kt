@@ -14,7 +14,7 @@ data class InjectClassDescriptor(
 )
 
 /**
- * Validates @AnchorViewModel rules: must be @ViewModelScoped, belong to ViewModelComponent, have @Inject constructor.
+ * Validates @AnchorViewModel rules: must be bound in ViewModelComponent and have an @Inject constructor.
  */
 object AnchorViewModelValidator {
 

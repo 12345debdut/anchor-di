@@ -11,10 +11,7 @@ package com.debdut.anchordi
 annotation class Component
 
 /**
- * Placeholder for the Singleton component.
- *
- * In Hilt, components are generated. For Anchor DI Phase 1, we use this
- * as the default/only component - application-wide singleton scope.
+ * Application-wide component. Bindings installed here (e.g. with [Singleton]) live for the app lifetime.
  *
  * Usage in [InstallIn]:
  * ```
@@ -63,7 +60,7 @@ interface ViewModelComponent {
  * from the back stack.
  *
  * With Compose, wrap destination content in [NavigationScopedContent][com.debdut.anchordi.navigation.NavigationScopedContent]
- * (anchor-di-presentation) and use [navigationScopedInject][com.debdut.anchordi.navigation.navigationScopedInject] inside it.
+ * (anchor-di-compose) and use [navigationScopedInject][com.debdut.anchordi.navigation.navigationScopedInject] inside it.
  *
  * Usage in [InstallIn]:
  * ```

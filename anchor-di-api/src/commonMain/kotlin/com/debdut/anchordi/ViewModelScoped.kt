@@ -13,8 +13,7 @@ package com.debdut.anchordi
  * Example:
  * ```
  * @ViewModelScoped
- * @Inject constructor()
- * class ScreenState { ... }
+ * class ScreenState @Inject constructor() { ... }
  *
  * @AnchorViewModel
  * class MyViewModel @Inject constructor(
