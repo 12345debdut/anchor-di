@@ -6,6 +6,8 @@ import com.debdut.anchordi.Module
 import com.debdut.anchordi.Provides
 import com.debdut.anchordi.Singleton
 import com.debdut.anchordi.SingletonComponent
+import com.debdut.anchordi.ViewModelComponent
+import com.debdut.anchordi.ViewModelScoped
 import com.debdut.simpletemplate.product.data.ProductApi
 import com.debdut.simpletemplate.product.data.ProductApiImpl
 import com.debdut.simpletemplate.product.data.createHttpClient

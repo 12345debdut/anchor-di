@@ -118,13 +118,13 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                             val scopedAnnotation = func.findAnnotation(FQN_SCOPED)
                             val hasSingleton = func.hasAnnotation(ValidationConstants.FQN_SINGLETON)
                             val (scope, component) = when {
-                                hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to ValidationConstants.FQN_VIEW_MODEL_COMPONENT
-                                hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to ValidationConstants.FQN_NAVIGATION_COMPONENT
+                                hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to componentScopeId
+                                hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to componentScopeId
                                 scopedAnnotation != null -> {
                                     val scopeClass = getScopedClassName(scopedAnnotation)
                                     scopeClass to componentScopeId
                                 }
-                                hasSingleton -> ValidationConstants.FQN_SINGLETON to ValidationConstants.FQN_SINGLETON_COMPONENT
+                                hasSingleton -> ValidationConstants.FQN_SINGLETON to componentScopeId
                                 else -> null to componentScopeId
                             }
                             bindings.add(
@@ -148,13 +148,13 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                             val scopedAnnotation = func.findAnnotation(FQN_SCOPED)
                             val hasSingleton = func.hasAnnotation(ValidationConstants.FQN_SINGLETON)
                             val (scope, component) = when {
-                                hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to ValidationConstants.FQN_VIEW_MODEL_COMPONENT
-                                hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to ValidationConstants.FQN_NAVIGATION_COMPONENT
+                                hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to componentScopeId
+                                hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to componentScopeId
                                 scopedAnnotation != null -> {
                                     val scopeClass = getScopedClassName(scopedAnnotation)
                                     scopeClass to componentScopeId
                                 }
-                                hasSingleton -> ValidationConstants.FQN_SINGLETON to ValidationConstants.FQN_SINGLETON_COMPONENT
+                                hasSingleton -> ValidationConstants.FQN_SINGLETON to componentScopeId
                                 else -> null to componentScopeId
                             }
                             bindings.add(
@@ -176,13 +176,13 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                             val scopedAnnotation = func.findAnnotation(FQN_SCOPED)
                             val hasSingleton = func.hasAnnotation(ValidationConstants.FQN_SINGLETON)
                             val (scope, component) = when {
-                                hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to ValidationConstants.FQN_VIEW_MODEL_COMPONENT
-                                hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to ValidationConstants.FQN_NAVIGATION_COMPONENT
+                                hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to componentScopeId
+                                hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to componentScopeId
                                 scopedAnnotation != null -> {
                                     val scopeClass = getScopedClassName(scopedAnnotation)
                                     scopeClass to componentScopeId
                                 }
-                                hasSingleton -> ValidationConstants.FQN_SINGLETON to ValidationConstants.FQN_SINGLETON_COMPONENT
+                                hasSingleton -> ValidationConstants.FQN_SINGLETON to componentScopeId
                                 else -> null to componentScopeId
                             }
                             bindings.add(
@@ -206,13 +206,13 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                     val scopedAnnotation = func.findAnnotation(FQN_SCOPED)
                     
                     val (scope, component) = when {
-                        hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to ValidationConstants.FQN_VIEW_MODEL_COMPONENT
-                        hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to ValidationConstants.FQN_NAVIGATION_COMPONENT
+                        hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to componentScopeId
+                        hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to componentScopeId
                         scopedAnnotation != null -> {
                             val scopeClass = getScopedClassName(scopedAnnotation)
                             scopeClass to componentScopeId
                         }
-                        hasSingleton -> ValidationConstants.FQN_SINGLETON to ValidationConstants.FQN_SINGLETON_COMPONENT
+                        hasSingleton -> ValidationConstants.FQN_SINGLETON to componentScopeId
                         else -> null to componentScopeId
                     }
                     
@@ -375,21 +375,35 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
             }
         }
         moduleClasses.forEach { moduleDecl ->
-            moduleDecl.declarations.filterIsInstance<KSFunctionDeclaration>()
-                .filter { it.hasAnnotation(FQN_PROVIDES) }
-                .forEach { func ->
-                    func.parameters.forEach { param ->
-                        val (typeName, _, _) = resolveParameterType(param)
-                        if (typeName != "Any") {
+            moduleDecl.declarations.filterIsInstance<KSFunctionDeclaration>().forEach { func ->
+                when {
+                    func.hasAnnotation(FQN_PROVIDES) -> {
+                        func.parameters.forEach { param ->
+                            val (typeName, _, _) = resolveParameterType(param)
+                            if (typeName != "Any") {
+                                requirements.add(
+                                    DependencyRequirement(
+                                        requiredType = typeName,
+                                        requester = func.returnType?.resolve()?.declaration?.qualifiedName?.asString() ?: "?"
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    func.hasAnnotation(FQN_BINDS) && func.parameters.size == 1 -> {
+                        val requester = func.returnType?.resolve()?.declaration?.qualifiedName?.asString()
+                        val requiredType = func.parameters.single().type.resolve().declaration.qualifiedName?.asString()
+                        if (requester != null && requiredType != null && requiredType != "Any") {
                             requirements.add(
                                 DependencyRequirement(
-                                    requiredType = typeName,
-                                    requester = func.returnType?.resolve()?.declaration?.qualifiedName?.asString() ?: "?"
+                                    requiredType = requiredType,
+                                    requester = requester
                                 )
                             )
                         }
                     }
                 }
+            }
         }
         return providedKeys to requirements
     }

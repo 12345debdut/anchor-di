@@ -119,4 +119,22 @@ class ScopeLifetimeViolationValidatorTest {
         ScopeLifetimeViolationValidator.validate(bindings, requirements, reporter)
         assertTrue(reporter.errors.isEmpty())
     }
+
+    @Test
+    fun bindsSingletonDependsOnViewModelScopedImpl_reportsError() {
+        // @Binds @Singleton fun bindProductApi(impl: ProductApiImpl): ProductApi in SingletonComponent
+        // ProductApiImpl is @ViewModelScoped (@Inject class). Requirement (impl, interface) is now recorded.
+        val bindings = listOf(
+            BindingDescriptor("com.example.ProductApi", null, ValidationConstants.FQN_SINGLETON_COMPONENT, ValidationConstants.FQN_SINGLETON, "ProductApiBindsModule.bindProductApi"),
+            BindingDescriptor("com.example.ProductApiImpl", null, ValidationConstants.FQN_VIEW_MODEL_COMPONENT, ValidationConstants.FQN_VIEW_MODEL_SCOPED, "ProductApiImpl")
+        )
+        val requirements = listOf(
+            DependencyRequirement("com.example.ProductApiImpl", "com.example.ProductApi")
+        )
+        val reporter = CollectingReporter()
+        ScopeLifetimeViolationValidator.validate(bindings, requirements, reporter)
+        assertEquals(1, reporter.errors.size)
+        assertTrue(reporter.errors[0].message.contains("longer-lived") && reporter.errors[0].message.contains("ProductApi"))
+        assertTrue(reporter.errors[0].message.contains("ProductApiImpl"))
+    }
 }

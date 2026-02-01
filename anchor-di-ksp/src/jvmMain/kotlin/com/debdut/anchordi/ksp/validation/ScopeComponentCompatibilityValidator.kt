@@ -3,32 +3,25 @@ package com.debdut.anchordi.ksp.validation
 import com.debdut.anchordi.ksp.model.BindingDescriptor
 
 /**
- * Validates that scope annotations are allowed for the component
- * (e.g. SingletonComponent only allows @Singleton, ViewModelComponent only @ViewModelScoped).
+ * Validates that a binding's scope is allowed in its component (module's @InstallIn).
+ * Rule: single source of truth in [ScopeHierarchy.scopeAllowedInComponent].
+ * E.g. @ViewModelScoped in a module @InstallIn(SingletonComponent::class) → error.
  */
 object ScopeComponentCompatibilityValidator {
 
     fun validate(bindings: List<BindingDescriptor>, reporter: ValidationReporter) {
         bindings.forEach { binding ->
-            if (!isScopeAllowed(binding.component, binding.scope)) {
+            if (!ScopeHierarchy.scopeAllowedInComponent(binding.component, binding.scope)) {
                 val componentName = binding.component.substringAfterLast('.')
-                val scopeName = binding.scope?.substringAfterLast('.') ?: "unscoped"
+                val scopeName = ScopeHierarchy.scopeDisplayName(binding.scope)
                 reporter.error(
                     "[Anchor DI] Scope not allowed in this component: the scope '$scopeName' cannot be used in component '$componentName'. " +
                         "Binding source: ${binding.source}. " +
-                        "Each component only allows specific scopes (e.g. SingletonComponent allows only @Singleton, ViewModelComponent only @ViewModelScoped). " +
-                        "Fix: remove the scope annotation from this binding or install it in a component that allows this scope.",
+                        "The binding is in a module installed in $componentName but uses a scope that belongs to a different component. " +
+                        "Fix: remove the scope annotation from this binding, or install the module in the component that allows this scope (e.g. @InstallIn(ViewModelComponent::class) for @ViewModelScoped).",
                     null
                 )
             }
         }
-    }
-
-    private fun isScopeAllowed(component: String, scope: String?): Boolean {
-        if (scope == null) return true
-        if (component == ValidationConstants.FQN_SINGLETON_COMPONENT) return scope == ValidationConstants.FQN_SINGLETON
-        if (component == ValidationConstants.FQN_VIEW_MODEL_COMPONENT) return scope == ValidationConstants.FQN_VIEW_MODEL_SCOPED
-        if (component == ValidationConstants.FQN_NAVIGATION_COMPONENT) return scope == ValidationConstants.FQN_NAVIGATION_SCOPED
-        return true // custom component: any scope from @Scoped is allowed
     }
 }

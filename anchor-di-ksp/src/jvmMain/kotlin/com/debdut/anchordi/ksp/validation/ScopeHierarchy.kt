@@ -74,4 +74,19 @@ object ScopeHierarchy {
         ValidationConstants.FQN_NAVIGATION_COMPONENT -> "Navigation-scoped"
         else -> scopeFqn.substringAfterLast('.')
     }
+
+    /**
+     * Single source of truth: is this scope allowed in this component?
+     * E.g. ViewModelScoped only in ViewModelComponent; Singleton only in SingletonComponent.
+     * Custom components allow @Scoped(ThatComponent::class) or unscoped.
+     */
+    fun scopeAllowedInComponent(componentFqn: String, scopeFqn: String?): Boolean {
+        if (scopeFqn == null) return true
+        return when (componentFqn) {
+            ValidationConstants.FQN_SINGLETON_COMPONENT -> scopeFqn == ValidationConstants.FQN_SINGLETON
+            ValidationConstants.FQN_VIEW_MODEL_COMPONENT -> scopeFqn == ValidationConstants.FQN_VIEW_MODEL_SCOPED
+            ValidationConstants.FQN_NAVIGATION_COMPONENT -> scopeFqn == ValidationConstants.FQN_NAVIGATION_SCOPED
+            else -> true // custom component: allow @Scoped(ThatComponent::class) or any
+        }
+    }
 }
