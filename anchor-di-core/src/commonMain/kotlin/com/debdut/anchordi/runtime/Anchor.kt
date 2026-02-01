@@ -1,7 +1,6 @@
 package com.debdut.anchordi.runtime
 
 import kotlin.concurrent.Volatile
-import kotlin.synchronized
 
 /**
  * Entry point for Anchor DI. Initialize at application startup, then use [inject] to resolve dependencies.
@@ -25,7 +24,7 @@ import kotlin.synchronized
  * ```
  */
 object Anchor {
-    private val lock = Any()
+    private val lock = SyncLock()
     @Volatile
     private var container: AnchorContainer? = null
     
@@ -44,7 +43,7 @@ object Anchor {
      * @throws IllegalArgumentException if already initialized
      */
     fun init(vararg contributors: ComponentBindingContributor) {
-        synchronized(lock) {
+        lock.withLock {
             require(container == null) {
                 "Anchor is already initialized. Call init() only once."
             }
@@ -152,7 +151,7 @@ object Anchor {
      * @param listener Callback to invoke on reset. Called within the synchronized block.
      */
     fun addResetListener(listener: () -> Unit) {
-        synchronized(lock) {
+        lock.withLock {
             resetListeners.add(listener)
         }
     }
@@ -180,7 +179,7 @@ object Anchor {
      * ```
      */
     fun reset() {
-        synchronized(lock) {
+        lock.withLock {
             // Clear all dependent registries first
             resetListeners.forEach { it() }
             // Note: We don't clear resetListeners here because they are registered once

@@ -1,7 +1,6 @@
 package com.debdut.anchordi.runtime
 
 import kotlin.reflect.KClass
-import kotlin.synchronized
 
 /**
  * The dependency injection container. Holds all bindings and resolves dependencies.
@@ -27,7 +26,7 @@ class AnchorContainer(
     
     // Single lock for all caches to prevent potential deadlocks when factories
     // have cross-scope dependencies (e.g., a scoped binding depending on a singleton).
-    private val cacheLock = Any()
+    private val cacheLock = SyncLock()
     private val singletonCache = mutableMapOf<Key, Any>()
     private val scopedCache = mutableMapOf<Key, Any>()
 
@@ -100,8 +99,8 @@ class AnchorContainer(
 
     private fun resolveSingleton(key: Key, binding: Binding.Singleton): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
-        synchronized(root.cacheLock) {
-            return root.singletonCache.getOrPut(key) { binding.factory.create(root) }
+        return root.cacheLock.withLock {
+            root.singletonCache.getOrPut(key) { binding.factory.create(root) }
         }
     }
 
@@ -122,15 +121,15 @@ class AnchorContainer(
             }
             return parent.get(key)
         }
-        synchronized(cacheLock) {
-            return scopedCache.getOrPut(key) { binding.factory.create(this) }
+        return cacheLock.withLock {
+            scopedCache.getOrPut(key) { binding.factory.create(this) }
         }
     }
 
     private fun resolveMultibindingSet(key: Key, binding: Binding.MultibindingSet): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
-        synchronized(root.cacheLock) {
-            return root.singletonCache.getOrPut(key) {
+        return root.cacheLock.withLock {
+            root.singletonCache.getOrPut(key) {
                 val container = resolveContainer(binding)
                 binding.contributions.map { it.create(container) }.toSet()
             }
@@ -139,8 +138,8 @@ class AnchorContainer(
 
     private fun resolveMultibindingMap(key: Key, binding: Binding.MultibindingMap): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
-        synchronized(root.cacheLock) {
-            return root.singletonCache.getOrPut(key) {
+        return root.cacheLock.withLock {
+            root.singletonCache.getOrPut(key) {
                 val container = resolveContainer(binding)
                 binding.contributions.associate { (mapKey, factory) ->
                     mapKey to factory.create(container)
@@ -200,7 +199,7 @@ class AnchorContainer(
      * Thread-safe: Multiple threads can call this safely.
      */
     fun clear() {
-        synchronized(cacheLock) {
+        cacheLock.withLock {
             scopedCache.clear()
             // Note: singletonCache is intentionally NOT cleared here.
             // Singletons are cached at the root and should persist for app lifetime.

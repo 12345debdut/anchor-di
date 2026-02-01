@@ -4,7 +4,7 @@ import com.debdut.anchordi.NavigationComponent
 import com.debdut.anchordi.ViewModelComponent
 import com.debdut.anchordi.runtime.Anchor
 import com.debdut.anchordi.runtime.AnchorContainer
-import kotlin.synchronized
+import com.debdut.anchordi.runtime.SyncLock
 
 /**
  * Registry for per-navigation-entry scopes.
@@ -22,7 +22,7 @@ import kotlin.synchronized
  * is called, ensuring clean state between tests.
  */
 object NavigationScopeRegistry {
-    private val lock = Any()
+    private val lock = SyncLock()
     private val entries = mutableMapOf<Any, NavigationScopeEntry>()
 
     init {
@@ -40,8 +40,8 @@ object NavigationScopeRegistry {
      * @param scopeKey Stable key that uniquely identifies this navigation entry (e.g. route id).
      */
     fun getOrCreate(scopeKey: Any): NavigationScopeEntry {
-        synchronized(lock) {
-            return entries.getOrPut(scopeKey) {
+        return lock.withLock {
+            entries.getOrPut(scopeKey) {
                 val navContainer: AnchorContainer = Anchor.scopedContainer(NavigationComponent.SCOPE_ID)
                 val viewModelContainer: AnchorContainer = Anchor.scopedContainer(ViewModelComponent.SCOPE_ID)
                 NavigationScopeEntry(navContainer, viewModelContainer)
@@ -59,7 +59,7 @@ object NavigationScopeRegistry {
      * Thread-safe: can be called from any thread.
      */
     fun dispose(scopeKey: Any) {
-        synchronized(lock) {
+        lock.withLock {
             entries.remove(scopeKey)?.let { entry ->
                 // Clear cached instances to release references for GC.
                 // Use runCatching to ensure both containers are cleared even if one throws.
@@ -75,7 +75,7 @@ object NavigationScopeRegistry {
      * Thread-safe: can be called from any thread.
      */
     fun clear() {
-        synchronized(lock) {
+        lock.withLock {
             // Clear each container's caches before removing entries.
             // Use runCatching to ensure all containers are cleared even if one throws.
             entries.values.forEach { entry ->
