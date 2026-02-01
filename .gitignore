@@ -128,3 +128,9 @@ $RECYCLE.BIN/
 # Firebase configuration files
 google-services.json
 GoogleService-Info.plist
+
+# Docusaurus (website/)
+website/node_modules/
+website/build/
+website/.docusaurus/
+website/.cache/
