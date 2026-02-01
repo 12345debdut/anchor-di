@@ -2,19 +2,25 @@ package com.debdut.anchordi.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.navigation.NavBackStackEntry
-import com.debdut.anchordi.NavigationComponent
 import com.debdut.anchordi.navigation.LocalNavigationScope
-import com.debdut.anchordi.runtime.Anchor
+import com.debdut.anchordi.navigation.LocalNavViewModelScope
+import com.debdut.anchordi.navigation.NavigationScopeRegistry
 
 /**
- * Provides [NavigationComponent] scope for the given navigation destination.
+ * Provides [NavigationComponent][com.debdut.anchordi.NavigationComponent] and
+ * [ViewModelComponent][com.debdut.anchordi.ViewModelComponent] scope for the given navigation destination.
  *
  * Wrap the content of each NavHost destination with this so that [navigationScopedInject]
- * can resolve [NavigationScoped] and [InstallIn][com.debdut.anchordi.InstallIn]
- * (NavigationComponent::class) bindings. One scope (and one set of scoped instances) is
- * created per [NavBackStackEntry]; when the destination is popped, the scope is released.
+ * can resolve [NavigationScoped][com.debdut.anchordi.NavigationScoped] and
+ * [InstallIn][com.debdut.anchordi.InstallIn](NavigationComponent::class) bindings, and
+ * [navViewModelAnchor][com.debdut.anchordi.navigation.navViewModelAnchor] can resolve ViewModels.
+ *
+ * One scope (and one set of scoped instances) is created per [NavBackStackEntry]; when the
+ * destination is popped and the composable leaves composition, the scope is disposed and
+ * instances are released.
  *
  * Example:
  * ```
@@ -29,15 +35,28 @@ import com.debdut.anchordi.runtime.Anchor
  *
  * @param navBackStackEntry The back stack entry for this destination (e.g. from the
  *   composable lambda in NavHost).
- * @param content Composable content that can use [navigationScopedInject].
+ * @param content Composable content that can use [navigationScopedInject] and
+ *   [navViewModelAnchor][com.debdut.anchordi.navigation.navViewModelAnchor].
  */
 @Composable
 fun NavigationScopedContent(
     navBackStackEntry: NavBackStackEntry,
     content: @Composable () -> Unit
 ) {
-    val scope = remember(navBackStackEntry.id) {
-        Anchor.scopedContainer(NavigationComponent.SCOPE_ID)
+    val scopeKey = navBackStackEntry.id
+    val scopeEntry = remember(scopeKey) {
+        NavigationScopeRegistry.getOrCreate(scopeKey)
     }
-    CompositionLocalProvider(LocalNavigationScope provides scope, content = content)
+    
+    DisposableEffect(scopeKey) {
+        onDispose {
+            NavigationScopeRegistry.dispose(scopeKey)
+        }
+    }
+    
+    CompositionLocalProvider(
+        LocalNavigationScope provides scopeEntry.navContainer,
+        LocalNavViewModelScope provides scopeEntry.viewModelContainer,
+        content = content
+    )
 }

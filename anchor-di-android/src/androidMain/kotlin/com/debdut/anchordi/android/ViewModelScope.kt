@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.debdut.anchordi.navigation.ViewModelScopeRegistry
 import com.debdut.anchordi.runtime.AnchorContainer
 
+private val observedOwnersLock = Any()
 private val observedOwners = mutableSetOf<ViewModelStoreOwner>()
 
 /**
@@ -34,12 +35,21 @@ private val observedOwners = mutableSetOf<ViewModelStoreOwner>()
  */
 fun getViewModelScope(owner: ViewModelStoreOwner, lifecycle: Lifecycle): AnchorContainer {
     val container = ViewModelScopeRegistry.getOrCreate(owner)
-    if (owner !in observedOwners) {
-        observedOwners.add(owner)
+    val shouldObserve = synchronized(observedOwnersLock) {
+        if (owner !in observedOwners) {
+            observedOwners.add(owner)
+            true
+        } else {
+            false
+        }
+    }
+    if (shouldObserve) {
         lifecycle.addObserver(LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_DESTROY) {
                 ViewModelScopeRegistry.dispose(owner)
-                observedOwners.remove(owner)
+                synchronized(observedOwnersLock) {
+                    observedOwners.remove(owner)
+                }
             }
         })
     }

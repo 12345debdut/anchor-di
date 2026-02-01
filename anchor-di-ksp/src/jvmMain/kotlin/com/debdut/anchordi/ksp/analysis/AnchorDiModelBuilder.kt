@@ -1,7 +1,10 @@
 package com.debdut.anchordi.ksp.analysis
 
+import com.debdut.anchordi.ksp.KspUtils
 import com.debdut.anchordi.ksp.analysis.ComponentResolution.discoverComponentDescriptors
 import com.debdut.anchordi.ksp.analysis.ComponentResolution.discoverComponentFqns
+import com.debdut.anchordi.ksp.findAnnotation
+import com.debdut.anchordi.ksp.hasAnnotation
 import com.debdut.anchordi.ksp.model.BindingDescriptor
 import com.debdut.anchordi.ksp.model.BindsMethodDescriptor
 import com.debdut.anchordi.ksp.model.ComponentDescriptor
@@ -73,7 +76,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                 hasAnchorViewModel || hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_COMPONENT to ValidationConstants.FQN_VIEW_MODEL_SCOPED
                 hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_COMPONENT to ValidationConstants.FQN_NAVIGATION_SCOPED
                 scopedAnnotation != null -> {
-                    val scopeClass = getScopedClassName(scopedAnnotation)
+                    val scopeClass = KspUtils.getScopedClassName(scopedAnnotation)
                     scopeClass to scopeClass
                 }
                 hasSingleton -> ValidationConstants.FQN_SINGLETON_COMPONENT to ValidationConstants.FQN_SINGLETON
@@ -121,7 +124,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                                 hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to componentScopeId
                                 hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to componentScopeId
                                 scopedAnnotation != null -> {
-                                    val scopeClass = getScopedClassName(scopedAnnotation)
+                                    val scopeClass = KspUtils.getScopedClassName(scopedAnnotation)
                                     scopeClass to componentScopeId
                                 }
                                 hasSingleton -> ValidationConstants.FQN_SINGLETON to componentScopeId
@@ -140,7 +143,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                             )
                         }
                         hasIntoMap -> {
-                            val mapKeyValue = getAnnotationStringValue(func.findAnnotation(FQN_STRING_KEY))
+                            val mapKeyValue = KspUtils.getAnnotationStringValue(func.findAnnotation(FQN_STRING_KEY))
                                 ?: return@forEach // @IntoMap requires @StringKey; skip or validator will report
                             val mapKeyType = "kotlin.collections.Map<kotlin.String,$returnType>"
                             val hasViewModelScoped = func.hasAnnotation(ValidationConstants.FQN_VIEW_MODEL_SCOPED)
@@ -151,7 +154,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                                 hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to componentScopeId
                                 hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to componentScopeId
                                 scopedAnnotation != null -> {
-                                    val scopeClass = getScopedClassName(scopedAnnotation)
+                                    val scopeClass = KspUtils.getScopedClassName(scopedAnnotation)
                                     scopeClass to componentScopeId
                                 }
                                 hasSingleton -> ValidationConstants.FQN_SINGLETON to componentScopeId
@@ -170,7 +173,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                             )
                         }
                         else -> {
-                            val qualifier = getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
+                            val qualifier = KspUtils.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
                             val hasViewModelScoped = func.hasAnnotation(ValidationConstants.FQN_VIEW_MODEL_SCOPED)
                             val hasNavigationScoped = func.hasAnnotation(ValidationConstants.FQN_NAVIGATION_SCOPED)
                             val scopedAnnotation = func.findAnnotation(FQN_SCOPED)
@@ -179,7 +182,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                                 hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to componentScopeId
                                 hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to componentScopeId
                                 scopedAnnotation != null -> {
-                                    val scopeClass = getScopedClassName(scopedAnnotation)
+                                    val scopeClass = KspUtils.getScopedClassName(scopedAnnotation)
                                     scopeClass to componentScopeId
                                 }
                                 hasSingleton -> ValidationConstants.FQN_SINGLETON to componentScopeId
@@ -199,7 +202,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                 } else if (func.hasAnnotation(FQN_BINDS)) {
                     if (func.parameters.size != 1) return@forEach
                     val returnType = func.returnType?.resolve()?.declaration?.qualifiedName?.asString() ?: return@forEach
-                    val qualifier = getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
+                    val qualifier = KspUtils.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
                     val hasSingleton = func.hasAnnotation(ValidationConstants.FQN_SINGLETON)
                     val hasViewModelScoped = func.hasAnnotation(ValidationConstants.FQN_VIEW_MODEL_SCOPED)
                     val hasNavigationScoped = func.hasAnnotation(ValidationConstants.FQN_NAVIGATION_SCOPED)
@@ -209,7 +212,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
                         hasViewModelScoped -> ValidationConstants.FQN_VIEW_MODEL_SCOPED to componentScopeId
                         hasNavigationScoped -> ValidationConstants.FQN_NAVIGATION_SCOPED to componentScopeId
                         scopedAnnotation != null -> {
-                            val scopeClass = getScopedClassName(scopedAnnotation)
+                            val scopeClass = KspUtils.getScopedClassName(scopedAnnotation)
                             scopeClass to componentScopeId
                         }
                         hasSingleton -> ValidationConstants.FQN_SINGLETON to componentScopeId
@@ -486,28 +489,4 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
             else -> null
         }
     }
-
-    fun getAnnotationStringValue(annotation: KSAnnotation?, argIndex: Int = 0): String? {
-        val arg = annotation?.arguments?.getOrNull(argIndex) ?: return null
-        val str = arg.value?.toString() ?: return null
-        return str.trim('"')
-    }
-
-    private fun getScopedClassName(annotation: KSAnnotation): String? {
-        val arg = annotation.arguments.firstOrNull() ?: return null
-        val value = arg.value
-        if (value is KSTypeReference) {
-            val decl = value.resolve().declaration
-            if (decl is KSClassDeclaration) return decl.qualifiedName?.asString()
-        }
-        val str = value?.toString() ?: return null
-        val clean = str.replace("class ", "").substringBefore(" ").substringBefore("\n").trim()
-        return clean.takeIf { it.isNotBlank() }
-    }
-
-    private fun com.google.devtools.ksp.symbol.KSAnnotated.hasAnnotation(fqn: String): Boolean =
-        annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == fqn }
-
-    private fun com.google.devtools.ksp.symbol.KSAnnotated.findAnnotation(fqn: String): KSAnnotation? =
-        annotations.find { it.annotationType.resolve().declaration.qualifiedName?.asString() == fqn }
 }

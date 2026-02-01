@@ -15,7 +15,7 @@ import com.debdut.anchordi.runtime.AnchorContainer
  * Backed by [NavigationScopeRegistry] (same key shares nav + viewmodel containers). If you only need
  * ViewModel scope, use this registry; [dispose] clears the entry for that key.
  *
- * Thread safety: [getOrCreate] and [dispose] should be called from the same thread (e.g. main).
+ * Thread safety: All operations are thread-safe. Can be called from any thread.
  */
 object ViewModelScopeRegistry {
 

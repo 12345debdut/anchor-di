@@ -24,6 +24,7 @@ import kotlin.concurrent.Volatile
  * ```
  */
 object Anchor {
+    private val lock = Any()
     @Volatile
     private var container: AnchorContainer? = null
 
@@ -31,15 +32,19 @@ object Anchor {
      * Initializes the DI container with the given binding contributors.
      * Must be called before any [inject] calls.
      *
+     * Thread-safe: can be called from any thread; concurrent calls will throw if already initialized.
+     *
      * @param contributors One or more [ComponentBindingContributor] instances.
      *                     Typically the KSP-generated `AnchorGenerated` object.
-     * @throws IllegalStateException if already initialized
+     * @throws IllegalArgumentException if already initialized
      */
     fun init(vararg contributors: ComponentBindingContributor) {
-        require(container == null) {
-            "Anchor is already initialized. Call init() only once."
+        synchronized(lock) {
+            require(container == null) {
+                "Anchor is already initialized. Call init() only once."
+            }
+            container = AnchorContainer(contributors.toList())
         }
-        container = AnchorContainer(contributors.toList())
     }
 
     /**
@@ -134,6 +139,8 @@ object Anchor {
     /**
      * Resets the container. Use in tests to allow re-initialization with test doubles.
      *
+     * Thread-safe: can be called from any thread.
+     *
      * Example:
      * ```
      * @After
@@ -149,6 +156,8 @@ object Anchor {
      * ```
      */
     fun reset() {
-        container = null
+        synchronized(lock) {
+            container = null
+        }
     }
 }

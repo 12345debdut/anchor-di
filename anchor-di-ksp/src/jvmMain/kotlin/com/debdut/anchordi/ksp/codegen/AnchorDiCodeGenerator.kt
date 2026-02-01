@@ -1,6 +1,9 @@
 package com.debdut.anchordi.ksp.codegen
 
+import com.debdut.anchordi.ksp.KspUtils
 import com.debdut.anchordi.ksp.analysis.AnchorDiModelBuilder
+import com.debdut.anchordi.ksp.findAnnotation
+import com.debdut.anchordi.ksp.hasAnnotation
 import com.debdut.anchordi.ksp.validation.ValidationConstants
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -146,7 +149,7 @@ class AnchorDiCodeGenerator(
                 hasAnchorViewModel || hasViewModelScoped -> "Binding.Scoped(\"${ValidationConstants.FQN_VIEW_MODEL_COMPONENT}\", ${simpleName}_Factory())"
                 hasNavigationScoped -> "Binding.Scoped(\"${ValidationConstants.FQN_NAVIGATION_COMPONENT}\", ${simpleName}_Factory())"
                 scopedAnnotation != null -> {
-                    val scopeClass = getScopedClassName(scopedAnnotation) ?: return@forEach
+                    val scopeClass = KspUtils.getScopedClassName(scopedAnnotation) ?: return@forEach
                     "Binding.Scoped(\"$scopeClass\", ${simpleName}_Factory())"
                 }
                 hasSingleton -> "Binding.Singleton(${simpleName}_Factory())"
@@ -374,7 +377,7 @@ class AnchorDiCodeGenerator(
                         "Binding.Scoped(\"$scope\", " to ")"
                     }
                     scopedAnnotation != null -> {
-                        val scopeClass = getScopedClassName(scopedAnnotation) ?: return emptyList()
+                        val scopeClass = KspUtils.getScopedClassName(scopedAnnotation) ?: return emptyList()
                         "Binding.Scoped(\"$scopeClass\", " to ")"
                     }
                     hasSingleton -> "Binding.Singleton(" to ")"
@@ -421,23 +424,4 @@ class AnchorDiCodeGenerator(
             "        }))"
         )
     }
-
-    // Helper: copy of getScopedClassName from processor (could be shared, but small enough to dup or move to utils)
-    private fun getScopedClassName(annotation: com.google.devtools.ksp.symbol.KSAnnotation): String? {
-        val arg = annotation.arguments.firstOrNull() ?: return null
-        val value = arg.value
-        if (value is com.google.devtools.ksp.symbol.KSTypeReference) {
-            val decl = value.resolve().declaration
-            if (decl is KSClassDeclaration) return decl.qualifiedName?.asString()
-        }
-        val str = value?.toString() ?: return null
-        val clean = str.replace("class ", "").substringBefore(" ").substringBefore("\n").trim()
-        return clean.takeIf { it.isNotBlank() }
-    }
-
-    private fun com.google.devtools.ksp.symbol.KSAnnotated.hasAnnotation(fqn: String): Boolean =
-        annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == fqn }
-
-    private fun com.google.devtools.ksp.symbol.KSAnnotated.findAnnotation(fqn: String): com.google.devtools.ksp.symbol.KSAnnotation? =
-        annotations.find { it.annotationType.resolve().declaration.qualifiedName?.asString() == fqn }
 }

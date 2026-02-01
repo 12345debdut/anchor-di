@@ -7,6 +7,9 @@ import kotlin.reflect.KClass
  *
  * Typically accessed through [Anchor]. Use [Anchor.init] to bootstrap the container
  * with generated binding contributors.
+ *
+ * Thread safety: All dependency resolution methods ([get], [getSet], [getMap], [provider])
+ * are thread-safe. Singleton and scoped instances are cached with proper synchronization.
  */
 class AnchorContainer(
     private val contributors: List<ComponentBindingContributor>,
@@ -15,6 +18,8 @@ class AnchorContainer(
     private val inheritedBindings: Map<Key, Binding>? = null
 ) {
     val bindings = inheritedBindings?.toMutableMap() ?: mutableMapOf()
+    private val singletonLock = Any()
+    private val scopedLock = Any()
     private val singletonCache = mutableMapOf<Key, Any>()
     private val scopedCache = mutableMapOf<Key, Any>()
     private var initialized = false
@@ -82,7 +87,9 @@ class AnchorContainer(
 
     private fun resolveSingleton(key: Key, binding: Binding.Singleton): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
-        return root.singletonCache.getOrPut(key) { binding.factory.create(root) }
+        synchronized(root.singletonLock) {
+            return root.singletonCache.getOrPut(key) { binding.factory.create(root) }
+        }
     }
 
     private fun resolveScoped(key: Key, binding: Binding.Scoped): Any {
@@ -102,23 +109,29 @@ class AnchorContainer(
             }
             return parent.get(key)
         }
-        return scopedCache.getOrPut(key) { binding.factory.create(this) }
+        synchronized(scopedLock) {
+            return scopedCache.getOrPut(key) { binding.factory.create(this) }
+        }
     }
 
     private fun resolveMultibindingSet(key: Key, binding: Binding.MultibindingSet): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
-        return root.singletonCache.getOrPut(key) {
-            val container = resolveContainer(binding)
-            binding.contributions.map { it.create(container) }.toSet()
+        synchronized(root.singletonLock) {
+            return root.singletonCache.getOrPut(key) {
+                val container = resolveContainer(binding)
+                binding.contributions.map { it.create(container) }.toSet()
+            }
         }
     }
 
     private fun resolveMultibindingMap(key: Key, binding: Binding.MultibindingMap): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
-        return root.singletonCache.getOrPut(key) {
-            val container = resolveContainer(binding)
-            binding.contributions.associate { (mapKey, factory) ->
-                mapKey to factory.create(container)
+        synchronized(root.singletonLock) {
+            return root.singletonCache.getOrPut(key) {
+                val container = resolveContainer(binding)
+                binding.contributions.associate { (mapKey, factory) ->
+                    mapKey to factory.create(container)
+                }
             }
         }
     }
