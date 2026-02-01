@@ -43,8 +43,15 @@ class ProductListViewModel @Inject constructor(
                     }
                 }
                 .onFailure { e ->
+                    val message = e.message ?: "Unknown error"
+                    val friendlyMessage = when {
+                        message.contains("Unable to resolve host", ignoreCase = true) ||
+                        message.contains("No address associated with hostname", ignoreCase = true) ->
+                            "Can't reach the server. Check your internet connection and try again."
+                        else -> message
+                    }
                     _uiState.update {
-                        it.copy(isLoading = false, error = e.message ?: "Unknown error")
+                        it.copy(isLoading = false, error = friendlyMessage)
                     }
                 }
         }

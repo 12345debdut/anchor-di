@@ -106,6 +106,7 @@ fun ProductListScreen(
             uiState.error != null && uiState.products.isEmpty() -> {
                 ErrorContent(
                     message = uiState.error!!,
+                    onRetry = { viewModel.refresh() },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(24.dp),
@@ -270,6 +271,7 @@ private fun EmptyContent(
 @Composable
 private fun ErrorContent(
     message: String,
+    onRetry: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -293,5 +295,11 @@ private fun ErrorContent(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.error,
         )
+        if (onRetry != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            TextButton(onClick = onRetry) {
+                Text("Try again")
+            }
+        }
     }
 }
