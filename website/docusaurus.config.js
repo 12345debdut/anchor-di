@@ -72,11 +72,11 @@ const config = {
             items: [
               {
                 label: 'Getting Started',
-                to: '/intro',
+                to: '/',
               },
               {
                 label: 'Installation',
-                to: '/installation/setup',
+                to: 'installation/setup',
               },
             ],
           },

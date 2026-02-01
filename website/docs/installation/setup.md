@@ -59,7 +59,7 @@ Call `Anchor.init(*getAnchorContributors())` once at app startup:
 - **iOS:** In your app entry point (e.g. `main()` or `@main` App init)
 - **Desktop / JVM:** Before creating any UI or resolving dependencies
 
-The generated `getAnchorContributors()` function returns an array of `ComponentBindingContributor` implementations. KSP generates it in `commonMain` metadata; on iOS, you need an actual in both `iosArm64Main` and `iosSimulatorArm64Main` (see [Platform-Specific Setup](/installation/platform-specific)).
+The generated `getAnchorContributors()` function returns an array of `ComponentBindingContributor` implementations. KSP generates it in `commonMain` metadata; on iOS, you need an actual in both `iosArm64Main` and `iosSimulatorArm64Main` (see [Platform-Specific Setup](platform-specific)).
 
 ## Step 4: Build
 

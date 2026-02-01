@@ -54,6 +54,6 @@ fun UserScreen(
 
 ## What's Next?
 
-- **[Getting Started](/getting-started/overview)** — Learn what Anchor DI offers and how DI works
-- **[Installation](/installation/setup)** — Add Anchor DI to your KMP project
-- **[Core Concepts](/core/concepts)** — Components, scopes, and modules
+- **[Getting Started](getting-started/overview)** — Learn what Anchor DI offers and how DI works
+- **[Installation](installation/setup)** — Add Anchor DI to your KMP project
+- **[Core Concepts](core/concepts)** — Components, scopes, and modules
