@@ -27,10 +27,14 @@ npm run serve -- --locale en
 
 Docs are deployed to GitHub Pages via GitHub Actions when changes are pushed to `main` in the `website/` directory.
 
-### Enable GitHub Pages
+### Enable GitHub Pages (required before first deploy)
 
-1. Go to **Settings** → **Pages** in your GitHub repo
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**
-3. Push to `main`; the workflow will build and deploy
+If you see **"Get Pages site failed"**, enable GitHub Pages manually:
+
+1. Open your repo on GitHub
+2. Go to **Settings** → **Pages**
+3. Under **Build and deployment**, set **Source** to **GitHub Actions**
+4. Save (no need to select a branch or folder)
+5. Push a change to `website/` or run the workflow manually
 
 The site will be live at: `https://12345debdut.github.io/anchor-di/`
