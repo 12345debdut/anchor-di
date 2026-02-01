@@ -56,6 +56,11 @@ if (hasSigningKey) {
 val sonatypeUsername: String? = project.findProperty("SONATYPE_USERNAME") as? String ?: System.getenv("ORG_GRADLE_PROJECT_SONATYPE_USERNAME")?.ifBlank { null }
 val sonatypePassword: String? = project.findProperty("SONATYPE_PASSWORD") as? String ?: System.getenv("ORG_GRADLE_PROJECT_SONATYPE_PASSWORD")?.ifBlank { null }
 
+// Maven Central requires a javadoc JAR for each publication. Use an empty JAR for KMP (Dokka optional).
+val emptyJavadocJar = project.tasks.register<Jar>("emptyJavadocJar") {
+    archiveClassifier.set("javadoc")
+}
+
 project.extensions.configure<org.gradle.api.publish.PublishingExtension> {
     repositories {
         maven {
@@ -69,6 +74,7 @@ project.extensions.configure<org.gradle.api.publish.PublishingExtension> {
         mavenLocal()
     }
     publications.withType<org.gradle.api.publish.maven.MavenPublication>().configureEach {
+        artifact(emptyJavadocJar)
         groupId = libraryGroup
         version = libraryVersion
         pom {

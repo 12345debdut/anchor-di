@@ -106,9 +106,24 @@ jobs:
         if: success()
         run: |
           AUTH=$(echo -n "${{ secrets.MAVEN_CENTRAL_USERNAME }}:${{ secrets.MAVEN_CENTRAL_PASSWORD }}" | base64 -w0)
-          curl -sSf -X POST \
-            -H "Authorization: Bearer $AUTH" \
-            "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/${{ inputs.namespace }}"
+          API="https://ossrh-staging-api.central.sonatype.com"
+          # Prefer search + upload by repository key (same IP as Gradle upload); fallback to defaultRepository
+          RESULT=$(curl -sSf -H "Authorization: Bearer $AUTH" "$API/manual/search/repositories?ip=client")
+          KEY=$(echo "$RESULT" | jq -r '.repositories[0].key // empty')
+          if [ -z "$KEY" ]; then
+            echo "::warning::No staging repository found for this IP. Trying defaultRepository upload..."
+            HTTP=$(curl -sS -w "%{http_code}" -o /tmp/upload_resp -X POST \
+              -H "Authorization: Bearer $AUTH" \
+              -H "Content-Type: application/json" \
+              "$API/manual/upload/defaultRepository/${{ inputs.namespace }}?publishing_type=user_managed")
+            cat /tmp/upload_resp
+            if [ "$HTTP" != "200" ]; then echo "::error::Upload failed with HTTP $HTTP"; exit 1; fi
+          else
+            curl -sSf -X POST \
+              -H "Authorization: Bearer $AUTH" \
+              -H "Content-Type: application/json" \
+              "$API/manual/upload/repository/$KEY?publishing_type=user_managed"
+          fi
 
       - name: Next step
         if: success()
