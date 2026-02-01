@@ -9,7 +9,9 @@ import kotlin.reflect.KClass
  * with generated binding contributors.
  *
  * Thread safety: All dependency resolution methods ([get], [getSet], [getMap], [provider])
- * are thread-safe. Singleton and scoped instances are cached with proper synchronization.
+ * are thread-safe. Singleton and scoped instances are cached with proper synchronization
+ * using a single lock to prevent deadlocks from cross-scope factory dependencies.
+ * The [bindings] map is immutable after construction, ensuring safe concurrent reads.
  */
 class AnchorContainer(
     private val contributors: List<ComponentBindingContributor>,
@@ -17,42 +19,52 @@ class AnchorContainer(
     private val currentScopeId: String? = null,
     private val inheritedBindings: Map<Key, Binding>? = null
 ) {
-    val bindings = inheritedBindings?.toMutableMap() ?: mutableMapOf()
-    private val singletonLock = Any()
-    private val scopedLock = Any()
+    /**
+     * Immutable map of all bindings. Safe for concurrent reads after construction.
+     */
+    val bindings: Map<Key, Binding>
+    
+    // Single lock for all caches to prevent potential deadlocks when factories
+    // have cross-scope dependencies (e.g., a scoped binding depending on a singleton).
+    private val cacheLock = Any()
     private val singletonCache = mutableMapOf<Key, Any>()
     private val scopedCache = mutableMapOf<Key, Any>()
-    private var initialized = false
 
     init {
-        initialize()
+        bindings = buildBindings()
     }
 
-    private fun initialize() {
-        if (initialized) return
-        if (inheritedBindings == null) {
-            val setContributions = mutableMapOf<Key, MutableList<Factory<Any>>>()
-            val mapContributions = mutableMapOf<Key, MutableList<Pair<Any, Factory<Any>>>>()
-            val registry = object : BindingRegistry {
-                override fun register(key: Key, binding: Binding) {
-                    bindings[key] = binding
-                }
-                override fun registerSetContribution(key: Key, factory: Factory<Any>) {
-                    setContributions.getOrPut(key) { mutableListOf() }.add(factory)
-                }
-                override fun registerMapContribution(key: Key, mapKey: Any, factory: Factory<Any>) {
-                    mapContributions.getOrPut(key) { mutableListOf() }.add(mapKey to factory)
-                }
+    private fun buildBindings(): Map<Key, Binding> {
+        if (inheritedBindings != null) {
+            return inheritedBindings // Already immutable, reuse directly
+        }
+        
+        val mutableBindings = mutableMapOf<Key, Binding>()
+        val setContributions = mutableMapOf<Key, MutableList<Factory<Any>>>()
+        val mapContributions = mutableMapOf<Key, MutableList<Pair<Any, Factory<Any>>>>()
+        
+        val registry = object : BindingRegistry {
+            override fun register(key: Key, binding: Binding) {
+                mutableBindings[key] = binding
             }
-            contributors.forEach { it.contribute(registry) }
-            setContributions.forEach { (key, list) ->
-                bindings[key] = Binding.MultibindingSet(list)
+            override fun registerSetContribution(key: Key, factory: Factory<Any>) {
+                setContributions.getOrPut(key) { mutableListOf() }.add(factory)
             }
-            mapContributions.forEach { (key, list) ->
-                bindings[key] = Binding.MultibindingMap(list)
+            override fun registerMapContribution(key: Key, mapKey: Any, factory: Factory<Any>) {
+                mapContributions.getOrPut(key) { mutableListOf() }.add(mapKey to factory)
             }
         }
-        initialized = true
+        
+        contributors.forEach { it.contribute(registry) }
+        
+        setContributions.forEach { (key, list) ->
+            mutableBindings[key] = Binding.MultibindingSet(list)
+        }
+        mapContributions.forEach { (key, list) ->
+            mutableBindings[key] = Binding.MultibindingMap(list)
+        }
+        
+        return mutableBindings.toMap() // Convert to immutable
     }
 
     /**
@@ -87,7 +99,7 @@ class AnchorContainer(
 
     private fun resolveSingleton(key: Key, binding: Binding.Singleton): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
-        synchronized(root.singletonLock) {
+        synchronized(root.cacheLock) {
             return root.singletonCache.getOrPut(key) { binding.factory.create(root) }
         }
     }
@@ -109,14 +121,14 @@ class AnchorContainer(
             }
             return parent.get(key)
         }
-        synchronized(scopedLock) {
+        synchronized(cacheLock) {
             return scopedCache.getOrPut(key) { binding.factory.create(this) }
         }
     }
 
     private fun resolveMultibindingSet(key: Key, binding: Binding.MultibindingSet): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
-        synchronized(root.singletonLock) {
+        synchronized(root.cacheLock) {
             return root.singletonCache.getOrPut(key) {
                 val container = resolveContainer(binding)
                 binding.contributions.map { it.create(container) }.toSet()
@@ -126,7 +138,7 @@ class AnchorContainer(
 
     private fun resolveMultibindingMap(key: Key, binding: Binding.MultibindingMap): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
-        synchronized(root.singletonLock) {
+        synchronized(root.cacheLock) {
             return root.singletonCache.getOrPut(key) {
                 val container = resolveContainer(binding)
                 binding.contributions.associate { (mapKey, factory) ->
@@ -172,6 +184,26 @@ class AnchorContainer(
      */
     fun createScopeContainer(scopeId: String): AnchorContainer {
         return AnchorContainer(emptyList(), this, scopeId, bindings)
+    }
+
+    /**
+     * Clears all scoped instance caches held by this container.
+     *
+     * Call this when disposing a scoped container to release references to cached instances,
+     * allowing them to be garbage collected. This is particularly useful for navigation/viewmodel
+     * scoped containers when their lifecycle ends.
+     *
+     * **Note:** This only clears scoped caches in this container. Singletons cached in the root
+     * container are NOT cleared (they should persist for the application lifetime).
+     *
+     * Thread-safe: Multiple threads can call this safely.
+     */
+    fun clear() {
+        synchronized(cacheLock) {
+            scopedCache.clear()
+            // Note: singletonCache is intentionally NOT cleared here.
+            // Singletons are cached at the root and should persist for app lifetime.
+        }
     }
 
     /**

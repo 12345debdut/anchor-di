@@ -1,5 +1,6 @@
 package com.debdut.anchordi.ksp.validation
 
+import com.debdut.anchordi.ksp.hasAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
@@ -33,7 +34,4 @@ object MultipleInjectConstructorValidator {
             .filter { it != classDecl.primaryConstructor && it.simpleName.asString() == "<init>" && it.hasAnnotation(FQN_INJECT) }
         return listOfNotNull(primary) + secondaries
     }
-
-    private fun KSFunctionDeclaration.hasAnnotation(fqn: String): Boolean =
-        annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == fqn }
 }

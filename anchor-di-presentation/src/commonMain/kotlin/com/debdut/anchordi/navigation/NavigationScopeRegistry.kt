@@ -43,11 +43,18 @@ object NavigationScopeRegistry {
      * Releases the scope for [scopeKey]. Call when the navigation destination is left
      * (e.g. screen popped, or Compose [NavigationScopedContent] disposed).
      *
+     * This clears all cached scoped instances in the containers, allowing them to be
+     * garbage collected. Safe to call multiple times (idempotent).
+     *
      * Thread-safe: can be called from any thread.
      */
     fun dispose(scopeKey: Any) {
         synchronized(lock) {
-            entries.remove(scopeKey)
+            entries.remove(scopeKey)?.let { entry ->
+                // Clear cached instances to release references for GC
+                entry.navContainer.clear()
+                entry.viewModelContainer.clear()
+            }
         }
     }
 
@@ -58,6 +65,11 @@ object NavigationScopeRegistry {
      */
     fun clear() {
         synchronized(lock) {
+            // Clear each container's caches before removing entries
+            entries.values.forEach { entry ->
+                entry.navContainer.clear()
+                entry.viewModelContainer.clear()
+            }
             entries.clear()
         }
     }

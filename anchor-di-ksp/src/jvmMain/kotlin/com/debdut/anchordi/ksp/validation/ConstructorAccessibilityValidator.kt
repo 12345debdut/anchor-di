@@ -1,5 +1,6 @@
 package com.debdut.anchordi.ksp.validation
 
+import com.debdut.anchordi.ksp.hasAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.Modifier
@@ -48,6 +49,4 @@ object ConstructorAccessibilityValidator {
             .firstOrNull { it.hasAnnotation(FQN_INJECT) }
     }
 
-    private fun KSFunctionDeclaration.hasAnnotation(fqn: String): Boolean =
-        annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == fqn }
 }

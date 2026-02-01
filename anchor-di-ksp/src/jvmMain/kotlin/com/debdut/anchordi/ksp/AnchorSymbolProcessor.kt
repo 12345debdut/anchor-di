@@ -114,9 +114,6 @@ class AnchorSymbolProcessor(
         return emptyList()
     }
 
-    private fun KSAnnotated.hasAnnotation(fqn: String): Boolean =
-        annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == fqn }
-
     private fun KSFunctionDeclaration.isConstructor(): Boolean =
         parent is KSClassDeclaration && (parent as KSClassDeclaration).primaryConstructor == this
 }

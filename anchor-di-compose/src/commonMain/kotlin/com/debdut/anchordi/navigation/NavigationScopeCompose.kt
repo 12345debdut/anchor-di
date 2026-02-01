@@ -1,6 +1,7 @@
 package com.debdut.anchordi.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
@@ -30,8 +31,8 @@ val LocalNavViewModelScope = compositionLocalOf<AnchorContainer?> { null }
  * Use as the root of your nav UI: pass [backStack] and [scopeKeyForEntry], and put [NavDisplay]
  * (and [NavigationScopedContent] per destination) inside the [content] lambda. The lambda has
  * [NavScope] receiver so you can call [NavigationScopedContent][NavScope.NavigationScopedContent]
- * inside. When the back stack shrinks (e.g. user pops), scopes for entries no longer in the stack
- * are disposed via [NavigationScopeRegistry.dispose].
+ * inside. When the back stack changes (e.g. user pops or mid-stack replacement), scopes for entries 
+ * no longer in the stack are disposed via [NavigationScopeRegistry.dispose].
  *
  * Example (Navigation 3 with typed [NavKey][androidx.navigation3.runtime.NavKey]):
  * ```
@@ -69,8 +70,21 @@ fun <Entry : Any> NavScopeContainer(
 ) {
     val navScope = NavScopeImpl(scopeKeyForEntry)
     val previousKeys = remember { mutableSetOf<Any>() }
-    LaunchedEffect(backStack.size, backStack.lastOrNull()) {
-        val currentKeys = backStack.map { scopeKeyForEntry(it) }.toSet()
+    
+    // Cleanup all tracked scopes when NavScopeContainer leaves composition entirely
+    DisposableEffect(Unit) {
+        onDispose {
+            previousKeys.forEach { NavigationScopeRegistry.dispose(it) }
+            previousKeys.clear()
+        }
+    }
+    
+    // Detect ALL back stack changes by using the full list as the key.
+    // This handles: size changes, last item changes, AND mid-stack replacements.
+    // Using toList() creates a snapshot that triggers recomposition on any list mutation.
+    val backStackSnapshot = backStack.toList()
+    LaunchedEffect(backStackSnapshot) {
+        val currentKeys = backStackSnapshot.map { scopeKeyForEntry(it) }.toSet()
         (previousKeys - currentKeys).forEach { NavigationScopeRegistry.dispose(it) }
         previousKeys.clear()
         previousKeys.addAll(currentKeys)

@@ -1,5 +1,6 @@
 package com.debdut.anchordi.ksp.analysis
 
+import com.debdut.anchordi.ksp.hasAnnotation
 import com.debdut.anchordi.ksp.model.ComponentDescriptor
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -40,6 +41,4 @@ object ComponentResolution {
     fun Resolver.discoverComponentDescriptors(): Map<String, ComponentDescriptor> =
         discoverComponentFqns().associateWith { ComponentDescriptor(fqn = it, dependencies = emptySet()) }
 
-    private fun KSAnnotated.hasAnnotation(fqn: String): Boolean =
-        annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == fqn }
 }

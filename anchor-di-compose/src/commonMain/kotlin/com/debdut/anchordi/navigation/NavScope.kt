@@ -27,6 +27,12 @@ interface NavScope<Entry : Any> {
      * **Scope lifetime:** The scope is kept while the destination may still be shown (e.g. when
      * pushing another screen). Scopes for removed entries are disposed by [NavScopeContainer].
      *
+     * **Important:** This function is designed to be used inside [NavScopeContainer], which handles
+     * scope disposal when entries are removed from the back stack. It does NOT dispose the scope
+     * when leaving composition (e.g., when navigating forward), because the scope should persist
+     * for the back stack entry's lifetime. If using this standalone (without [NavScopeContainer]),
+     * you must call [NavigationScopeRegistry.dispose] manually when appropriate.
+     *
      * @param entry The back-stack entry for this destination (e.g. [ProductListRoute], or `key` in
      *   `entry<ProductDetailsRoute> { key -> ... }`). Type-safe [Entry].
      * @param content Composable content that can use [navigationScopedInject] and [navViewModelAnchor].

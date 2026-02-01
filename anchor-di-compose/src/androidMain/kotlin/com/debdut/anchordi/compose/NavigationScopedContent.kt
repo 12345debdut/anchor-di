@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavBackStackEntry
 import com.debdut.anchordi.navigation.LocalNavigationScope
 import com.debdut.anchordi.navigation.LocalNavViewModelScope
@@ -19,8 +21,11 @@ import com.debdut.anchordi.navigation.NavigationScopeRegistry
  * [navViewModelAnchor][com.debdut.anchordi.navigation.navViewModelAnchor] can resolve ViewModels.
  *
  * One scope (and one set of scoped instances) is created per [NavBackStackEntry]; when the
- * destination is popped and the composable leaves composition, the scope is disposed and
- * instances are released.
+ * entry is destroyed (popped from the back stack), the scope is disposed and instances are released.
+ *
+ * **Important:** The scope persists even when the composable temporarily leaves composition
+ * (e.g., when navigating forward to another screen). It is only disposed when the
+ * [NavBackStackEntry] lifecycle reaches DESTROYED state.
  *
  * Example:
  * ```
@@ -48,9 +53,24 @@ fun NavigationScopedContent(
         NavigationScopeRegistry.getOrCreate(scopeKey)
     }
     
-    DisposableEffect(scopeKey) {
+    // Tie scope disposal to NavBackStackEntry lifecycle, NOT composition lifecycle.
+    // This ensures scope persists when navigating forward (composable leaves composition
+    // but entry is still in back stack), and disposes only when entry is truly destroyed.
+    DisposableEffect(navBackStackEntry) {
+        val lifecycle = navBackStackEntry.lifecycle
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                NavigationScopeRegistry.dispose(scopeKey)
+            }
+        }
+        lifecycle.addObserver(observer)
+        
         onDispose {
-            NavigationScopeRegistry.dispose(scopeKey)
+            lifecycle.removeObserver(observer)
+            // Only dispose if the entry is actually destroyed (not just leaving composition)
+            if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                NavigationScopeRegistry.dispose(scopeKey)
+            }
         }
     }
     
