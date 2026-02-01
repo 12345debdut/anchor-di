@@ -193,6 +193,164 @@ class AnchorContainerTest {
     }
 
     @Test
+    fun get_withExplicitKey_returnsInstance() {
+        val container = containerWithUnscopedOnly()
+        val key = Key(TestFoo::class.qualifiedName!!, null)
+        val a = container.get(key)
+        val b = container.get<TestFoo>()
+        assertTrue(a is TestFoo)
+        assertTrue(b is TestFoo)
+        assertNotSame(a, b)
+    }
+
+    @Test
+    fun get_withQualifiedKey_returnsQualifiedBinding() {
+        val contributor = object : ComponentBindingContributor {
+            override fun contribute(registry: BindingRegistry) {
+                registry.register(
+                    Key(TestFoo::class.qualifiedName!!, "main"),
+                    Binding.Unscoped(object : Factory<Any> {
+                        override fun create(container: AnchorContainer): Any = TestFoo()
+                    })
+                )
+            }
+        }
+        val container = AnchorContainer(listOf(contributor))
+        val key = Key(TestFoo::class.qualifiedName!!, "main")
+        val foo = container.get(key)
+        assertTrue(foo is TestFoo)
+    }
+
+    @Test
+    fun singleton_resolvedFromChildScope_returnsSameInstanceAsRoot() {
+        val container = containerWithSingleton()
+        val fromRoot = container.get<TestFoo>()
+        var fromScope: TestFoo? = null
+        container.createScope(ViewModelComponent::class) { scoped ->
+            fromScope = scoped.get<TestFoo>()
+        }
+        assertSame(fromRoot, fromScope)
+    }
+
+    @Test
+    fun createScope_withScopeIdString_resolvesScopedBinding() {
+        val container = containerWithScopedBinding()
+        var resolved: TestScopedService? = null
+        container.createScope(viewModelScopeId) { scoped ->
+            resolved = scoped.get<TestScopedService>()
+        }
+        assertTrue(resolved is TestScopedService)
+    }
+
+    @Test
+    fun nestedCreateScope_childResolvesParentScopedBinding() {
+        val scopeAId = "com.example.ScopeA"
+        val scopeBId = "com.example.ScopeB"
+        val contributor = object : ComponentBindingContributor {
+            override fun contribute(registry: BindingRegistry) {
+                registry.register(
+                    Key(TestScopedA::class.qualifiedName!!),
+                    Binding.Scoped(scopeAId, object : Factory<Any> {
+                        override fun create(container: AnchorContainer): Any = TestScopedA()
+                    })
+                )
+                registry.register(
+                    Key(TestScopedB::class.qualifiedName!!),
+                    Binding.Scoped(scopeBId, object : Factory<Any> {
+                        override fun create(container: AnchorContainer): Any = TestScopedB()
+                    })
+                )
+            }
+        }
+        val root = AnchorContainer(listOf(contributor))
+        var fromA: TestScopedA? = null
+        var fromB_A: TestScopedA? = null
+        var fromB_B: TestScopedB? = null
+        root.createScope(scopeAId) { scopeA ->
+            fromA = scopeA.get<TestScopedA>()
+            scopeA.createScope(scopeBId) { scopeB ->
+                fromB_A = scopeB.get<TestScopedA>()
+                fromB_B = scopeB.get<TestScopedB>()
+            }
+        }
+        assertSame(fromA, fromB_A)
+        assertTrue(fromB_B is TestScopedB)
+    }
+
+    @Test
+    fun nestedCreateScope_sameScopeTypeDifferentInstances_returnsDifferentScopedInstances() {
+        val scopeAId = "com.example.ScopeA"
+        val contributor = object : ComponentBindingContributor {
+            override fun contribute(registry: BindingRegistry) {
+                registry.register(
+                    Key(TestScopedA::class.qualifiedName!!),
+                    Binding.Scoped(scopeAId, object : Factory<Any> {
+                        override fun create(container: AnchorContainer): Any = TestScopedA()
+                    })
+                )
+            }
+        }
+        val root = AnchorContainer(listOf(contributor))
+        var fromScope1: TestScopedA? = null
+        var fromScope2: TestScopedA? = null
+        root.createScope(scopeAId) { fromScope1 = it.get<TestScopedA>() }
+        root.createScope(scopeAId) { fromScope2 = it.get<TestScopedA>() }
+        assertNotSame(fromScope1, fromScope2)
+    }
+
+    @Test
+    fun missingBinding_messageContainsTroubleshootingHints() {
+        val container = containerWithUnscopedOnly()
+        val ex = assertFailsWith<IllegalStateException> {
+            container.get<TestBar>()
+        }
+        val msg = ex.message!!
+        assertTrue(msg.contains("No binding found"))
+        assertTrue(msg.contains("Add @Inject") || msg.contains("Add @Provides") || msg.contains("@Binds"))
+        assertTrue(msg.contains("Rebuild") || msg.contains("KSP"))
+    }
+
+    @Test
+    fun unscoped_factoryReceivesResolvingContainer() {
+        val root = containerWithUnscopedDependingOnScoped()
+        root.createScope(ViewModelComponent::class) { scoped ->
+            val consumer = scoped.get<TestConsumer>()
+            assertTrue(consumer is TestConsumer)
+            assertTrue(consumer.service is TestScopedService)
+        }
+    }
+
+    @Test
+    fun provider_returnsSupplierThatResolvesFromContainer() {
+        val container = containerWithUnscopedOnly()
+        val provider = container.provider<TestFoo>()
+        val a = provider.get()
+        val b = provider.get()
+        assertTrue(a is TestFoo)
+        assertTrue(b is TestFoo)
+        assertNotSame(a, b)
+    }
+
+    @Test
+    fun provider_forSingleton_returnsSameInstance() {
+        val container = containerWithSingleton()
+        val provider = container.provider<TestFoo>()
+        assertSame(provider.get(), provider.get())
+    }
+
+    @Test
+    fun createScopeContainer_holdsScopeAndCachesScopedBindings() {
+        val container = containerWithScopedBinding()
+        val scopedContainer = container.createScopeContainer(viewModelScopeId)
+        val a = scopedContainer.get<TestScopedService>()
+        val b = scopedContainer.get<TestScopedService>()
+        assertSame(a, b)
+        val otherScoped = container.createScopeContainer(viewModelScopeId)
+        val c = otherScoped.get<TestScopedService>()
+        assertNotSame(a, c)
+    }
+
+    @Test
     fun multibindingSet_mergesContributions() {
         val contributor = object : ComponentBindingContributor {
             override fun contribute(registry: BindingRegistry) {
@@ -252,4 +410,6 @@ private class TestFoo
 private class TestBar
 private class TestScopedService
 private class TestConsumer(val service: TestScopedService)
+private class TestScopedA
+private class TestScopedB
 private class TestTracker(val id: String)

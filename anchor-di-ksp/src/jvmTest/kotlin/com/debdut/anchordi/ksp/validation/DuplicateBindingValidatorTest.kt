@@ -41,4 +41,42 @@ class DuplicateBindingValidatorTest {
         DuplicateBindingValidator.validate(bindings, reporter)
         assertTrue(reporter.errors.isEmpty())
     }
+
+    @Test
+    fun multibindingSet_multipleContributionsSameKey_noError() {
+        val setKey = "kotlin.collections.Set<com.example.Tracker>"
+        val bindings = listOf(
+            BindingDescriptor(setKey, null, ValidationConstants.FQN_SINGLETON_COMPONENT, null, "Module1.provideTrackerA", multibindingKind = "set"),
+            BindingDescriptor(setKey, null, ValidationConstants.FQN_SINGLETON_COMPONENT, null, "Module2.provideTrackerB", multibindingKind = "set")
+        )
+        val reporter = CollectingReporter()
+        DuplicateBindingValidator.validate(bindings, reporter)
+        assertTrue(reporter.errors.isEmpty())
+    }
+
+    @Test
+    fun multibindingMap_multipleContributionsDifferentMapKeys_noError() {
+        val mapKey = "kotlin.collections.Map<kotlin.String,com.example.Tracker>"
+        val bindings = listOf(
+            BindingDescriptor(mapKey, null, ValidationConstants.FQN_SINGLETON_COMPONENT, null, "Module1.provideFirebase", multibindingKind = "map", mapKey = "firebase"),
+            BindingDescriptor(mapKey, null, ValidationConstants.FQN_SINGLETON_COMPONENT, null, "Module2.provideAnalytics", multibindingKind = "map", mapKey = "analytics")
+        )
+        val reporter = CollectingReporter()
+        DuplicateBindingValidator.validate(bindings, reporter)
+        assertTrue(reporter.errors.isEmpty())
+    }
+
+    @Test
+    fun multibindingMap_duplicateMapKey_reportsError() {
+        val mapKey = "kotlin.collections.Map<kotlin.String,com.example.Tracker>"
+        val bindings = listOf(
+            BindingDescriptor(mapKey, null, ValidationConstants.FQN_SINGLETON_COMPONENT, null, "Module1.provideFirebase", multibindingKind = "map", mapKey = "firebase"),
+            BindingDescriptor(mapKey, null, ValidationConstants.FQN_SINGLETON_COMPONENT, null, "Module2.provideFirebaseAgain", multibindingKind = "map", mapKey = "firebase")
+        )
+        val reporter = CollectingReporter()
+        DuplicateBindingValidator.validate(bindings, reporter)
+        assertEquals(1, reporter.errors.size)
+        assertTrue(reporter.errors[0].message.contains("Duplicate map key"))
+        assertTrue(reporter.errors[0].message.contains("firebase"))
+    }
 }
