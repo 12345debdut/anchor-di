@@ -42,6 +42,6 @@ class ModuleInstallInValidatorTest {
         val reporter = CollectingReporter()
         ModuleInstallInValidator.validate(modules, knownComponents, reporter)
         assertEquals(1, reporter.errors.size)
-        assertTrue(reporter.errors[0].message.contains("Unknown component"))
+        assertTrue(reporter.errors[0].message.contains("not a known component"))
     }
 }

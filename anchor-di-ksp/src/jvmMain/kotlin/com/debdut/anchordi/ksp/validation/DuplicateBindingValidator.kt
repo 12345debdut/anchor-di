@@ -25,8 +25,11 @@ object DuplicateBindingValidator {
                             duplicateKeys.keys.forEach { dupKey ->
                                 val sources = group.filter { it.mapKey == dupKey }.joinToString { it.source }
                                 reporter.error(
-                                    "[Anchor DI] Duplicate map key in multibinding: the key '$dupKey' is contributed more than once for ${first.key}. " +
-                                        "Defined in: $sources. Each @IntoMap contribution must have a unique @StringKey.",
+                                    ValidationMessageFormat.formatError(
+                                        summary = "Duplicate map key '$dupKey' in multibinding for ${first.key}.",
+                                        detail = "Defined in: $sources. Each @IntoMap contribution must have a unique @StringKey.",
+                                        fix = "Use a unique @StringKey for each contribution."
+                                    ),
                                     null
                                 )
                             }
@@ -36,10 +39,11 @@ object DuplicateBindingValidator {
                         val componentName = first.component.substringAfterLast('.')
                         val sources = group.joinToString { it.source }
                         reporter.error(
-                            "[Anchor DI] Duplicate binding: each key must have exactly one binding per component. " +
-                                "The type '${first.key}' (qualifier: ${first.qualifier ?: "none"}) is bound more than once in component '$componentName'. " +
-                                "Defined in: $sources. " +
-                                "Fix: remove or consolidate the duplicate; keep only one @Inject constructor, @Provides method, or @Binds for this type in this component.",
+                            ValidationMessageFormat.formatError(
+                                summary = "Duplicate binding: '${first.key}' (qualifier: ${first.qualifier ?: "none"}) is bound more than once in component '$componentName'.",
+                                detail = "Defined in: $sources.",
+                                fix = "Remove or consolidate the duplicate; keep only one @Inject constructor, @Provides method, or @Binds for this type in this component."
+                            ),
                             null
                         )
                     }

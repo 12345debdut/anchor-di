@@ -26,9 +26,11 @@ object SingleScopeValidator {
             if (scopeAnnotations > 1) {
                 val fqn = classDecl.qualifiedName?.asString() ?: "?"
                 reporter.error(
-                    "[Anchor DI] Multiple scope annotations on $fqn. " +
-                        "A binding may have only one scope: use either @Singleton, @ViewModelScoped, @NavigationScoped, or @Scoped(YourScope::class), not more than one. " +
-                        "Remove the extra scope annotation(s) so the binding has a single, clear lifetime.",
+                    ValidationMessageFormat.formatError(
+                        summary = "Multiple scope annotations on $fqn.",
+                        detail = "A binding may have only one scope: @Singleton, @ViewModelScoped, @NavigationScoped, or @Scoped(YourScope::class).",
+                        fix = "Remove the extra scope annotation(s) so the binding has a single, clear lifetime."
+                    ),
                     classDecl
                 )
             }
@@ -43,9 +45,11 @@ object SingleScopeValidator {
                     if (scopeAnnotations > 1) {
                         val member = "${moduleName}.${func.simpleName.asString()}"
                         reporter.error(
-                            "[Anchor DI] Multiple scope annotations on $member. " +
-                                "A @Provides or @Binds method may have only one scope: use either @Singleton, @ViewModelScoped, @NavigationScoped, or @Scoped(YourScope::class), not more than one. " +
-                                "Remove the extra scope annotation(s) so the binding has a single, clear lifetime.",
+                            ValidationMessageFormat.formatError(
+                                summary = "Multiple scope annotations on $member.",
+                                detail = "A @Provides or @Binds method may have only one scope: @Singleton, @ViewModelScoped, @NavigationScoped, or @Scoped(YourScope::class).",
+                                fix = "Remove the extra scope annotation(s) so the binding has a single, clear lifetime."
+                            ),
                             func
                         )
                     }

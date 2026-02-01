@@ -16,8 +16,10 @@ object MultipleInjectConstructorValidator {
             if (injectConstructors.size > 1) {
                 val fqn = classDecl.qualifiedName?.asString() ?: "?"
                 reporter.error(
-                    "[Anchor DI] Multiple @Inject constructors in $fqn. " +
-                        "A class may have at most one constructor annotated with @Inject.",
+                    ValidationMessageFormat.formatError(
+                        summary = "Multiple @Inject constructors in $fqn.",
+                        fix = "A class may have at most one constructor annotated with @Inject."
+                    ),
                     classDecl
                 )
             }

@@ -26,7 +26,7 @@ class ScopeLifetimeViolationValidatorTest {
         val reporter = CollectingReporter()
         ScopeLifetimeViolationValidator.validate(bindings, requirements, reporter)
         assertEquals(1, reporter.errors.size)
-        assertTrue(reporter.errors[0].message.contains("longer-lived or parent scope cannot depend"))
+        assertTrue(reporter.errors[0].message.contains("depends on"))
         assertTrue(reporter.errors[0].message.contains("Repo"))
         assertTrue(reporter.errors[0].message.contains("Presenter"))
     }
@@ -43,7 +43,7 @@ class ScopeLifetimeViolationValidatorTest {
         val reporter = CollectingReporter()
         ScopeLifetimeViolationValidator.validate(bindings, requirements, reporter)
         assertEquals(1, reporter.errors.size)
-        assertTrue(reporter.errors[0].message.contains("longer-lived or parent scope cannot depend"))
+        assertTrue(reporter.errors[0].message.contains("depends on"))
         assertTrue(reporter.errors[0].message.contains("SingletonService"))
         assertTrue(reporter.errors[0].message.contains("ViewModelOnly"))
     }
@@ -60,7 +60,7 @@ class ScopeLifetimeViolationValidatorTest {
         val reporter = CollectingReporter()
         ScopeLifetimeViolationValidator.validate(bindings, requirements, reporter)
         assertEquals(1, reporter.errors.size)
-        assertTrue(reporter.errors[0].message.contains("longer-lived scope cannot depend on a shorter-lived"))
+        assertTrue(reporter.errors[0].message.contains("longer-lived scope cannot depend on shorter-lived"))
         assertTrue(reporter.errors[0].message.contains("SingletonService"))
         assertTrue(reporter.errors[0].message.contains("ViewModelHelper"))
     }

@@ -12,17 +12,21 @@ object ModuleBindsValidator {
         modules.forEach { module ->
             if (!module.hasProvidesOrBinds) {
                 reporter.warn(
-                    "[Anchor DI] Module ${module.moduleName} has no @Provides or @Binds methods. " +
-                        "It will not contribute any bindings. Add at least one @Provides or @Binds method, or remove the module.",
+                    ValidationMessageFormat.formatWarn(
+                        summary = "Module ${module.moduleName} has no @Provides or @Binds methods.",
+                        fix = "Add at least one @Provides or @Binds method, or remove the module."
+                    ),
                     null
                 )
             }
             module.bindsMethods.forEach { binds ->
                 if (binds.parameterCount != 1) {
                     reporter.error(
-                        "[Anchor DI] @Binds method must have exactly one parameter: ${binds.methodName} in ${binds.moduleName} must take exactly one parameter (the implementation type to bind). " +
-                            "Example: @Binds fun bindRepo(impl: RepoImpl): Repo. " +
-                            "Fix: add one parameter of the concrete implementation type.",
+                        ValidationMessageFormat.formatError(
+                            summary = "@Binds method ${binds.methodName} in ${binds.moduleName} must have exactly one parameter (the implementation type to bind).",
+                            detail = "Example: @Binds fun bindRepo(impl: RepoImpl): Repo.",
+                            fix = "Add one parameter of the concrete implementation type."
+                        ),
                         null
                     )
                 }

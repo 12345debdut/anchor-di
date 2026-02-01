@@ -41,10 +41,11 @@ object ReachableBindingsValidator {
             unreachable.forEach { key ->
                 val binding = componentBindings.firstOrNull { it.key == key } ?: return@forEach
                 reporter.warn(
-                    "[Anchor DI] Binding for '$key' (source: ${binding.source}) in component '${component.substringAfterLast('.')}' is not reachable from any entry point in that component. " +
-                        "Only bindings reachable from a component entry point are used at runtime. " +
-                        "This binding may be dead code if nothing in this component depends on it and it is not injected directly. " +
-                        "If you intend to use it, ensure it is either a dependency of another binding in this component or is requested via Anchor.inject<>() / viewModelAnchor() etc. in the same scope.",
+                    ValidationMessageFormat.formatWarn(
+                        summary = "Binding for '$key' (source: ${binding.source}) in component '${component.substringAfterLast('.')}' is not reachable from any entry point.",
+                        detail = "Only bindings reachable from a component entry point are used at runtime. This binding may be dead code if nothing depends on it and it is not injected directly.",
+                        fix = "Ensure it is either a dependency of another binding in this component or is requested via Anchor.inject<>() / viewModelAnchor() etc. in the same scope."
+                    ),
                     null
                 )
             }

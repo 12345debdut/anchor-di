@@ -51,7 +51,7 @@ class AnchorDiValidatorTest {
         val errorMessages = reporter.errors.map { it.message }
         
         // From MissingBindingValidator
-        assertTrue(errorMessages.any { it.contains("Missing dependency binding") }, "Should report missing binding")
+        assertTrue(errorMessages.any { it.contains("has no binding") }, "Should report missing binding")
         
         // From DuplicateBindingValidator
         assertTrue(errorMessages.any { it.contains("Duplicate binding") }, "Should report duplicate binding")

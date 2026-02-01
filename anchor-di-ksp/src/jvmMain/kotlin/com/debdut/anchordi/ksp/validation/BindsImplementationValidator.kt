@@ -24,32 +24,42 @@ object BindsImplementationValidator {
                         val implFqn = implType.qualifiedName?.asString() ?: "?"
                         when (implType.classKind) {
                             ClassKind.INTERFACE -> reporter.error(
-                                "[Anchor DI] @Binds in $moduleName binds to interface $implFqn. " +
-                                    "Implementation type must be a concrete class, not an interface.",
+                                ValidationMessageFormat.formatError(
+                                    summary = "@Binds in $moduleName binds to interface $implFqn.",
+                                    fix = "Implementation type must be a concrete class, not an interface."
+                                ),
                                 func
                             )
                             ClassKind.OBJECT -> reporter.error(
-                                "[Anchor DI] @Binds in $moduleName binds to object $implFqn. " +
-                                    "Implementation type must be a concrete class, not an object.",
+                                ValidationMessageFormat.formatError(
+                                    summary = "@Binds in $moduleName binds to object $implFqn.",
+                                    fix = "Implementation type must be a concrete class, not an object."
+                                ),
                                 func
                             )
                             ClassKind.ENUM_CLASS -> reporter.error(
-                                "[Anchor DI] @Binds in $moduleName binds to enum $implFqn. " +
-                                    "Implementation type must be a concrete class, not an enum.",
+                                ValidationMessageFormat.formatError(
+                                    summary = "@Binds in $moduleName binds to enum $implFqn.",
+                                    fix = "Implementation type must be a concrete class, not an enum."
+                                ),
                                 func
                             )
                             ClassKind.CLASS -> {
                                 if (Modifier.ABSTRACT in implType.modifiers) {
                                     reporter.error(
-                                        "[Anchor DI] @Binds in $moduleName binds to abstract class $implFqn. " +
-                                            "Implementation type must be a concrete class, not abstract.",
+                                        ValidationMessageFormat.formatError(
+                                            summary = "@Binds in $moduleName binds to abstract class $implFqn.",
+                                            fix = "Implementation type must be a concrete class, not abstract."
+                                        ),
                                         func
                                     )
                                 }
                             }
                             else -> reporter.error(
-                                "[Anchor DI] @Binds in $moduleName binds to unsupported type $implFqn (${implType.classKind}). " +
-                                    "Implementation type must be a concrete class.",
+                                ValidationMessageFormat.formatError(
+                                    summary = "@Binds in $moduleName binds to unsupported type $implFqn (${implType.classKind}).",
+                                    fix = "Implementation type must be a concrete class."
+                                ),
                                 func
                             )
                         }

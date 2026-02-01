@@ -19,16 +19,20 @@ object ConstructorAccessibilityValidator {
                 Modifier.PRIVATE in modifiers -> {
                     val fqn = classDecl.qualifiedName?.asString() ?: "?"
                     reporter.error(
-                        "[Anchor DI] @Inject constructor of $fqn must be public, not private. " +
-                            "Make the constructor public so the DI container can instantiate it.",
+                        ValidationMessageFormat.formatError(
+                            summary = "@Inject constructor of $fqn must be public, not private.",
+                            fix = "Make the constructor public so the DI container can instantiate it."
+                        ),
                         classDecl
                     )
                 }
                 Modifier.PROTECTED in modifiers -> {
                     val fqn = classDecl.qualifiedName?.asString() ?: "?"
                     reporter.error(
-                        "[Anchor DI] @Inject constructor of $fqn must be public, not protected. " +
-                            "Make the constructor public so the DI container can instantiate it.",
+                        ValidationMessageFormat.formatError(
+                            summary = "@Inject constructor of $fqn must be public, not protected.",
+                            fix = "Make the constructor public so the DI container can instantiate it."
+                        ),
                         classDecl
                     )
                 }

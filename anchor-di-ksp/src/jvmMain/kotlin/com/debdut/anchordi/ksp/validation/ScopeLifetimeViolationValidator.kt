@@ -38,11 +38,11 @@ object ScopeLifetimeViolationValidator {
                 if (visibleDeps.isEmpty()) {
                     val childComponents = requiredBindings.map { it.component }.distinct().joinToString { it.substringAfterLast('.') }
                     reporter.error(
-                        "[Anchor DI] A binding in a longer-lived or parent scope cannot depend on a type that is only bound in a child or shorter-lived scope. " +
-                            "The binding for '$requester' (source: ${reqBinding.source}) is ${ScopeHierarchy.scopeDisplayName(requesterScope)} in ${requesterComponent.substringAfterLast('.')}, " +
-                            "but it depends on '$requiredType' which is only bound in child component(s): $childComponents. " +
-                            "The dependency would not be available when resolving '$requester', and a longer-lived binding must not hold a reference to a shorter-lived one. " +
-                            "Fix: provide '$requiredType' in '${requesterComponent.substringAfterLast('.')}' or an ancestor, or move '$requester' to a scope that can see '$requiredType', or inject Lazy<$requiredType> / AnchorProvider<$requiredType> to delay access.",
+                        ValidationMessageFormat.formatError(
+                            summary = "Binding for '$requester' (${ScopeHierarchy.scopeDisplayName(requesterScope)} in ${requesterComponent.substringAfterLast('.')}) depends on '$requiredType', which is only bound in child component(s): $childComponents.",
+                            detail = "Source: ${reqBinding.source}. The dependency would not be available when resolving '$requester'; a longer-lived binding must not hold a reference to a shorter-lived one.",
+                            fix = "Provide '$requiredType' in '${requesterComponent.substringAfterLast('.')}' or an ancestor, or move '$requester' to a scope that can see '$requiredType', or inject Lazy<$requiredType> / AnchorProvider<$requiredType> to delay access."
+                        ),
                         null
                     )
                     return@forEach
@@ -54,11 +54,11 @@ object ScopeLifetimeViolationValidator {
                 if (!hasValidLongevity) {
                     val depBinding = visibleDeps.first()
                     reporter.error(
-                        "[Anchor DI] A longer-lived scope cannot depend on a shorter-lived scope. " +
-                            "The binding for '$requester' (source: ${reqBinding.source}) is ${ScopeHierarchy.scopeDisplayName(requesterScope)} in ${requesterComponent.substringAfterLast('.')}, " +
-                            "but it depends on '$requiredType' which is ${ScopeHierarchy.scopeDisplayName(depBinding.scope)}. " +
-                            "Longer-lived bindings must not depend on shorter-lived ones, because the shorter-lived instance may not exist when the longer-lived one is created. " +
-                            "Fix: move the dependency to a longer-lived scope, or inject Lazy<$requiredType> / AnchorProvider<$requiredType> to delay access.",
+                        ValidationMessageFormat.formatError(
+                            summary = "Binding for '$requester' (${ScopeHierarchy.scopeDisplayName(requesterScope)}) depends on '$requiredType' (${ScopeHierarchy.scopeDisplayName(depBinding.scope)}); longer-lived scope cannot depend on shorter-lived scope.",
+                            detail = "Source: ${reqBinding.source}. The shorter-lived instance may not exist when the longer-lived one is created.",
+                            fix = "Move the dependency to a longer-lived scope, or inject Lazy<$requiredType> / AnchorProvider<$requiredType> to delay access."
+                        ),
                         null
                     )
                 }

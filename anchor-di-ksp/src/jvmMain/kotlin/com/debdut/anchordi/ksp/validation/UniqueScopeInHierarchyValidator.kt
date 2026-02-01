@@ -19,10 +19,11 @@ object UniqueScopeInHierarchyValidator {
             if (componentFqns.size > 1) {
                 val names = componentFqns.joinToString { it.substringAfterLast('.') }
                 reporter.error(
-                    "[Anchor DI] Two or more components in the same hierarchy must not claim the same scope. " +
-                        "Scope '$scopeId' is claimed by: $names. " +
-                        "Each component must have a unique scope identifier so that scoped bindings can be resolved unambiguously. " +
-                        "Fix: ensure each @Component class (or built-in component) has a distinct scope; do not reuse the same scope ID for different components.",
+                    ValidationMessageFormat.formatError(
+                        summary = "Scope '$scopeId' is claimed by more than one component: $names.",
+                        detail = "Each component must have a unique scope identifier so that scoped bindings can be resolved unambiguously.",
+                        fix = "Ensure each @Component class (or built-in component) has a distinct scope; do not reuse the same scope ID for different components."
+                    ),
                     null
                 )
             }

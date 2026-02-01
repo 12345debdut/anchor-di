@@ -25,7 +25,7 @@ class ScopeComponentCompatibilityValidatorTest {
         val reporter = CollectingReporter()
         ScopeComponentCompatibilityValidator.validate(bindings, reporter)
         assertEquals(1, reporter.errors.size)
-        assertTrue(reporter.errors[0].message.contains("Scope") && reporter.errors[0].message.contains("not allowed"))
+        assertTrue(reporter.errors[0].message.contains("Scope") && reporter.errors[0].message.contains("cannot be used"))
     }
 
     @Test

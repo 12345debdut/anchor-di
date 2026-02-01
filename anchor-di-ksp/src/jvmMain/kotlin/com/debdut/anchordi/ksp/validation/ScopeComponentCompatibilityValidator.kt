@@ -15,10 +15,11 @@ object ScopeComponentCompatibilityValidator {
                 val componentName = binding.component.substringAfterLast('.')
                 val scopeName = ScopeHierarchy.scopeDisplayName(binding.scope)
                 reporter.error(
-                    "[Anchor DI] Scope not allowed in this component: the scope '$scopeName' cannot be used in component '$componentName'. " +
-                        "Binding source: ${binding.source}. " +
-                        "The binding is in a module installed in $componentName but uses a scope that belongs to a different component. " +
-                        "Fix: remove the scope annotation from this binding, or install the module in the component that allows this scope (e.g. @InstallIn(ViewModelComponent::class) for @ViewModelScoped).",
+                    ValidationMessageFormat.formatError(
+                        summary = "Scope '$scopeName' cannot be used in component '$componentName'.",
+                        detail = "Binding source: ${binding.source}. The binding is in a module installed in $componentName but uses a scope that belongs to a different component.",
+                        fix = "Remove the scope annotation from this binding, or install the module in the component that allows this scope (e.g. @InstallIn(ViewModelComponent::class) for @ViewModelScoped)."
+                    ),
                     null
                 )
             }

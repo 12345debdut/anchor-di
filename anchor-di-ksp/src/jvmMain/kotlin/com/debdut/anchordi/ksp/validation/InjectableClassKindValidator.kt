@@ -14,27 +14,41 @@ object InjectableClassKindValidator {
             val fqn = classDecl.qualifiedName?.asString() ?: "?"
             when (classDecl.classKind) {
                 ClassKind.INTERFACE -> reporter.error(
-                    "[Anchor DI] $fqn is an interface. @Inject is not allowed on interfaces. Use @Binds in a module to bind an implementation.",
+                    ValidationMessageFormat.formatError(
+                        summary = "$fqn is an interface; @Inject is not allowed on interfaces.",
+                        fix = "Use @Binds in a module to bind an implementation."
+                    ),
                     classDecl
                 )
                 ClassKind.OBJECT -> reporter.error(
-                    "[Anchor DI] $fqn is an object. @Inject is not allowed on objects. Use @Provides in a module or reference the object directly.",
+                    ValidationMessageFormat.formatError(
+                        summary = "$fqn is an object; @Inject is not allowed on objects.",
+                        fix = "Use @Provides in a module or reference the object directly."
+                    ),
                     classDecl
                 )
                 ClassKind.ENUM_CLASS -> reporter.error(
-                    "[Anchor DI] $fqn is an enum. @Inject is not allowed on enum classes. Use @Provides in a module.",
+                    ValidationMessageFormat.formatError(
+                        summary = "$fqn is an enum; @Inject is not allowed on enum classes.",
+                        fix = "Use @Provides in a module."
+                    ),
                     classDecl
                 )
                 ClassKind.CLASS -> {
                     if (Modifier.ABSTRACT in classDecl.modifiers) {
                         reporter.error(
-                            "[Anchor DI] $fqn is abstract. @Inject is not allowed on abstract classes. Use @Binds in a module to bind a concrete implementation.",
+                            ValidationMessageFormat.formatError(
+                                summary = "$fqn is abstract; @Inject is not allowed on abstract classes.",
+                                fix = "Use @Binds in a module to bind a concrete implementation."
+                            ),
                             classDecl
                         )
                     }
                 }
                 else -> reporter.error(
-                    "[Anchor DI] $fqn has unsupported class kind (${classDecl.classKind}). @Inject is only allowed on concrete classes.",
+                    ValidationMessageFormat.formatError(
+                        summary = "$fqn has unsupported class kind (${classDecl.classKind}); @Inject is only allowed on concrete classes."
+                    ),
                     classDecl
                 )
             }
