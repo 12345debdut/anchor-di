@@ -43,7 +43,7 @@ Quick reference for implementing features. Check off as completed.
 
 ## Phase 4: Ecosystem
 
-- [ ] **4.1** Maven Central / Gradle publish
+- [x] **4.1** Maven Central / Gradle publish (Sonatype staging; see docs/PUBLISHING.md)
 - [x] **4.2** Sample app (composeApp present; document “Anchor DI in this app” in README)
 - [ ] **4.3** Benchmarks (optional)
 - [x] **4.4** Contributing guide (CONTRIBUTING.md)

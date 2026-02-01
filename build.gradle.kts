@@ -10,3 +10,20 @@ plugins {
     alias(libs.plugins.androidKmpLibrary) apply false
     alias(libs.plugins.ksp) apply false
 }
+
+val publishableModules = setOf(
+    "anchor-di-api",
+    "anchor-di-runtime",
+    "anchor-di-ksp",
+    "anchor-di-compose",
+    "anchor-di-navigation"
+)
+
+subprojects {
+    if (name in publishableModules) {
+        group = project.findProperty("LIBRARY_GROUP")?.toString() ?: "io.github.12345debdut"
+        version = project.findProperty("LIBRARY_VERSION")?.toString()
+            ?: project.findProperty("VERSION")?.toString() ?: "0.1.0-SNAPSHOT"
+        apply(from = rootProject.file("gradle/publish-convention.gradle.kts"))
+    }
+}

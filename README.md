@@ -477,7 +477,7 @@ Planned milestones:
 - KSP validation engine
 - Multibinding implementation
 - Compose lifecycle integration
-- Maven Central publishing
+- **Maven Central publishing** — configured; see [docs/PUBLISHING.md](docs/PUBLISHING.md) for credentials, signing, and release steps.
 - Documentation & samples
 
 ---

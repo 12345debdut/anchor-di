@@ -43,6 +43,12 @@ Run all library tests: `./gradlew :anchor-di-runtime:test :anchor-di-ksp:test`
 
 ---
 
+## Publishing
+
+To publish the library to Sonatype / Maven Central, see **[docs/PUBLISHING.md](docs/PUBLISHING.md)** for credentials, signing, Gradle tasks, release flow, and CI.
+
+---
+
 ## KSP expectations
 
 - Generated code lives in `commonMain` (or the consuming module’s generated source set).
