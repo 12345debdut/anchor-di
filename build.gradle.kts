@@ -17,14 +17,14 @@ spotless {
     kotlin {
         target("**/*.kt")
         targetExclude("**/build/**", "**/generated/**")
-        ktlint(libs.versions.ktlint.get())
+        ktlint() // use Spotless default ktlint version for API compatibility
         trimTrailingWhitespace()
         endWithNewline()
     }
     kotlinGradle {
         target("**/*.gradle.kts")
         targetExclude("**/build/**")
-        ktlint(libs.versions.ktlint.get())
+        ktlint() // use Spotless default ktlint version for API compatibility
         trimTrailingWhitespace()
         endWithNewline()
     }
