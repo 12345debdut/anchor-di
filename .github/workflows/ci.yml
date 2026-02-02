@@ -30,5 +30,15 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: 'gradle'
 
+      - name: Bootstrap Gradle wrapper
+        if: hashFiles('gradle/wrapper/gradle-wrapper.jar') == ''
+        run: |
+          GRADLE_VERSION=9.1.0
+          curl -sL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o gradle.zip
+          unzip -q -o gradle.zip
+          WRAPPER_JAR=$(find . -name 'gradle-wrapper-*.jar' -path '*/lib/plugins/*' | head -1)
+          mv "$WRAPPER_JAR" gradle/wrapper/gradle-wrapper.jar
+          rm -rf gradle.zip gradle-${GRADLE_VERSION}
+
       - name: Run library tests
         run: ./gradlew :anchor-di-core:test :anchor-di-ksp:test --no-daemon
