@@ -41,4 +41,4 @@ jobs:
           rm -rf gradle.zip gradle-${GRADLE_VERSION}
 
       - name: Run library tests
-        run: ./gradlew :anchor-di-core:test :anchor-di-ksp:test --no-daemon
+        run: ./gradlew :anchor-di-core:jvmTest :anchor-di-ksp:jvmTest --no-daemon
