@@ -59,18 +59,18 @@ repositories {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.12345debdut:anchor-di-api:0.1.0")
-            implementation("io.github.12345debdut:anchor-di-core:0.1.0")
-            implementation("io.github.12345debdut:anchor-di-compose:0.1.0")
+            implementation("io.github.12345debdut:anchor-di-api:x.x.x")
+            implementation("io.github.12345debdut:anchor-di-core:x.x.x")
+            implementation("io.github.12345debdut:anchor-di-compose:x.x.x")
         }
     }
 }
 
 dependencies {
-    add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspIosSimulatorArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
+    add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspIosSimulatorArm64", "io.github.12345debdut:anchor-di-ksp:x.x.x")
 }
 ```
 
@@ -87,10 +87,10 @@ If you use **native UI** (SwiftUI on iOS, Views on Android) or **shared logic on
 
 ```kotlin
 commonMain.dependencies {
-    implementation("io.github.12345debdut:anchor-di-api:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-core:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-presentation:0.1.0")  // Optional: NavigationScopeRegistry
-    implementation("io.github.12345debdut:anchor-di-android:0.1.0")       // Optional: ActivityScope (Android)
+    implementation("io.github.12345debdut:anchor-di-api:x.x.x")
+    implementation("io.github.12345debdut:anchor-di-core:x.x.x")
+    implementation("io.github.12345debdut:anchor-di-presentation:x.x.x")  // Optional: NavigationScopeRegistry
+    implementation("io.github.12345debdut:anchor-di-android:x.x.x")       // Optional: ActivityScope (Android)
 }
 ```
 

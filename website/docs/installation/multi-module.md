@@ -29,12 +29,12 @@ plugins {
 }
 
 dependencies {
-    implementation("io.github.12345debdut:anchor-di-api:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-core:0.1.0")
-    add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspIosSimulatorArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
+    implementation("io.github.12345debdut:anchor-di-api:x.x.x")
+    implementation("io.github.12345debdut:anchor-di-core:x.x.x")
+    add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspIosSimulatorArm64", "io.github.12345debdut:anchor-di-ksp:x.x.x")
 }
 
 ksp {

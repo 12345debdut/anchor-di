@@ -116,7 +116,7 @@ Export your secret key as **binary** (no `--armor`): `gpg --export-secret-keys Y
 In **`gradle.properties`** (or via `-P` / env):
 
 - **`LIBRARY_GROUP`** — Maven groupId (e.g. `io.github.12345debdut` or `com.debdut`). Must match a verified namespace.
-- **`LIBRARY_VERSION`** — Version to publish (e.g. `0.1.0`). Do **not** use `-SNAPSHOT` for a release to Maven Central.
+- **`LIBRARY_VERSION`** — Version to publish (e.g. `x.x.x`). Do **not** use `-SNAPSHOT` for a release to Maven Central.
 
 Optional POM metadata (also in `gradle.properties` or root `build.gradle.kts`):
 
@@ -233,7 +233,7 @@ Each is published with coordinates:
 
 ## 5. Release flow
 
-1. Set **`LIBRARY_VERSION`** in `gradle.properties` to the release version (e.g. `0.1.0`), with **no** `-SNAPSHOT`.
+1. Set **`LIBRARY_VERSION`** in `gradle.properties` to the release version (e.g. `x.x.x`), with **no** `-SNAPSHOT`.
 2. Ensure **signing** and **Sonatype credentials** are configured (see §2.2).
 3. Run:
    ```bash
@@ -254,7 +254,7 @@ A **manual workflow** is provided so you can trigger a publish from GitHub with 
 1. In your repo, go to **Actions** → **Publish to Maven Central**.
 2. Click **Run workflow**.
 3. Fill in:
-   - **Version** — e.g. `0.1.0` (no `-SNAPSHOT` for a release). For the **first public release** use `0.1.0`.
+   - **Version** — use the release version (e.g. `x.x.x`; no `-SNAPSHOT`). See README / version in one place.
    - **Namespace** — your Central Portal namespace (e.g. `io.github.USERNAME`). Must match [central.sonatype.com/publishing/namespaces](https://central.sonatype.com/publishing/namespaces). Default is `io.github.12345debdut`.
    - **Modules** — choose **all** or a single module (`anchor-di-api`, `anchor-di-core`, etc.). For first release use **all**.
    - **Custom modules** (optional) — comma-separated list to publish instead of the dropdown, e.g. `anchor-di-api,anchor-di-core,anchor-di-compose`. Leave empty to use the dropdown.
@@ -287,17 +287,17 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.12345debdut:anchor-di-api:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-core:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-compose:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-presentation:0.1.0")
-    add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:0.1.0")
+    implementation("io.github.12345debdut:anchor-di-api:x.x.x")
+    implementation("io.github.12345debdut:anchor-di-core:x.x.x")
+    implementation("io.github.12345debdut:anchor-di-compose:x.x.x")
+    implementation("io.github.12345debdut:anchor-di-presentation:x.x.x")
+    add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:x.x.x")
     // … other KSP targets as needed
 }
 ```
 
-Replace `0.1.0` with the published `LIBRARY_VERSION`.
+Replace `x.x.x` with the published version (see README for single source of version).
 
 ---
 

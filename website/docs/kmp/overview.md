@@ -36,12 +36,12 @@ Anchor DI uses **KSP (Kotlin Symbol Processing)** to generate code at compile ti
 
 ```kotlin
 dependencies {
-    add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspIosSimulatorArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspJvm", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspWasmJs", "io.github.12345debdut:anchor-di-ksp:0.1.0")
+    add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspIosSimulatorArm64", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspJvm", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspWasmJs", "io.github.12345debdut:anchor-di-ksp:x.x.x")
 }
 ```
 

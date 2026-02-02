@@ -119,5 +119,10 @@ if (hasSigningKey) {
         project.extensions.findByType<org.gradle.plugins.signing.SigningExtension>()?.let { signingExt ->
             signingExt.sign(project.extensions.getByType<org.gradle.api.publish.PublishingExtension>().publications)
         }
+        // Ensure publish tasks run after all sign tasks (fixes ordering when publications include extra artifacts like javadoc)
+        val signTasks = project.tasks.matching { it.name.startsWith("sign") && it.name.endsWith("Publication") }
+        project.tasks.withType<org.gradle.api.Task>().matching { it.name.startsWith("publish") && it.name.contains("PublicationTo") && it.name.endsWith("Repository") }.configureEach {
+            dependsOn(signTasks)
+        }
     }
 }

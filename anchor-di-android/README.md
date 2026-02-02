@@ -13,7 +13,7 @@ Same package as in anchor-di-compose (`com.debdut.anchordi.compose.ActivityScope
 ```kotlin
 // Android source set only
 androidMain.dependencies {
-    implementation("io.github.12345debdut:anchor-di-android:0.1.0")
+    implementation("io.github.12345debdut:anchor-di-android:x.x.x")
 }
 // Also need anchor-di-api and anchor-di-core in commonMain
 ```

@@ -41,13 +41,13 @@ plugins {
 repositories { mavenCentral() }
 
 dependencies {
-    implementation("io.github.12345debdut:anchor-di-api:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-core:0.1.0")
-    implementation("io.github.12345debdut:anchor-di-compose:0.1.0")  // For Compose UI
-    add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
-    add("kspIosSimulatorArm64", "io.github.12345debdut:anchor-di-ksp:0.1.0")
+    implementation("io.github.12345debdut:anchor-di-api:x.x.x")
+    implementation("io.github.12345debdut:anchor-di-core:x.x.x")
+    implementation("io.github.12345debdut:anchor-di-compose:x.x.x")  // For Compose UI
+    add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:x.x.x")
+    add("kspIosSimulatorArm64", "io.github.12345debdut:anchor-di-ksp:x.x.x")
 }
 ```
 
@@ -128,7 +128,7 @@ Call once in `Application.onCreate()` (Android), your app entry (iOS), or before
 
 ## Project Status
 
-**Current version:** 0.1.0 (beta)
+**Current version:** see [Maven Central](https://central.sonatype.com/artifact/io.github.12345debdut/anchor-di-api) badge above.
 
 - Core DI, KSP validation, Compose & navigation integration
 - Published to [Maven Central](https://central.sonatype.com/artifact/io.github.12345debdut/anchor-di-api)
