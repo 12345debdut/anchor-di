@@ -17,7 +17,6 @@ kotlin {
     jvm()
     wasmJs {
         browser()
-        binaries.executable()
     }
 
     listOf(
