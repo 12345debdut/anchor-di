@@ -183,11 +183,12 @@ class AnchorDiModelBuilderTest {
         serviceClass._primaryConstructor = serviceConstructor
 
         val bindings = builder.buildBindings(listOf(repoClass, serviceClass), emptyList())
+        val graph = builder.buildDependencyGraph(listOf(repoClass, serviceClass), emptyList())
 
         assertEquals(2, bindings.size)
         val serviceBinding = bindings.find { it.key == "com.example.Service" }
         assertNotNull(serviceBinding)
-        assertTrue(serviceBinding.dependencies.contains("com.example.Repository"))
+        assertTrue(graph["com.example.Service"]!!.contains("com.example.Repository"))
     }
 
     // ===================
@@ -266,9 +267,9 @@ class AnchorDiModelBuilderTest {
         assertTrue(providedKeys.contains("com.example.Repository"))
         assertTrue(providedKeys.contains("com.example.Service"))
         
-        val serviceReq = requirements.find { it.consumer == "com.example.Service" }
+        val serviceReq = requirements.find { it.requester == "com.example.Service" }
         assertNotNull(serviceReq)
-        assertEquals("com.example.Repository", serviceReq.requiredKey)
+        assertEquals("com.example.Repository", serviceReq.requiredType)
     }
 
     // ===================
@@ -285,7 +286,7 @@ class AnchorDiModelBuilderTest {
         val descriptors = builder.buildInjectClassDescriptors(listOf(myClass))
 
         assertEquals(1, descriptors.size)
-        assertEquals("com.example.MyClass", descriptors[0].qualifiedName)
         assertEquals("MyClass", descriptors[0].simpleName)
+        assertTrue(descriptors[0].hasInjectConstructor)
     }
 }
