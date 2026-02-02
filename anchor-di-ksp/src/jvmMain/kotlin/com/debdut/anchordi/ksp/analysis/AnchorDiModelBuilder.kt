@@ -421,6 +421,7 @@ class AnchorDiModelBuilder(private val resolver: Resolver) {
         }
         injectClasses.forEach { classDecl ->
             val from = classDecl.qualifiedName?.asString() ?: return@forEach
+            graph.getOrPut(from) { mutableSetOf() } // ensure every inject class is a key (empty deps if no params)
             classDecl.primaryConstructor?.parameters?.forEach { param ->
                 val (to, _, _) = resolveParameterType(param)
                 if (to != "Any" && to !in ValidationConstants.SKIPPED_TYPES) addEdge(from, to)

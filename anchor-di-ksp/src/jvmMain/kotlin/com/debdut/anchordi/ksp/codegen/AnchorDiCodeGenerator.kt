@@ -162,8 +162,10 @@ class AnchorDiCodeGenerator(
                     }
                 }
             }
+            val qualifier = KspUtils.getAnnotationStringValue(classDecl.findAnnotation(FQN_NAMED))
+            val keyQualifier = if (qualifier != null) "\"$qualifier\"" else "null"
             val groupKey = implFqnToModule[qualifiedName] ?: INJECT_GROUP_KEY
-            addBlock(groupKey, listOf("registry.register(Key(\"$qualifiedName\", null), $binding)"))
+            addBlock(groupKey, listOf("registry.register(Key(\"$qualifiedName\", $keyQualifier), $binding)"))
         }
 
         // Module @Provides and @Binds — group by module simple name
