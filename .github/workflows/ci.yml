@@ -47,3 +47,33 @@ jobs:
 
       - name: Full build
         run: ./gradlew build --no-daemon
+
+  ios-build:
+    name: iOS Build (macOS)
+    runs-on: macos-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: Bootstrap Gradle wrapper
+        if: hashFiles('gradle/wrapper/gradle-wrapper.jar') == ''
+        run: |
+          GRADLE_VERSION=9.1.0
+          curl -sL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o gradle.zip
+          unzip -q -o gradle.zip
+          WRAPPER_JAR=$(find . -name 'gradle-wrapper-*.jar' -path '*/lib/plugins/*' | head -1)
+          mv "$WRAPPER_JAR" gradle/wrapper/gradle-wrapper.jar
+          rm -rf gradle.zip gradle-${GRADLE_VERSION}
+
+      - name: Build iOS targets (KMP)
+        run: ./gradlew :composeApp:assembleIosArm64 :composeApp:assembleIosSimulatorArm64 --no-daemon
