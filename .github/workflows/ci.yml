@@ -1,5 +1,4 @@
-# Run library tests on every push and pull request.
-# To run full build instead: ./gradlew build
+# Strict CI for PRs: tests + full build. All checks must pass before merge.
 
 name: CI
 
@@ -13,8 +12,8 @@ env:
   JAVA_VERSION: '21'
 
 jobs:
-  test:
-    name: Test
+  test-and-build:
+    name: Test & Build
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -40,5 +39,11 @@ jobs:
           mv "$WRAPPER_JAR" gradle/wrapper/gradle-wrapper.jar
           rm -rf gradle.zip gradle-${GRADLE_VERSION}
 
+      - name: Format check (Spotless + ktlint)
+        run: ./gradlew spotlessCheck --no-daemon
+
       - name: Run library tests
         run: ./gradlew :anchor-di-core:jvmTest :anchor-di-ksp:jvmTest --no-daemon
+
+      - name: Full build
+        run: ./gradlew build --no-daemon

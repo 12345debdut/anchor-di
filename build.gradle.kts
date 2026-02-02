@@ -10,6 +10,24 @@ plugins {
     alias(libs.plugins.androidKmpLibrary) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.kover)
+    alias(libs.plugins.spotless)
+}
+
+spotless {
+    kotlin {
+        target("**/*.kt")
+        targetExclude("**/build/**", "**/generated/**")
+        ktlint(libs.versions.ktlint.get())
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target("**/*.gradle.kts")
+        targetExclude("**/build/**")
+        ktlint(libs.versions.ktlint.get())
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 // Aggregated test coverage for library modules (JVM tests only)

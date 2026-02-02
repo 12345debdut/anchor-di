@@ -33,7 +33,8 @@ Run all library tests: `./gradlew :anchor-di-core:test :anchor-di-ksp:test`
 
 ## Code style and structure
 
-- **Kotlin:** Follow standard Kotlin style (e.g. 4-space indent, naming conventions). The project does not enforce a formatter in CI; keep style consistent with existing files.
+- **Kotlin:** Formatting is enforced by **Spotless** with **ktlint**. CI runs `./gradlew spotlessCheck`. Before pushing, run `./gradlew spotlessApply` to fix formatting, or `spotlessCheck` to verify.
+- **Conventions:** 4-space indent, ktlint rules; trailing whitespace trimmed, files end with newline.
 - **Modules:**
   - **anchor-di-api:** Annotations and public API only; no runtime logic.
   - **anchor-di-core:** Container, scopes, `Anchor`; no Compose or nav.
@@ -72,8 +73,11 @@ When adding or changing behavior, update the relevant doc and KDoc.
 ## Pull requests
 
 - Prefer small, focused PRs.
-- Ensure `./gradlew build` and the test commands above pass.
+- Use the [PR template](.github/PULL_REQUEST_TEMPLATE.md) and complete the checklist before requesting review.
+- Ensure CI passes: run `./gradlew build` (or at least `:anchor-di-core:jvmTest` and `:anchor-di-ksp:jvmTest`) locally before pushing.
 - Update documentation if you change public API or behavior.
+
+For required CI checks and branch protection, see **[docs/PR_CHECKS.md](docs/PR_CHECKS.md)**.
 
 ---
 
