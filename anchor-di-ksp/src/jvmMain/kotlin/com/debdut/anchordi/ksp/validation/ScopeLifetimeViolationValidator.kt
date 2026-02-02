@@ -16,11 +16,10 @@ import com.debdut.anchordi.ksp.model.DependencyRequirement
  * Uses [ScopeHierarchy] for component ancestry and longevity rank — no hardcoded scope names.
  */
 object ScopeLifetimeViolationValidator {
-
     fun validate(
         bindings: List<BindingDescriptor>,
         requirements: List<DependencyRequirement>,
-        reporter: ValidationReporter
+        reporter: ValidationReporter,
     ) {
         val keyToBindings = bindings.groupBy { it.key }
         requirements.forEach { (requiredType, requester) ->
@@ -39,27 +38,43 @@ object ScopeLifetimeViolationValidator {
                     val childComponents = requiredBindings.map { it.component }.distinct().joinToString { it.substringAfterLast('.') }
                     reporter.error(
                         ValidationMessageFormat.formatError(
-                            summary = "Binding for '$requester' (${ScopeHierarchy.scopeDisplayName(requesterScope)} in ${requesterComponent.substringAfterLast('.')}) depends on '$requiredType', which is only bound in child component(s): $childComponents.",
-                            detail = "Source: ${reqBinding.source}. The dependency would not be available when resolving '$requester'; a longer-lived binding must not hold a reference to a shorter-lived one.",
-                            fix = "Provide '$requiredType' in '${requesterComponent.substringAfterLast('.')}' or an ancestor, or move '$requester' to a scope that can see '$requiredType', or inject Lazy<$requiredType> / AnchorProvider<$requiredType> to delay access."
+                            summary =
+                                "Binding for '$requester' (${ScopeHierarchy.scopeDisplayName(requesterScope)} " +
+                                    "in ${requesterComponent.substringAfterLast('.')}) depends on '$requiredType', " +
+                                    "which is only bound in child component(s): $childComponents.",
+                            detail =
+                                "Source: ${reqBinding.source}. The dependency would not be available when " +
+                                    "resolving '$requester'; a longer-lived binding must not hold a reference to a shorter-lived one.",
+                            fix =
+                                "Provide '$requiredType' in '${requesterComponent.substringAfterLast('.')}' or an ancestor, " +
+                                    "or move '$requester' to a scope that can see '$requiredType', or inject " +
+                                    "Lazy<$requiredType> / AnchorProvider<$requiredType> to delay access.",
                         ),
-                        null
+                        null,
                     )
                     return@forEach
                 }
 
-                val hasValidLongevity = visibleDeps.any { dep ->
-                    ScopeHierarchy.longevityRank(dep.component, dep.scope) >= requesterLongevity
-                }
+                val hasValidLongevity =
+                    visibleDeps.any { dep ->
+                        ScopeHierarchy.longevityRank(dep.component, dep.scope) >= requesterLongevity
+                    }
                 if (!hasValidLongevity) {
                     val depBinding = visibleDeps.first()
                     reporter.error(
                         ValidationMessageFormat.formatError(
-                            summary = "Binding for '$requester' (${ScopeHierarchy.scopeDisplayName(requesterScope)}) depends on '$requiredType' (${ScopeHierarchy.scopeDisplayName(depBinding.scope)}); longer-lived scope cannot depend on shorter-lived scope.",
-                            detail = "Source: ${reqBinding.source}. The shorter-lived instance may not exist when the longer-lived one is created.",
-                            fix = "Move the dependency to a longer-lived scope, or inject Lazy<$requiredType> / AnchorProvider<$requiredType> to delay access."
+                            summary =
+                                "Binding for '$requester' (${ScopeHierarchy.scopeDisplayName(requesterScope)}) " +
+                                    "depends on '$requiredType' (${ScopeHierarchy.scopeDisplayName(depBinding.scope)}); " +
+                                    "longer-lived scope cannot depend on shorter-lived scope.",
+                            detail =
+                                "Source: ${reqBinding.source}. The shorter-lived instance may not exist " +
+                                    "when the longer-lived one is created.",
+                            fix =
+                                "Move the dependency to a longer-lived scope, or inject " +
+                                    "Lazy<$requiredType> / AnchorProvider<$requiredType> to delay access.",
                         ),
-                        null
+                        null,
                     )
                 }
             }

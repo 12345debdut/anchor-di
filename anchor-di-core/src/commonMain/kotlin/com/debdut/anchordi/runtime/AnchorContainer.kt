@@ -17,13 +17,13 @@ class AnchorContainer(
     private val contributors: List<ComponentBindingContributor>,
     private val parent: AnchorContainer? = null,
     private val currentScopeId: String? = null,
-    private val inheritedBindings: Map<Key, Binding>? = null
+    private val inheritedBindings: Map<Key, Binding>? = null,
 ) {
     /**
      * Immutable map of all bindings. Safe for concurrent reads after construction.
      */
     val bindings: Map<Key, Binding>
-    
+
     // Single lock for all caches to prevent potential deadlocks when factories
     // have cross-scope dependencies (e.g., a scoped binding depending on a singleton).
     private val cacheLock = SyncLock()
@@ -38,32 +38,45 @@ class AnchorContainer(
         if (inheritedBindings != null) {
             return inheritedBindings // Already immutable, reuse directly
         }
-        
+
         val mutableBindings = mutableMapOf<Key, Binding>()
         val setContributions = mutableMapOf<Key, MutableList<Factory<Any>>>()
         val mapContributions = mutableMapOf<Key, MutableList<Pair<Any, Factory<Any>>>>()
-        
-        val registry = object : BindingRegistry {
-            override fun register(key: Key, binding: Binding) {
-                mutableBindings[key] = binding
+
+        val registry =
+            object : BindingRegistry {
+                override fun register(
+                    key: Key,
+                    binding: Binding,
+                ) {
+                    mutableBindings[key] = binding
+                }
+
+                override fun registerSetContribution(
+                    key: Key,
+                    factory: Factory<Any>,
+                ) {
+                    setContributions.getOrPut(key) { mutableListOf() }.add(factory)
+                }
+
+                override fun registerMapContribution(
+                    key: Key,
+                    mapKey: Any,
+                    factory: Factory<Any>,
+                ) {
+                    mapContributions.getOrPut(key) { mutableListOf() }.add(mapKey to factory)
+                }
             }
-            override fun registerSetContribution(key: Key, factory: Factory<Any>) {
-                setContributions.getOrPut(key) { mutableListOf() }.add(factory)
-            }
-            override fun registerMapContribution(key: Key, mapKey: Any, factory: Factory<Any>) {
-                mapContributions.getOrPut(key) { mutableListOf() }.add(mapKey to factory)
-            }
-        }
-        
+
         contributors.forEach { it.contribute(registry) }
-        
+
         setContributions.forEach { (key, list) ->
             mutableBindings[key] = Binding.MultibindingSet(list)
         }
         mapContributions.forEach { (key, list) ->
             mutableBindings[key] = Binding.MultibindingMap(list)
         }
-        
+
         return mutableBindings.toMap() // Convert to immutable
     }
 
@@ -72,15 +85,17 @@ class AnchorContainer(
      * @throws IllegalStateException if no binding exists for the key
      */
     fun get(key: Key): Any {
-        val binding = bindings[key]
-            ?: throw IllegalStateException(
-                "No binding found for $key. Possible causes:\n" +
-                    "  • Add @Inject to the class constructor, or\n" +
-                    "  • Add @Provides in a @Module, or\n" +
-                    "  • Add @Binds for interface types, or\n" +
-                    "  • Ensure the module is @InstallIn(SingletonComponent::class), @InstallIn(ViewModelComponent::class), or @InstallIn(YourScope::class)\n" +
-                    "  • Rebuild the project (KSP generates bindings at compile time)"
-            )
+        val binding =
+            bindings[key]
+                ?: throw IllegalStateException(
+                    "No binding found for $key. Possible causes:\n" +
+                        "  • Add @Inject to the class constructor, or\n" +
+                        "  • Add @Provides in a @Module, or\n" +
+                        "  • Add @Binds for interface types, or\n" +
+                        "  • Ensure the module is @InstallIn(SingletonComponent::class), " +
+                        "@InstallIn(ViewModelComponent::class), or @InstallIn(YourScope::class)\n" +
+                        "  • Rebuild the project (KSP generates bindings at compile time)",
+                )
         return when (binding) {
             is Binding.Unscoped -> binding.factory.create(resolveContainer(binding))
             is Binding.Singleton -> resolveSingleton(key, binding)
@@ -97,26 +112,35 @@ class AnchorContainer(
         }
     }
 
-    private fun resolveSingleton(key: Key, binding: Binding.Singleton): Any {
+    private fun resolveSingleton(
+        key: Key,
+        binding: Binding.Singleton,
+    ): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
         return root.cacheLock.withLock {
             root.singletonCache.getOrPut(key) { binding.factory.create(root) }
         }
     }
 
-    private fun resolveScoped(key: Key, binding: Binding.Scoped): Any {
+    private fun resolveScoped(
+        key: Key,
+        binding: Binding.Scoped,
+    ): Any {
         if (currentScopeId != binding.scopeClassName) {
             if (parent == null) {
-                val hint = when (binding.scopeClassName) {
-                    "com.debdut.anchordi.ViewModelComponent" ->
-                        " Use viewModelAnchor() to create ViewModels, or Anchor.withScope(ViewModelComponent::class) { ... }."
-                    "com.debdut.anchordi.NavigationComponent" ->
-                        " Wrap destination content in NavigationScopedContent(scopeKey) { ... } (anchor-di-compose) and use navigationScopedInject() inside it."
-                    else ->
-                        " Use Anchor.withScope(${binding.scopeClassName}::class) { ... } or Anchor.scopedContainer(...) to provide the scope."
-                }
+                val hint =
+                    when (binding.scopeClassName) {
+                        "com.debdut.anchordi.ViewModelComponent" ->
+                            " Use viewModelAnchor() to create ViewModels, or Anchor.withScope(ViewModelComponent::class) { ... }."
+                        "com.debdut.anchordi.NavigationComponent" ->
+                            " Wrap destination content in NavigationScopedContent(scopeKey) { ... } " +
+                                "(anchor-di-compose) and use navigationScopedInject() inside it."
+                        else ->
+                            " Use Anchor.withScope(${binding.scopeClassName}::class) { ... } or " +
+                                "Anchor.scopedContainer(...) to provide the scope."
+                    }
                 throw IllegalStateException(
-                    "Scoped binding for $key requires a scope.$hint"
+                    "Scoped binding for $key requires a scope.$hint",
                 )
             }
             return parent.get(key)
@@ -126,7 +150,10 @@ class AnchorContainer(
         }
     }
 
-    private fun resolveMultibindingSet(key: Key, binding: Binding.MultibindingSet): Any {
+    private fun resolveMultibindingSet(
+        key: Key,
+        binding: Binding.MultibindingSet,
+    ): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
         return root.cacheLock.withLock {
             root.singletonCache.getOrPut(key) {
@@ -136,7 +163,10 @@ class AnchorContainer(
         }
     }
 
-    private fun resolveMultibindingMap(key: Key, binding: Binding.MultibindingMap): Any {
+    private fun resolveMultibindingMap(
+        key: Key,
+        binding: Binding.MultibindingMap,
+    ): Any {
         val root = parent?.let { p -> generateSequence(p) { it.parent }.lastOrNull() } ?: this
         return root.cacheLock.withLock {
             root.singletonCache.getOrPut(key) {
@@ -158,7 +188,10 @@ class AnchorContainer(
      * @param scopeClass The scope class (e.g. MyScreenScope::class)
      * @param block Executes with the scoped container; scoped bindings are cached per invocation
      */
-    inline fun <R> createScope(scopeClass: KClass<*>, block: (AnchorContainer) -> R): R {
+    inline fun <R> createScope(
+        scopeClass: KClass<*>,
+        block: (AnchorContainer) -> R,
+    ): R {
         return block(createScopeContainer(scopeClass))
     }
 
@@ -166,7 +199,10 @@ class AnchorContainer(
      * Creates a child scope with the given [scopeId] and runs [block] with it.
      * Use when the scope ID must match exactly (e.g. ViewModelComponent.SCOPE_ID).
      */
-    fun <R> createScope(scopeId: String, block: (AnchorContainer) -> R): R {
+    fun <R> createScope(
+        scopeId: String,
+        block: (AnchorContainer) -> R,
+    ): R {
         return block(createScopeContainer(scopeId))
     }
 

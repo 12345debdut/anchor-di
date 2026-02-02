@@ -1,37 +1,34 @@
 package com.debdut.anchordi.ksp.validation
 
 import com.debdut.anchordi.ksp.model.BindingDescriptor
-import com.debdut.anchordi.ksp.model.ComponentDescriptor
 import com.debdut.anchordi.ksp.model.DependencyRequirement
-import com.debdut.anchordi.ksp.model.ModuleDescriptor
 import com.debdut.anchordi.ksp.test.FakeKSClassDeclaration
 import com.debdut.anchordi.ksp.test.FakeKSFunctionDeclaration
 import com.google.devtools.ksp.symbol.ClassKind
-import com.google.devtools.ksp.symbol.Modifier
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AnchorDiValidatorTest {
-
     @Test
     fun validateAll_runsAllValidators() {
         val reporter = CollectingReporter()
         val validator = AnchorDiValidator(reporter)
 
         // Setup inputs that should trigger errors in multiple validators to prove they all ran
-        
+
         // 1. Missing bindings input
-        val requirements = listOf(
-            DependencyRequirement("RequiredType", "Requester")
-        )
+        val requirements =
+            listOf(
+                DependencyRequirement("RequiredType", "Requester"),
+            )
         val providedKeys = emptySet<String>()
 
         // 2. Duplicate bindings input
-        val bindings = listOf(
-            BindingDescriptor("Key", null, "Component", null, "Source1"),
-            BindingDescriptor("Key", null, "Component", null, "Source2")
-        )
+        val bindings =
+            listOf(
+                BindingDescriptor("Key", null, "Component", null, "Source1"),
+                BindingDescriptor("Key", null, "Component", null, "Source2"),
+            )
 
         // 3. Cycles input
         val graph = mapOf("A" to setOf("A"))
@@ -44,18 +41,18 @@ class AnchorDiValidatorTest {
             components = emptyMap(),
             providedKeys = providedKeys,
             requirements = requirements,
-            dependencyGraph = graph
+            dependencyGraph = graph,
         )
 
         // Verify errors from different validators are present
         val errorMessages = reporter.errors.map { it.message }
-        
+
         // From MissingBindingValidator
         assertTrue(errorMessages.any { it.contains("has no binding") }, "Should report missing binding")
-        
+
         // From DuplicateBindingValidator
         assertTrue(errorMessages.any { it.contains("Duplicate binding") }, "Should report duplicate binding")
-        
+
         // From CycleValidator
         assertTrue(errorMessages.any { it.contains("Circular dependency") }, "Should report cycle")
     }
@@ -72,7 +69,7 @@ class AnchorDiValidatorTest {
             components = emptyMap(),
             providedKeys = emptySet(),
             requirements = emptyList(),
-            dependencyGraph = emptyMap()
+            dependencyGraph = emptyMap(),
         )
 
         assertTrue(reporter.errors.isEmpty())
@@ -91,12 +88,14 @@ class AnchorDiValidatorTest {
         bindsFunc.addAnnotation("com.debdut.anchordi.Binds")
         val interfaceDecl = FakeKSClassDeclaration("com.example.IFoo", "IFoo", ClassKind.INTERFACE)
         bindsFunc.addParameter("impl", interfaceDecl)
-        moduleWithBindsToInterface._declarations.add(bindsFunc)
+        moduleWithBindsToInterface.declarationsList.add(bindsFunc)
 
         validator.validateSymbols(listOf(injectClass), listOf(moduleWithBindsToInterface))
 
         val errorMessages = reporter.errors.map { it.message }
-        assertTrue(errorMessages.any { it.contains("interface") && it.contains("com.example.IApi") }, "Should report interface not allowed for @Inject")
+        val hasInterfaceError =
+            errorMessages.any { it.contains("interface") && it.contains("com.example.IApi") }
+        assertTrue(hasInterfaceError, "Should report interface not allowed for @Inject")
         assertTrue(errorMessages.any { it.contains("@Binds") && it.contains("interface") }, "Should report @Binds to interface")
     }
 
@@ -108,7 +107,7 @@ class AnchorDiValidatorTest {
         val injectClass = FakeKSClassDeclaration("com.example.MyService", "MyService", ClassKind.CLASS)
         val constructor = FakeKSFunctionDeclaration("com.example.MyService.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
         validator.validateSymbols(listOf(injectClass), emptyList())
 

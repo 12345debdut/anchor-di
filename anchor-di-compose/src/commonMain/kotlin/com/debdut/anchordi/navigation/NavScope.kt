@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
  *   or your sealed route type). Use the same type as your back stack list.
  */
 interface NavScope<Entry : Any> {
-
     /** Maps a back-stack entry (route) to the scope key used for [NavigationScopeRegistry]. */
     val scopeKeyForEntry: (Entry) -> Any
 
@@ -43,9 +42,10 @@ interface NavScope<Entry : Any> {
         content: @Composable () -> Unit,
     ) {
         val scopeKey = scopeKeyForEntry(entry)
-        val scopeEntry = remember(scopeKey) {
-            NavigationScopeRegistry.getOrCreate(scopeKey)
-        }
+        val scopeEntry =
+            remember(scopeKey) {
+                NavigationScopeRegistry.getOrCreate(scopeKey)
+            }
         CompositionLocalProvider(
             LocalNavigationScope provides scopeEntry.navContainer,
             LocalNavViewModelScope provides scopeEntry.viewModelContainer,

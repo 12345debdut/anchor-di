@@ -8,8 +8,10 @@ import com.debdut.anchordi.ksp.model.BindingDescriptor
  * for Map, map keys must be unique within the same multibound map.
  */
 object DuplicateBindingValidator {
-
-    fun validate(bindings: List<BindingDescriptor>, reporter: ValidationReporter) {
+    fun validate(
+        bindings: List<BindingDescriptor>,
+        reporter: ValidationReporter,
+    ) {
         bindings
             .groupBy { Triple(it.key, it.qualifier, it.component) }
             .forEach { (_, group) ->
@@ -28,9 +30,9 @@ object DuplicateBindingValidator {
                                     ValidationMessageFormat.formatError(
                                         summary = "Duplicate map key '$dupKey' in multibinding for ${first.key}.",
                                         detail = "Defined in: $sources. Each @IntoMap contribution must have a unique @StringKey.",
-                                        fix = "Use a unique @StringKey for each contribution."
+                                        fix = "Use a unique @StringKey for each contribution.",
                                     ),
-                                    null
+                                    null,
                                 )
                             }
                         }
@@ -40,11 +42,15 @@ object DuplicateBindingValidator {
                         val sources = group.joinToString { it.source }
                         reporter.error(
                             ValidationMessageFormat.formatError(
-                                summary = "Duplicate binding: '${first.key}' (qualifier: ${first.qualifier ?: "none"}) is bound more than once in component '$componentName'.",
+                                summary =
+                                    "Duplicate binding: '${first.key}' (qualifier: ${first.qualifier ?: "none"}) " +
+                                        "is bound more than once in component '$componentName'.",
                                 detail = "Defined in: $sources.",
-                                fix = "Remove or consolidate the duplicate; keep only one @Inject constructor, @Provides method, or @Binds for this type in this component."
+                                fix =
+                                    "Remove or consolidate the duplicate; keep only one @Inject constructor, " +
+                                        "@Provides method, or @Binds for this type in this component.",
                             ),
-                            null
+                            null,
                         )
                     }
                 }

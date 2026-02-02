@@ -8,11 +8,10 @@ import com.debdut.anchordi.ksp.model.BindingDescriptor
  * Unreachable bindings (not depended on by any other binding and not an entry point) may be dead code.
  */
 object ReachableBindingsValidator {
-
     fun validate(
         bindings: List<BindingDescriptor>,
         dependencyGraph: Map<String, Set<String>>,
-        reporter: ValidationReporter
+        reporter: ValidationReporter,
     ) {
         val bindingsByComponent = bindings.groupBy { it.component }
         val dependentsOf = mutableMapOf<String, MutableSet<String>>()
@@ -25,11 +24,13 @@ object ReachableBindingsValidator {
         bindingsByComponent.forEach { (component, componentBindings) ->
             val keysInComponent = componentBindings.map { it.key }.toSet()
             val dependentsInComponent = dependencyGraph.filter { it.key in keysInComponent }
-            val entryPoints = keysInComponent.filter { key ->
-                val dependents = dependentsOf[key] ?: emptySet()
-                dependents.none { it in keysInComponent }
-            }
+            val entryPoints =
+                keysInComponent.filter { key ->
+                    val dependents = dependentsOf[key] ?: emptySet()
+                    dependents.none { it in keysInComponent }
+                }
             val reachable = mutableSetOf<String>()
+
             fun visit(key: String) {
                 if (key in reachable) return
                 reachable.add(key)
@@ -42,11 +43,17 @@ object ReachableBindingsValidator {
                 val binding = componentBindings.firstOrNull { it.key == key } ?: return@forEach
                 reporter.warn(
                     ValidationMessageFormat.formatWarn(
-                        summary = "Binding for '$key' (source: ${binding.source}) in component '${component.substringAfterLast('.')}' is not reachable from any entry point.",
-                        detail = "Only bindings reachable from a component entry point are used at runtime. This binding may be dead code if nothing depends on it and it is not injected directly.",
-                        fix = "Ensure it is either a dependency of another binding in this component or is requested via Anchor.inject<>() / viewModelAnchor() etc. in the same scope."
+                        summary =
+                            "Binding for '$key' (source: ${binding.source}) in component " +
+                                "'${component.substringAfterLast('.')}' is not reachable from any entry point.",
+                        detail =
+                            "Only bindings reachable from a component entry point are used at runtime. " +
+                                "This binding may be dead code if nothing depends on it and it is not injected directly.",
+                        fix =
+                            "Ensure it is either a dependency of another binding in this component or is " +
+                                "requested via Anchor.inject<>() / viewModelAnchor() etc. in the same scope.",
                     ),
-                    null
+                    null,
                 )
             }
         }

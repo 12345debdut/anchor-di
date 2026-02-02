@@ -11,7 +11,6 @@ import com.debdut.anchordi.runtime.AnchorContainer
  * is created — i.e. until [logout] is called. See docs/SESSION_AND_LOGOUT.md in the repo for disposal semantics.
  */
 object SessionHolder {
-
     private lateinit var container: AnchorContainer
 
     /** Call once after [Anchor.init] (e.g. in [App][com.debdut.simpletemplate.App] or platform entry). */

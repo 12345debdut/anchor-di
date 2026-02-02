@@ -12,14 +12,15 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class AnchorDiCodeGeneratorTest {
-
-    private val resolver = FakeResolver().apply {
-        symbols[ComponentResolution.FQN_COMPONENT] = listOf(
-            FakeKSClassDeclaration(ValidationConstants.FQN_SINGLETON_COMPONENT, "SingletonComponent"),
-            FakeKSClassDeclaration(ValidationConstants.FQN_VIEW_MODEL_COMPONENT, "ViewModelComponent"),
-            FakeKSClassDeclaration(ValidationConstants.FQN_NAVIGATION_COMPONENT, "NavigationComponent")
-        )
-    }
+    private val resolver =
+        FakeResolver().apply {
+            symbols[ComponentResolution.FQN_COMPONENT] =
+                listOf(
+                    FakeKSClassDeclaration(ValidationConstants.FQN_SINGLETON_COMPONENT, "SingletonComponent"),
+                    FakeKSClassDeclaration(ValidationConstants.FQN_VIEW_MODEL_COMPONENT, "ViewModelComponent"),
+                    FakeKSClassDeclaration(ValidationConstants.FQN_NAVIGATION_COMPONENT, "NavigationComponent"),
+                )
+        }
     private val builder = AnchorDiModelBuilder(resolver)
     private val generator = AnchorDiCodeGenerator(builder)
 
@@ -34,14 +35,15 @@ class AnchorDiCodeGeneratorTest {
         constructor.addAnnotation("com.debdut.anchordi.Inject")
         // param: repo: Repo
         constructor.addParameter("repo", "com.example.Repo")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
-        val output = generator.generateAnchorContributor(
-            "com.example.generated",
-            listOf(injectClass),
-            emptyList(),
-            "AnchorGenerated"
-        )
+        val output =
+            generator.generateAnchorContributor(
+                "com.example.generated",
+                listOf(injectClass),
+                emptyList(),
+                "AnchorGenerated",
+            )
 
         // Verify key parts of generated code
         assertTrue(output.contains("class MyService_Factory : Factory<com.example.MyService>"))
@@ -56,14 +58,15 @@ class AnchorDiCodeGeneratorTest {
         val constructor = FakeKSFunctionDeclaration("com.example.MyService.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
         constructor.addParameter("repo", "com.example.Repo")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
-        val files = generator.generateAllFiles(
-            "com.example.generated",
-            listOf(injectClass),
-            emptyList(),
-            "AnchorGenerated_app"
-        )
+        val files =
+            generator.generateAllFiles(
+                "com.example.generated",
+                listOf(injectClass),
+                emptyList(),
+                "AnchorGenerated_app",
+            )
 
         // Per-group factory file + one contributor (Inject) + aggregator
         assertTrue(files.size >= 3)
@@ -90,14 +93,15 @@ class AnchorDiCodeGeneratorTest {
         injectClass.addAnnotation("com.debdut.anchordi.Singleton")
         val constructor = FakeKSFunctionDeclaration("com.example.SingletonService.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
-        val output = generator.generateAnchorContributor(
-            "com.example.generated",
-            listOf(injectClass),
-            emptyList(),
-            "AnchorGenerated"
-        )
+        val output =
+            generator.generateAnchorContributor(
+                "com.example.generated",
+                listOf(injectClass),
+                emptyList(),
+                "AnchorGenerated",
+            )
 
         assertTrue(output.contains("Binding.Singleton(SingletonService_Factory())"))
     }
@@ -108,14 +112,15 @@ class AnchorDiCodeGeneratorTest {
         injectClass.addAnnotation("com.debdut.anchordi.ViewModelScoped")
         val constructor = FakeKSFunctionDeclaration("com.example.MyViewModel.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
-        val output = generator.generateAnchorContributor(
-            "com.example.generated",
-            listOf(injectClass),
-            emptyList(),
-            "AnchorGenerated"
-        )
+        val output =
+            generator.generateAnchorContributor(
+                "com.example.generated",
+                listOf(injectClass),
+                emptyList(),
+                "AnchorGenerated",
+            )
 
         assertTrue(output.contains("Binding.Scoped(\"${ValidationConstants.FQN_VIEW_MODEL_COMPONENT}\", MyViewModel_Factory())"))
     }
@@ -126,14 +131,15 @@ class AnchorDiCodeGeneratorTest {
         injectClass.addAnnotation("com.debdut.anchordi.NavigationScoped")
         val constructor = FakeKSFunctionDeclaration("com.example.ScreenState.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
-        val output = generator.generateAnchorContributor(
-            "com.example.generated",
-            listOf(injectClass),
-            emptyList(),
-            "AnchorGenerated"
-        )
+        val output =
+            generator.generateAnchorContributor(
+                "com.example.generated",
+                listOf(injectClass),
+                emptyList(),
+                "AnchorGenerated",
+            )
 
         assertTrue(output.contains("Binding.Scoped(\"${ValidationConstants.FQN_NAVIGATION_COMPONENT}\", ScreenState_Factory())"))
     }
@@ -145,19 +151,23 @@ class AnchorDiCodeGeneratorTest {
     @Test
     fun generateAnchorContributor_namedQualifier_includesQualifierInKey() {
         val injectClass = FakeKSClassDeclaration("com.example.ApiClient", "ApiClient")
-        injectClass.addAnnotation("com.debdut.anchordi.Named", listOf(
-            FakeKSValueArgument(null, "production")
-        ))
+        injectClass.addAnnotation(
+            "com.debdut.anchordi.Named",
+            listOf(
+                FakeKSValueArgument(null, "production"),
+            ),
+        )
         val constructor = FakeKSFunctionDeclaration("com.example.ApiClient.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
-        val output = generator.generateAnchorContributor(
-            "com.example.generated",
-            listOf(injectClass),
-            emptyList(),
-            "AnchorGenerated"
-        )
+        val output =
+            generator.generateAnchorContributor(
+                "com.example.generated",
+                listOf(injectClass),
+                emptyList(),
+                "AnchorGenerated",
+            )
 
         // Key should include qualifier
         assertTrue(output.contains("Key(\"com.example.ApiClient\", \"production\")"))
@@ -175,14 +185,15 @@ class AnchorDiCodeGeneratorTest {
         constructor.addParameter("repo", "com.example.Repository")
         constructor.addParameter("api", "com.example.ApiClient")
         constructor.addParameter("logger", "com.example.Logger")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
-        val output = generator.generateAnchorContributor(
-            "com.example.generated",
-            listOf(injectClass),
-            emptyList(),
-            "AnchorGenerated"
-        )
+        val output =
+            generator.generateAnchorContributor(
+                "com.example.generated",
+                listOf(injectClass),
+                emptyList(),
+                "AnchorGenerated",
+            )
 
         assertTrue(output.contains("val repo = container.get<com.example.Repository>()"))
         assertTrue(output.contains("val api = container.get<com.example.ApiClient>()"))
@@ -200,14 +211,15 @@ class AnchorDiCodeGeneratorTest {
         val constructor = FakeKSFunctionDeclaration("com.example.SimpleClass.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
         // No parameters
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
-        val output = generator.generateAnchorContributor(
-            "com.example.generated",
-            listOf(injectClass),
-            emptyList(),
-            "AnchorGenerated"
-        )
+        val output =
+            generator.generateAnchorContributor(
+                "com.example.generated",
+                listOf(injectClass),
+                emptyList(),
+                "AnchorGenerated",
+            )
 
         assertTrue(output.contains("return com.example.SimpleClass()"))
         // Should not contain "container.get" since no dependencies
@@ -223,14 +235,15 @@ class AnchorDiCodeGeneratorTest {
         val injectClass = FakeKSClassDeclaration("com.example.MyService", "MyService")
         val constructor = FakeKSFunctionDeclaration("com.example.MyService.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
-        val output = generator.generateAnchorContributor(
-            "com.example.generated",
-            listOf(injectClass),
-            emptyList(),
-            "AnchorGenerated"
-        )
+        val output =
+            generator.generateAnchorContributor(
+                "com.example.generated",
+                listOf(injectClass),
+                emptyList(),
+                "AnchorGenerated",
+            )
 
         assertTrue(output.contains("class MyService_Factory : Factory<com.example.MyService>"))
         assertTrue(output.contains("override fun create(container: com.debdut.anchordi.runtime.AnchorContainer): com.example.MyService"))
@@ -245,19 +258,20 @@ class AnchorDiCodeGeneratorTest {
         val class1 = FakeKSClassDeclaration("com.example.ServiceA", "ServiceA")
         val constructor1 = FakeKSFunctionDeclaration("com.example.ServiceA.<init>", "<init>")
         constructor1.addAnnotation("com.debdut.anchordi.Inject")
-        class1._primaryConstructor = constructor1
+        class1.primaryConstructorBacking = constructor1
 
         val class2 = FakeKSClassDeclaration("com.example.ServiceB", "ServiceB")
         val constructor2 = FakeKSFunctionDeclaration("com.example.ServiceB.<init>", "<init>")
         constructor2.addAnnotation("com.debdut.anchordi.Inject")
-        class2._primaryConstructor = constructor2
+        class2.primaryConstructorBacking = constructor2
 
-        val output = generator.generateAnchorContributor(
-            "com.example.generated",
-            listOf(class1, class2),
-            emptyList(),
-            "AnchorGenerated"
-        )
+        val output =
+            generator.generateAnchorContributor(
+                "com.example.generated",
+                listOf(class1, class2),
+                emptyList(),
+                "AnchorGenerated",
+            )
 
         assertTrue(output.contains("class ServiceA_Factory"))
         assertTrue(output.contains("class ServiceB_Factory"))

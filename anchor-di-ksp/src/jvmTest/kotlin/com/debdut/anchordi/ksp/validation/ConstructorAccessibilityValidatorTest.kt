@@ -8,13 +8,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ConstructorAccessibilityValidatorTest {
-
     @Test
     fun publicConstructor_reportsNoErrors() {
         val injectClass = FakeKSClassDeclaration("com.example.MyService", "MyService")
         val constructor = FakeKSFunctionDeclaration("com.example.MyService.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
         val reporter = CollectingReporter()
         ConstructorAccessibilityValidator.validate(listOf(injectClass), reporter)
@@ -26,8 +25,8 @@ class ConstructorAccessibilityValidatorTest {
         val injectClass = FakeKSClassDeclaration("com.example.PrivateService", "PrivateService")
         val constructor = FakeKSFunctionDeclaration("com.example.PrivateService.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        constructor._modifiers.add(Modifier.PRIVATE)
-        injectClass._primaryConstructor = constructor
+        constructor.modifiersSet.add(Modifier.PRIVATE)
+        injectClass.primaryConstructorBacking = constructor
 
         val reporter = CollectingReporter()
         ConstructorAccessibilityValidator.validate(listOf(injectClass), reporter)
@@ -42,8 +41,8 @@ class ConstructorAccessibilityValidatorTest {
         val injectClass = FakeKSClassDeclaration("com.example.ProtectedService", "ProtectedService")
         val constructor = FakeKSFunctionDeclaration("com.example.ProtectedService.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        constructor._modifiers.add(Modifier.PROTECTED)
-        injectClass._primaryConstructor = constructor
+        constructor.modifiersSet.add(Modifier.PROTECTED)
+        injectClass.primaryConstructorBacking = constructor
 
         val reporter = CollectingReporter()
         ConstructorAccessibilityValidator.validate(listOf(injectClass), reporter)
@@ -55,7 +54,7 @@ class ConstructorAccessibilityValidatorTest {
     @Test
     fun noInjectConstructor_ignored() {
         val injectClass = FakeKSClassDeclaration("com.example.Bar", "Bar")
-        injectClass._primaryConstructor = null
+        injectClass.primaryConstructorBacking = null
 
         val reporter = CollectingReporter()
         ConstructorAccessibilityValidator.validate(listOf(injectClass), reporter)

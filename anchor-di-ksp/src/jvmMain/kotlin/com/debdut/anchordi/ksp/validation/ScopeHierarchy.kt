@@ -10,7 +10,6 @@ package com.debdut.anchordi.ksp.validation
  *   shorter-lived scope (e.g. Singleton cannot depend on ViewModel-scoped).
  */
 object ScopeHierarchy {
-
     /** Scope ID for SingletonComponent (application-wide). */
     const val SCOPE_ID_SINGLETON = ValidationConstants.FQN_SINGLETON_COMPONENT
 
@@ -24,15 +23,21 @@ object ScopeHierarchy {
      * Longevity rank: higher = lives longer. Singleton (2) > ViewModel (1) > Navigation (0).
      * Unscoped bindings use the component's scope for comparison; custom scopes use 1 (between ViewModel and Navigation) if unknown.
      */
-    fun longevityRank(componentFqn: String, scopeFqn: String?): Int {
+    fun longevityRank(
+        componentFqn: String,
+        scopeFqn: String?,
+    ): Int {
         val effectiveScope = scopeFqn ?: componentFqn
         return when (effectiveScope) {
             ValidationConstants.FQN_SINGLETON_COMPONENT,
-            ValidationConstants.FQN_SINGLETON -> 2
+            ValidationConstants.FQN_SINGLETON,
+            -> 2
             ValidationConstants.FQN_VIEW_MODEL_COMPONENT,
-            ValidationConstants.FQN_VIEW_MODEL_SCOPED -> 1
+            ValidationConstants.FQN_VIEW_MODEL_SCOPED,
+            -> 1
             ValidationConstants.FQN_NAVIGATION_COMPONENT,
-            ValidationConstants.FQN_NAVIGATION_SCOPED -> 0
+            ValidationConstants.FQN_NAVIGATION_SCOPED,
+            -> 0
             else -> 1 // custom scope: assume mid-tier for comparison
         }
     }
@@ -47,14 +52,18 @@ object ScopeHierarchy {
      * Parent of each built-in component. Custom components have no parent in this map
      * (they are validated via InstallIn; we treat them as siblings or children of the InstallIn target).
      */
-    fun parentOf(componentFqn: String): String? = when (componentFqn) {
-        ValidationConstants.FQN_VIEW_MODEL_COMPONENT -> ValidationConstants.FQN_SINGLETON_COMPONENT
-        ValidationConstants.FQN_NAVIGATION_COMPONENT -> ValidationConstants.FQN_VIEW_MODEL_COMPONENT
-        else -> null // Singleton has no parent; custom components not in tree
-    }
+    fun parentOf(componentFqn: String): String? =
+        when (componentFqn) {
+            ValidationConstants.FQN_VIEW_MODEL_COMPONENT -> ValidationConstants.FQN_SINGLETON_COMPONENT
+            ValidationConstants.FQN_NAVIGATION_COMPONENT -> ValidationConstants.FQN_VIEW_MODEL_COMPONENT
+            else -> null // Singleton has no parent; custom components not in tree
+        }
 
     /** Returns true if [ancestor] is the same as [component] or an ancestor of [component] in the hierarchy. */
-    fun isAncestorOrSelf(ancestor: String, component: String): Boolean {
+    fun isAncestorOrSelf(
+        ancestor: String,
+        component: String,
+    ): Boolean {
         var current: String? = component
         while (current != null) {
             if (current == ancestor) return true
@@ -64,23 +73,30 @@ object ScopeHierarchy {
     }
 
     /** Human-readable scope name for error messages. */
-    fun scopeDisplayName(scopeFqn: String?): String = when (scopeFqn) {
-        null -> "unscoped"
-        ValidationConstants.FQN_SINGLETON,
-        ValidationConstants.FQN_SINGLETON_COMPONENT -> "Singleton (application-wide)"
-        ValidationConstants.FQN_VIEW_MODEL_SCOPED,
-        ValidationConstants.FQN_VIEW_MODEL_COMPONENT -> "ViewModel-scoped"
-        ValidationConstants.FQN_NAVIGATION_SCOPED,
-        ValidationConstants.FQN_NAVIGATION_COMPONENT -> "Navigation-scoped"
-        else -> scopeFqn.substringAfterLast('.')
-    }
+    fun scopeDisplayName(scopeFqn: String?): String =
+        when (scopeFqn) {
+            null -> "unscoped"
+            ValidationConstants.FQN_SINGLETON,
+            ValidationConstants.FQN_SINGLETON_COMPONENT,
+            -> "Singleton (application-wide)"
+            ValidationConstants.FQN_VIEW_MODEL_SCOPED,
+            ValidationConstants.FQN_VIEW_MODEL_COMPONENT,
+            -> "ViewModel-scoped"
+            ValidationConstants.FQN_NAVIGATION_SCOPED,
+            ValidationConstants.FQN_NAVIGATION_COMPONENT,
+            -> "Navigation-scoped"
+            else -> scopeFqn.substringAfterLast('.')
+        }
 
     /**
      * Single source of truth: is this scope allowed in this component?
      * E.g. ViewModelScoped only in ViewModelComponent; Singleton only in SingletonComponent.
      * Custom components allow @Scoped(ThatComponent::class) or unscoped.
      */
-    fun scopeAllowedInComponent(componentFqn: String, scopeFqn: String?): Boolean {
+    fun scopeAllowedInComponent(
+        componentFqn: String,
+        scopeFqn: String?,
+    ): Boolean {
         if (scopeFqn == null) return true
         return when (componentFqn) {
             ValidationConstants.FQN_SINGLETON_COMPONENT -> scopeFqn == ValidationConstants.FQN_SINGLETON

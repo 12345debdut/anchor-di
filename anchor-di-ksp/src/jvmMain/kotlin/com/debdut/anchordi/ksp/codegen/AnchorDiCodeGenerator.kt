@@ -18,9 +18,8 @@ data class GeneratedFile(val fileName: String, val content: String)
  * (factories, one contributor per component, aggregator) for separation of concerns and scaling.
  */
 class AnchorDiCodeGenerator(
-    private val builder: AnchorDiModelBuilder
+    private val builder: AnchorDiModelBuilder,
 ) {
-
     companion object {
         private const val FQN_INJECT = "com.debdut.anchordi.Inject"
         private const val FQN_INSTALL_IN = "com.debdut.anchordi.InstallIn"
@@ -35,6 +34,7 @@ class AnchorDiCodeGenerator(
         private const val FQN_INTO_SET = "com.debdut.anchordi.IntoSet"
         private const val FQN_INTO_MAP = "com.debdut.anchordi.IntoMap"
         private const val FQN_STRING_KEY = "com.debdut.anchordi.StringKey"
+
         /** Group key for @Inject bindings not exclusively @Binds in one module. */
         private const val INJECT_GROUP_KEY = "Inject"
     }
@@ -47,32 +47,40 @@ class AnchorDiCodeGenerator(
         packageName: String,
         injectClasses: List<KSClassDeclaration>,
         moduleClasses: List<KSClassDeclaration>,
-        baseObjectName: String
+        baseObjectName: String,
     ): List<GeneratedFile> {
         val grouped = buildGroupedRegistrations(injectClasses, moduleClasses)
         val injectClassesByGroup = groupInjectClassesByModule(injectClasses, moduleClasses)
         val files = mutableListOf<GeneratedFile>()
 
         // 1. Factory files — one per group (module or Inject) so they don't bloat
-        val factoryGroupKeys = injectClassesByGroup.keys
-            .filter { injectClassesByGroup[it]?.isNotEmpty() == true }
-            .sortedBy { if (it == INJECT_GROUP_KEY) 1 else 0; it }
+        val factoryGroupKeys =
+            injectClassesByGroup.keys
+                .filter { injectClassesByGroup[it]?.isNotEmpty() == true }
+                .sortedBy {
+                    if (it == INJECT_GROUP_KEY) 1 else 0
+                    it
+                }
         factoryGroupKeys.forEach { groupKey ->
             val classes = injectClassesByGroup[groupKey] ?: emptyList()
             if (classes.isNotEmpty()) {
                 files.add(
                     GeneratedFile(
                         fileName = "${baseObjectName}_${groupKey}_Factories.kt",
-                        content = generateFactoriesFile(packageName, classes)
-                    )
+                        content = generateFactoriesFile(packageName, classes),
+                    ),
                 )
             }
         }
 
         // Modules first (sorted), then "Inject" last
-        val contributorSuffixes = grouped.keys
-            .filter { (grouped[it]?.size ?: 0) > 0 }
-            .sortedBy { if (it == INJECT_GROUP_KEY) 1 else 0; it }
+        val contributorSuffixes =
+            grouped.keys
+                .filter { (grouped[it]?.size ?: 0) > 0 }
+                .sortedBy {
+                    if (it == INJECT_GROUP_KEY) 1 else 0
+                    it
+                }
 
         // 2. One contributor file per module / Inject (non-empty only)
         contributorSuffixes.forEach { suffix ->
@@ -80,8 +88,8 @@ class AnchorDiCodeGenerator(
             files.add(
                 GeneratedFile(
                     fileName = "${baseObjectName}_$suffix.kt",
-                    content = generateContributorFile(packageName, baseObjectName, suffix, blocks)
-                )
+                    content = generateContributorFile(packageName, baseObjectName, suffix, blocks),
+                ),
             )
         }
 
@@ -89,8 +97,8 @@ class AnchorDiCodeGenerator(
         files.add(
             GeneratedFile(
                 fileName = "$baseObjectName.kt",
-                content = generateAggregatorFile(packageName, baseObjectName, contributorSuffixes)
-            )
+                content = generateAggregatorFile(packageName, baseObjectName, contributorSuffixes),
+            ),
         )
 
         return files
@@ -102,7 +110,7 @@ class AnchorDiCodeGenerator(
      */
     fun groupInjectClassesByModule(
         injectClasses: List<KSClassDeclaration>,
-        moduleClasses: List<KSClassDeclaration>
+        moduleClasses: List<KSClassDeclaration>,
     ): Map<String, List<KSClassDeclaration>> {
         val implFqnToModule = builder.getBindsImplModuleMap(moduleClasses)
         val byGroup = mutableMapOf<String, MutableList<KSClassDeclaration>>()
@@ -122,13 +130,16 @@ class AnchorDiCodeGenerator(
      */
     fun buildGroupedRegistrations(
         injectClasses: List<KSClassDeclaration>,
-        moduleClasses: List<KSClassDeclaration>
+        moduleClasses: List<KSClassDeclaration>,
     ): GroupedRegistrations {
         val implFqnToComponent = builder.getBindsImplComponentMap(moduleClasses)
         val implFqnToModule = builder.getBindsImplModuleMap(moduleClasses)
         val grouped = mutableMapOf<String, MutableList<List<String>>>()
 
-        fun addBlock(groupKey: String, lines: List<String>) {
+        fun addBlock(
+            groupKey: String,
+            lines: List<String>,
+        ) {
             grouped.getOrPut(groupKey) { mutableListOf() }.add(lines)
         }
 
@@ -137,31 +148,37 @@ class AnchorDiCodeGenerator(
             val qualifiedName = classDecl.qualifiedName?.asString() ?: return@forEach
             val simpleName = classDecl.simpleName.asString()
             val hasAnchorViewModel = classDecl.hasAnnotation(FQN_ANCHOR_VIEW_MODEL)
-            val hasViewModelScoped = classDecl.primaryConstructor?.hasAnnotation(FQN_VIEW_MODEL_SCOPED) == true
-                || classDecl.hasAnnotation(FQN_VIEW_MODEL_SCOPED)
-            val hasNavigationScoped = classDecl.primaryConstructor?.hasAnnotation(FQN_NAVIGATION_SCOPED) == true
-                || classDecl.hasAnnotation(FQN_NAVIGATION_SCOPED)
-            val scopedAnnotation = classDecl.primaryConstructor?.findAnnotation(FQN_SCOPED)
-                ?: classDecl.findAnnotation(FQN_SCOPED)
-            val hasSingleton = classDecl.primaryConstructor?.hasAnnotation(FQN_SINGLETON) == true
-                || classDecl.hasAnnotation(FQN_SINGLETON)
-            val binding = when {
-                hasAnchorViewModel || hasViewModelScoped -> "Binding.Scoped(\"${ValidationConstants.FQN_VIEW_MODEL_COMPONENT}\", ${simpleName}_Factory())"
-                hasNavigationScoped -> "Binding.Scoped(\"${ValidationConstants.FQN_NAVIGATION_COMPONENT}\", ${simpleName}_Factory())"
-                scopedAnnotation != null -> {
-                    val scopeClass = KspUtils.getScopedClassName(scopedAnnotation) ?: return@forEach
-                    "Binding.Scoped(\"$scopeClass\", ${simpleName}_Factory())"
-                }
-                hasSingleton -> "Binding.Singleton(${simpleName}_Factory())"
-                else -> {
-                    val inherited = implFqnToComponent[qualifiedName]
-                    if (inherited != null) {
-                        "Binding.Scoped(\"$inherited\", ${simpleName}_Factory())"
-                    } else {
-                        "Binding.Unscoped(${simpleName}_Factory())"
+            val hasViewModelScoped =
+                classDecl.primaryConstructor?.hasAnnotation(FQN_VIEW_MODEL_SCOPED) == true ||
+                    classDecl.hasAnnotation(FQN_VIEW_MODEL_SCOPED)
+            val hasNavigationScoped =
+                classDecl.primaryConstructor?.hasAnnotation(FQN_NAVIGATION_SCOPED) == true ||
+                    classDecl.hasAnnotation(FQN_NAVIGATION_SCOPED)
+            val scopedAnnotation =
+                classDecl.primaryConstructor?.findAnnotation(FQN_SCOPED)
+                    ?: classDecl.findAnnotation(FQN_SCOPED)
+            val hasSingleton =
+                classDecl.primaryConstructor?.hasAnnotation(FQN_SINGLETON) == true ||
+                    classDecl.hasAnnotation(FQN_SINGLETON)
+            val binding =
+                when {
+                    hasAnchorViewModel || hasViewModelScoped ->
+                        "Binding.Scoped(\"${ValidationConstants.FQN_VIEW_MODEL_COMPONENT}\", ${simpleName}_Factory())"
+                    hasNavigationScoped -> "Binding.Scoped(\"${ValidationConstants.FQN_NAVIGATION_COMPONENT}\", ${simpleName}_Factory())"
+                    scopedAnnotation != null -> {
+                        val scopeClass = KspUtils.getScopedClassName(scopedAnnotation) ?: return@forEach
+                        "Binding.Scoped(\"$scopeClass\", ${simpleName}_Factory())"
+                    }
+                    hasSingleton -> "Binding.Singleton(${simpleName}_Factory())"
+                    else -> {
+                        val inherited = implFqnToComponent[qualifiedName]
+                        if (inherited != null) {
+                            "Binding.Scoped(\"$inherited\", ${simpleName}_Factory())"
+                        } else {
+                            "Binding.Unscoped(${simpleName}_Factory())"
+                        }
                     }
                 }
-            }
             val qualifier = KspUtils.getAnnotationStringValue(classDecl.findAnnotation(FQN_NAMED))
             val keyQualifier = if (qualifier != null) "\"$qualifier\"" else "null"
             val groupKey = implFqnToModule[qualifiedName] ?: INJECT_GROUP_KEY
@@ -173,13 +190,15 @@ class AnchorDiCodeGenerator(
             val moduleName = moduleDecl.qualifiedName?.asString() ?: return@forEach
             val moduleSimpleName = moduleDecl.simpleName.asString()
             val installIn = moduleDecl.findAnnotation(FQN_INSTALL_IN) ?: return@forEach
-            val componentScopeId = builder.getComponentScopeIdFromInstallIn(installIn)
-                ?: return@forEach
+            val componentScopeId =
+                builder.getComponentScopeIdFromInstallIn(installIn)
+                    ?: return@forEach
             val isSingletonComponent = componentScopeId == ValidationConstants.FQN_SINGLETON_COMPONENT
-            val scopeClassName = when (componentScopeId) {
-                ValidationConstants.FQN_SINGLETON_COMPONENT -> null
-                else -> componentScopeId
-            }
+            val scopeClassName =
+                when (componentScopeId) {
+                    ValidationConstants.FQN_SINGLETON_COMPONENT -> null
+                    else -> componentScopeId
+                }
 
             moduleDecl.declarations.filterIsInstance<KSFunctionDeclaration>().forEach { func ->
                 if (func.hasAnnotation(FQN_BINDS)) {
@@ -195,7 +214,10 @@ class AnchorDiCodeGenerator(
         return grouped
     }
 
-    fun generateFactoriesFile(packageName: String, injectClasses: List<KSClassDeclaration>): String {
+    fun generateFactoriesFile(
+        packageName: String,
+        injectClasses: List<KSClassDeclaration>,
+    ): String {
         val sb = StringBuilder()
         sb.appendLine("package $packageName")
         sb.appendLine()
@@ -212,7 +234,7 @@ class AnchorDiCodeGenerator(
         packageName: String,
         baseObjectName: String,
         componentSuffix: String,
-        registrationBlocks: List<List<String>>
+        registrationBlocks: List<List<String>>,
     ): String {
         val contributorObjectName = "${baseObjectName}_$componentSuffix"
         val sb = StringBuilder()
@@ -239,7 +261,7 @@ class AnchorDiCodeGenerator(
     fun generateAggregatorFile(
         packageName: String,
         baseObjectName: String,
-        contributorSuffixes: List<String>
+        contributorSuffixes: List<String>,
     ): String {
         val sb = StringBuilder()
         sb.appendLine("package $packageName")
@@ -262,7 +284,7 @@ class AnchorDiCodeGenerator(
         packageName: String,
         injectClasses: List<KSClassDeclaration>,
         moduleClasses: List<KSClassDeclaration>,
-        objectName: String
+        objectName: String,
     ): String {
         val grouped = buildGroupedRegistrations(injectClasses, moduleClasses)
         val sb = StringBuilder()
@@ -293,7 +315,7 @@ class AnchorDiCodeGenerator(
     private fun generateFactory(
         sb: StringBuilder,
         classDecl: KSClassDeclaration,
-        internal: Boolean = false
+        internal: Boolean = false,
     ) {
         val qualifiedName = classDecl.qualifiedName?.asString() ?: return
         val simpleName = classDecl.simpleName.asString()
@@ -311,9 +333,18 @@ class AnchorDiCodeGenerator(
             val qualifier = KspUtils.getAnnotationStringValue(param.findAnnotation(FQN_NAMED))
             when {
                 isLazy -> sb.appendLine("        val $name = lazy { container.get<$resolvedType>() }")
-                isProvider -> sb.appendLine("        val $name = object : AnchorProvider<$resolvedType> { override fun get() = container.get<$resolvedType>() }")
+                isProvider ->
+                    sb.appendLine(
+                        "        val $name = object : AnchorProvider<$resolvedType> { " +
+                            "override fun get() = container.get<$resolvedType>() }",
+                    )
                 else -> {
-                    val getCall = if (qualifier != null) "container.get<$resolvedType>(\"$qualifier\")" else "container.get<$resolvedType>()"
+                    val getCall =
+                        if (qualifier != null) {
+                            "container.get<$resolvedType>(\"$qualifier\")"
+                        } else {
+                            "container.get<$resolvedType>()"
+                        }
                     sb.appendLine("        val $name = $getCall")
                 }
             }
@@ -327,7 +358,7 @@ class AnchorDiCodeGenerator(
     private fun buildProvidesRegistrationLines(
         moduleName: String,
         func: KSFunctionDeclaration,
-        scopeClassName: String?
+        scopeClassName: String?,
     ): List<String> {
         val returnType = func.returnType?.resolve()?.declaration?.qualifiedName?.asString() ?: return emptyList()
         val hasIntoSet = func.hasAnnotation(FQN_INTO_SET)
@@ -372,19 +403,27 @@ class AnchorDiCodeGenerator(
                 val hasNavigationScoped = func.hasAnnotation(FQN_NAVIGATION_SCOPED)
                 val scopedAnnotation = func.findAnnotation(FQN_SCOPED)
                 val hasSingleton = func.hasAnnotation(FQN_SINGLETON)
-                val (bindingPrefix, bindingSuffix) = when {
-                    scopeClassName != null || hasViewModelScoped || hasNavigationScoped -> {
-                        val scope = scopeClassName
-                            ?: (if (hasViewModelScoped) ValidationConstants.FQN_VIEW_MODEL_COMPONENT else ValidationConstants.FQN_NAVIGATION_COMPONENT)
-                        "Binding.Scoped(\"$scope\", " to ")"
+                val (bindingPrefix, bindingSuffix) =
+                    when {
+                        scopeClassName != null || hasViewModelScoped || hasNavigationScoped -> {
+                            val scope =
+                                scopeClassName
+                                    ?: (
+                                        if (hasViewModelScoped) {
+                                            ValidationConstants.FQN_VIEW_MODEL_COMPONENT
+                                        } else {
+                                            ValidationConstants.FQN_NAVIGATION_COMPONENT
+                                        }
+                                    )
+                            "Binding.Scoped(\"$scope\", " to ")"
+                        }
+                        scopedAnnotation != null -> {
+                            val scopeClass = KspUtils.getScopedClassName(scopedAnnotation) ?: return emptyList()
+                            "Binding.Scoped(\"$scopeClass\", " to ")"
+                        }
+                        hasSingleton -> "Binding.Singleton(" to ")"
+                        else -> "Binding.Unscoped(" to ")"
                     }
-                    scopedAnnotation != null -> {
-                        val scopeClass = KspUtils.getScopedClassName(scopedAnnotation) ?: return emptyList()
-                        "Binding.Scoped(\"$scopeClass\", " to ")"
-                    }
-                    hasSingleton -> "Binding.Singleton(" to ")"
-                    else -> "Binding.Unscoped(" to ")"
-                }
                 val qualifier = KspUtils.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
                 val keyQualifier = if (qualifier != null) ", \"$qualifier\"" else ", null"
                 mutableListOf<String>().apply {
@@ -399,31 +438,33 @@ class AnchorDiCodeGenerator(
     private fun buildBindsRegistrationLines(
         func: KSFunctionDeclaration,
         isSingletonComponent: Boolean,
-        scopeClassName: String?
+        scopeClassName: String?,
     ): List<String> {
         if (func.parameters.size != 1) return emptyList()
         val returnType = func.returnType?.resolve()?.declaration?.qualifiedName?.asString() ?: return emptyList()
         val implType = func.parameters.single().type.resolve().declaration.qualifiedName?.asString() ?: return emptyList()
         val hasSingleton = func.hasAnnotation(FQN_SINGLETON)
-        val binding = when {
-            !isSingletonComponent && scopeClassName != null -> "Binding.Scoped(\"$scopeClassName\", "
-            hasSingleton -> "Binding.Singleton("
-            else -> "Binding.Unscoped("
-        }
+        val binding =
+            when {
+                !isSingletonComponent && scopeClassName != null -> "Binding.Scoped(\"$scopeClassName\", "
+                hasSingleton -> "Binding.Singleton("
+                else -> "Binding.Unscoped("
+            }
         val qualifier = KspUtils.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
         val keyQualifier = if (qualifier != null) ", \"$qualifier\"" else ", null"
         val implQualifier = KspUtils.getAnnotationStringValue(func.parameters.single().findAnnotation(FQN_NAMED))
-        val getCall = if (implQualifier != null) {
-            "container.get<$implType>(\"$implQualifier\")"
-        } else {
-            "container.get<$implType>()"
-        }
+        val getCall =
+            if (implQualifier != null) {
+                "container.get<$implType>(\"$implQualifier\")"
+            } else {
+                "container.get<$implType>()"
+            }
         return listOf(
             "registry.register(Key(\"$returnType\"$keyQualifier), $binding object : Factory<Any> {",
             "            override fun create(container: com.debdut.anchordi.runtime.AnchorContainer): Any {",
             "                return $getCall",
             "            }",
-            "        }))"
+            "        }))",
         )
     }
 }

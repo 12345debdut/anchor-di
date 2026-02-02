@@ -1,0 +1,18 @@
+# EditorConfig: https://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+indent_style = space
+indent_size = 4
+
+# ktlint: allow PascalCase for @Composable functions (Compose convention)
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
+# ktlint: comments in value/parameter lists must be on a separate line (not inline)
+ktlint_standard_value-parameter-comment = enabled

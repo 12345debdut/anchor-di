@@ -9,14 +9,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class BindsImplementationValidatorTest {
-
     @Test
     fun bindsToConcreteClass_reportsNoErrors() {
         val moduleClass = FakeKSClassDeclaration("com.example.RepoModule", "RepoModule")
         val bindsFunc = FakeKSFunctionDeclaration("com.example.RepoModule.bindRepo", "bindRepo")
         bindsFunc.addAnnotation("com.debdut.anchordi.Binds")
         bindsFunc.addParameter("impl", "com.example.RepoImpl") // concrete class by default
-        moduleClass._declarations.add(bindsFunc)
+        moduleClass.declarationsList.add(bindsFunc)
 
         val reporter = CollectingReporter()
         BindsImplementationValidator.validate(listOf(moduleClass), reporter)
@@ -30,7 +29,7 @@ class BindsImplementationValidatorTest {
         val bindsFunc = FakeKSFunctionDeclaration("com.example.RepoModule.bindRepo", "bindRepo")
         bindsFunc.addAnnotation("com.debdut.anchordi.Binds")
         bindsFunc.addParameter("impl", interfaceDecl)
-        moduleClass._declarations.add(bindsFunc)
+        moduleClass.declarationsList.add(bindsFunc)
 
         val reporter = CollectingReporter()
         BindsImplementationValidator.validate(listOf(moduleClass), reporter)
@@ -43,12 +42,12 @@ class BindsImplementationValidatorTest {
     @Test
     fun bindsToAbstractClass_reportsError() {
         val abstractDecl = FakeKSClassDeclaration("com.example.BaseRepo", "BaseRepo", ClassKind.CLASS)
-        abstractDecl._modifiers.add(Modifier.ABSTRACT)
+        abstractDecl.modifiersSet.add(Modifier.ABSTRACT)
         val moduleClass = FakeKSClassDeclaration("com.example.RepoModule", "RepoModule")
         val bindsFunc = FakeKSFunctionDeclaration("com.example.RepoModule.bindRepo", "bindRepo")
         bindsFunc.addAnnotation("com.debdut.anchordi.Binds")
         bindsFunc.addParameter("impl", abstractDecl)
-        moduleClass._declarations.add(bindsFunc)
+        moduleClass.declarationsList.add(bindsFunc)
 
         val reporter = CollectingReporter()
         BindsImplementationValidator.validate(listOf(moduleClass), reporter)
@@ -64,7 +63,7 @@ class BindsImplementationValidatorTest {
         val bindsFunc = FakeKSFunctionDeclaration("com.example.RepoModule.bindRepo", "bindRepo")
         bindsFunc.addAnnotation("com.debdut.anchordi.Binds")
         bindsFunc.addParameter("impl", objectDecl)
-        moduleClass._declarations.add(bindsFunc)
+        moduleClass.declarationsList.add(bindsFunc)
 
         val reporter = CollectingReporter()
         BindsImplementationValidator.validate(listOf(moduleClass), reporter)
@@ -80,7 +79,7 @@ class BindsImplementationValidatorTest {
         val bindsFunc = FakeKSFunctionDeclaration("com.example.RepoModule.bindRepo", "bindRepo")
         bindsFunc.addAnnotation("com.debdut.anchordi.Binds")
         bindsFunc.addParameter("impl", enumDecl)
-        moduleClass._declarations.add(bindsFunc)
+        moduleClass.declarationsList.add(bindsFunc)
 
         val reporter = CollectingReporter()
         BindsImplementationValidator.validate(listOf(moduleClass), reporter)

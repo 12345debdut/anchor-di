@@ -7,12 +7,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ModuleBindsValidatorTest {
-
     @Test
     fun moduleWithProvidesOrBinds_noWarn() {
-        val modules = listOf(
-            ModuleDescriptor("pkg.AppModule", "com.debdut.anchordi.SingletonComponent", true, emptyList())
-        )
+        val modules =
+            listOf(
+                ModuleDescriptor("pkg.AppModule", "com.debdut.anchordi.SingletonComponent", true, emptyList()),
+            )
         val reporter = CollectingReporter()
         ModuleBindsValidator.validate(modules, reporter)
         assertTrue(reporter.warnings.isEmpty())
@@ -20,9 +20,10 @@ class ModuleBindsValidatorTest {
 
     @Test
     fun moduleWithNoProvidesOrBinds_warns() {
-        val modules = listOf(
-            ModuleDescriptor("pkg.EmptyModule", "com.debdut.anchordi.SingletonComponent", false, emptyList())
-        )
+        val modules =
+            listOf(
+                ModuleDescriptor("pkg.EmptyModule", "com.debdut.anchordi.SingletonComponent", false, emptyList()),
+            )
         val reporter = CollectingReporter()
         ModuleBindsValidator.validate(modules, reporter)
         assertEquals(1, reporter.warnings.size)
@@ -31,14 +32,15 @@ class ModuleBindsValidatorTest {
 
     @Test
     fun bindsWithOneParam_noError() {
-        val modules = listOf(
-            ModuleDescriptor(
-                "pkg.Module",
-                "com.debdut.anchordi.SingletonComponent",
-                true,
-                listOf(BindsMethodDescriptor("pkg.Module", "bindApi", 1))
+        val modules =
+            listOf(
+                ModuleDescriptor(
+                    "pkg.Module",
+                    "com.debdut.anchordi.SingletonComponent",
+                    true,
+                    listOf(BindsMethodDescriptor("pkg.Module", "bindApi", 1)),
+                ),
             )
-        )
         val reporter = CollectingReporter()
         ModuleBindsValidator.validate(modules, reporter)
         assertTrue(reporter.errors.isEmpty())
@@ -46,14 +48,15 @@ class ModuleBindsValidatorTest {
 
     @Test
     fun bindsWithTwoParams_reportsError() {
-        val modules = listOf(
-            ModuleDescriptor(
-                "pkg.Module",
-                "com.debdut.anchordi.SingletonComponent",
-                true,
-                listOf(BindsMethodDescriptor("pkg.Module", "bindApi", 2))
+        val modules =
+            listOf(
+                ModuleDescriptor(
+                    "pkg.Module",
+                    "com.debdut.anchordi.SingletonComponent",
+                    true,
+                    listOf(BindsMethodDescriptor("pkg.Module", "bindApi", 2)),
+                ),
             )
-        )
         val reporter = CollectingReporter()
         ModuleBindsValidator.validate(modules, reporter)
         assertEquals(1, reporter.errors.size)

@@ -7,7 +7,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class SingleScopeValidatorTest {
-
     @Test
     fun singleScopeOnInjectClass_reportsNoErrors() {
         val injectClass = FakeKSClassDeclaration("com.example.Api", "Api")
@@ -45,7 +44,7 @@ class SingleScopeValidatorTest {
         providesFunc.addAnnotation("com.debdut.anchordi.Provides")
         providesFunc.addAnnotation("com.debdut.anchordi.Singleton")
         providesFunc.addAnnotation("com.debdut.anchordi.ViewModelScoped")
-        moduleClass._declarations.add(providesFunc)
+        moduleClass.declarationsList.add(providesFunc)
         val reporter = CollectingReporter()
         SingleScopeValidator.validate(emptyList(), listOf(moduleClass), reporter)
         assertEquals(1, reporter.errors.size)
@@ -59,7 +58,7 @@ class SingleScopeValidatorTest {
         val providesFunc = FakeKSFunctionDeclaration("com.example.AppModule.provideApi", "provideApi")
         providesFunc.addAnnotation("com.debdut.anchordi.Provides")
         providesFunc.addAnnotation("com.debdut.anchordi.Singleton")
-        moduleClass._declarations.add(providesFunc)
+        moduleClass.declarationsList.add(providesFunc)
         val reporter = CollectingReporter()
         SingleScopeValidator.validate(emptyList(), listOf(moduleClass), reporter)
         assertTrue(reporter.errors.isEmpty())

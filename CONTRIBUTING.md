@@ -34,7 +34,7 @@ Run all library tests: `./gradlew :anchor-di-core:test :anchor-di-ksp:test`
 ## Code style and structure
 
 - **Kotlin:** Formatting is enforced by **Spotless** with **ktlint**. CI runs `./gradlew spotlessCheck`. Before pushing, run `./gradlew spotlessApply` to fix formatting, or `spotlessCheck` to verify.
-- **Conventions:** 4-space indent, ktlint rules; trailing whitespace trimmed, files end with newline.
+- **Conventions:** 4-space indent, ktlint rules; trailing whitespace trimmed, files end with newline. Max line length 140 (`max-line-length`). Comments in value/parameter lists on a separate line (`value-parameter-comment`). No wildcard imports (`no-wildcard-imports`).
 - **Modules:**
   - **anchor-di-api:** Annotations and public API only; no runtime logic.
   - **anchor-di-core:** Container, scopes, `Anchor`; no Compose or nav.

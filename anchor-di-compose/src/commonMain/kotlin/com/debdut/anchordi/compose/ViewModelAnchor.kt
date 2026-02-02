@@ -29,5 +29,4 @@ import com.debdut.anchordi.runtime.Anchor
  * ```
  */
 @Composable
-inline fun <reified T : ViewModel> viewModelAnchor(): T =
-    viewModel { Anchor.withScope(ViewModelComponent.SCOPE_ID) { it.get<T>() } }
+inline fun <reified T : ViewModel> viewModelAnchor(): T = viewModel { Anchor.withScope(ViewModelComponent.SCOPE_ID) { it.get<T>() } }

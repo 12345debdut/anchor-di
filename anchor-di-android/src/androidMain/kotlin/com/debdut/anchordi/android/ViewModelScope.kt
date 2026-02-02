@@ -33,25 +33,31 @@ private val observedOwners = mutableSetOf<ViewModelStoreOwner>()
  * val vm = viewModelScope.get<MyViewModel>()
  * ```
  */
-fun getViewModelScope(owner: ViewModelStoreOwner, lifecycle: Lifecycle): AnchorContainer {
+fun getViewModelScope(
+    owner: ViewModelStoreOwner,
+    lifecycle: Lifecycle,
+): AnchorContainer {
     val container = ViewModelScopeRegistry.getOrCreate(owner)
-    val shouldObserve = synchronized(observedOwnersLock) {
-        if (owner !in observedOwners) {
-            observedOwners.add(owner)
-            true
-        } else {
-            false
-        }
-    }
-    if (shouldObserve) {
-        lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_DESTROY) {
-                ViewModelScopeRegistry.dispose(owner)
-                synchronized(observedOwnersLock) {
-                    observedOwners.remove(owner)
-                }
+    val shouldObserve =
+        synchronized(observedOwnersLock) {
+            if (owner !in observedOwners) {
+                observedOwners.add(owner)
+                true
+            } else {
+                false
             }
-        })
+        }
+    if (shouldObserve) {
+        lifecycle.addObserver(
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    ViewModelScopeRegistry.dispose(owner)
+                    synchronized(observedOwnersLock) {
+                        observedOwners.remove(owner)
+                    }
+                }
+            },
+        )
     }
     return container
 }

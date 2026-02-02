@@ -1,6 +1,5 @@
 package com.debdut.anchordi.ksp
 
-import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -13,7 +12,6 @@ import kotlin.test.assertTrue
  * consuming module.
  */
 class AnchorSymbolProcessorProviderTest {
-
     @Test
     fun provider_create_returnsProcessor() {
         val provider = AnchorSymbolProcessorProvider()

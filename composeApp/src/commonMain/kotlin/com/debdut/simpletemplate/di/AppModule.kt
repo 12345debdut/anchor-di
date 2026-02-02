@@ -19,7 +19,6 @@ import com.debdut.simpletemplate.repository.GreetingRepositoryImpl
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
     @Provides
     @Singleton
     fun providePlatform(): Platform = getPlatform()
@@ -32,7 +31,6 @@ object AppModule {
 @Module
 @InstallIn(ViewModelComponent::class)
 interface RepositoryModule {
-
     @Binds
     fun bindGreetingRepository(repository: GreetingRepositoryImpl): GreetingRepository
 }

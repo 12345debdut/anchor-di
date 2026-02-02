@@ -31,7 +31,7 @@ val LocalNavViewModelScope = compositionLocalOf<AnchorContainer?> { null }
  * Use as the root of your nav UI: pass [backStack] and [scopeKeyForEntry], and put [NavDisplay]
  * (and [NavigationScopedContent] per destination) inside the [content] lambda. The lambda has
  * [NavScope] receiver so you can call [NavigationScopedContent][NavScope.NavigationScopedContent]
- * inside. When the back stack changes (e.g. user pops or mid-stack replacement), scopes for entries 
+ * inside. When the back stack changes (e.g. user pops or mid-stack replacement), scopes for entries
  * no longer in the stack are disposed via [NavigationScopeRegistry.dispose].
  *
  * Example (Navigation 3 with typed [NavKey][androidx.navigation3.runtime.NavKey]):
@@ -66,11 +66,11 @@ val LocalNavViewModelScope = compositionLocalOf<AnchorContainer?> { null }
 fun <Entry : Any> NavScopeContainer(
     backStack: List<Entry>,
     scopeKeyForEntry: (Entry) -> Any,
-    content: @Composable NavScope<Entry>.() -> Unit = {}
+    content: @Composable NavScope<Entry>.() -> Unit = {},
 ) {
     val navScope = NavScopeImpl(scopeKeyForEntry)
     val previousKeys = remember { mutableSetOf<Any>() }
-    
+
     // Cleanup all tracked scopes when NavScopeContainer leaves composition entirely
     DisposableEffect(Unit) {
         onDispose {
@@ -78,7 +78,7 @@ fun <Entry : Any> NavScopeContainer(
             previousKeys.clear()
         }
     }
-    
+
     // Track current keys and dispose removed ones SYNCHRONOUSLY after each composition.
     // Using SideEffect (not LaunchedEffect) ensures keys are tracked immediately,
     // so DisposableEffect.onDispose can properly clean up even if composition exits quickly.
@@ -94,7 +94,7 @@ fun <Entry : Any> NavScopeContainer(
         previousKeys.clear()
         previousKeys.addAll(currentKeys)
     }
-    
+
     content(navScope)
 }
 
@@ -106,12 +106,13 @@ fun <Entry : Any> NavScopeContainer(
  */
 @Composable
 inline fun <reified T : Any> navigationScopedInject(): T {
-    val container = LocalNavigationScope.current
-        ?: error(
-            "Navigation scope is not available. Wrap destination content in NavigationScopedContent " +
-                "(e.g. NavigationScopedContent(scopeKey) { ... }) so that " +
-                "navigationScopedInject() can resolve NavigationComponent-scoped bindings."
-        )
+    val container =
+        LocalNavigationScope.current
+            ?: error(
+                "Navigation scope is not available. Wrap destination content in NavigationScopedContent " +
+                    "(e.g. NavigationScopedContent(scopeKey) { ... }) so that " +
+                    "navigationScopedInject() can resolve NavigationComponent-scoped bindings.",
+            )
     return remember(container) { container.get<T>() }
 }
 
@@ -125,10 +126,11 @@ inline fun <reified T : Any> navigationScopedInject(): T {
  */
 @Composable
 inline fun <reified T : ViewModel> navViewModelAnchor(): T {
-    val container = LocalNavViewModelScope.current
-        ?: error(
-            "Navigation ViewModel scope is not available. Wrap destination content in NavigationScopedContent " +
-                "(e.g. NavigationScopedContent(scopeKey) { ... }) so that navViewModelAnchor() can resolve ViewModels."
-        )
+    val container =
+        LocalNavViewModelScope.current
+            ?: error(
+                "Navigation ViewModel scope is not available. Wrap destination content in NavigationScopedContent " +
+                    "(e.g. NavigationScopedContent(scopeKey) { ... }) so that navViewModelAnchor() can resolve ViewModels.",
+            )
     return remember(container) { container.get<T>() }
 }

@@ -25,9 +25,10 @@ import kotlin.concurrent.Volatile
  */
 object Anchor {
     private val lock = SyncLock()
+
     @Volatile
     private var container: AnchorContainer? = null
-    
+
     // Reset listeners are called when Anchor.reset() is invoked.
     // Used by NavigationScopeRegistry to clear its state when the DI container is reset.
     private val resetListeners = mutableListOf<() -> Unit>()
@@ -63,7 +64,7 @@ object Anchor {
     fun requireContainer(): AnchorContainer {
         return container ?: error(
             "Anchor is not initialized. Call Anchor.init(contributors) at application startup " +
-                "(e.g. in Application.onCreate() on Android, or before first composable)."
+                "(e.g. in Application.onCreate() on Android, or before first composable).",
         )
     }
 
@@ -108,31 +109,33 @@ object Anchor {
      * }
      * ```
      */
-    inline fun <R> withScope(scopeClass: kotlin.reflect.KClass<*>, block: (AnchorContainer) -> R): R =
-        requireContainer().createScope(scopeClass, block)
+    inline fun <R> withScope(
+        scopeClass: kotlin.reflect.KClass<*>,
+        block: (AnchorContainer) -> R,
+    ): R = requireContainer().createScope(scopeClass, block)
 
     /**
      * Executes [block] within a scope identified by [scopeId].
      * Use when the scope ID must match exactly (e.g. [ViewModelComponent.SCOPE_ID] on Kotlin/JS
      * where KClass.qualifiedName may be null).
      */
-    fun <R> withScope(scopeId: String, block: (AnchorContainer) -> R): R =
-        requireContainer().createScope(scopeId, block)
+    fun <R> withScope(
+        scopeId: String,
+        block: (AnchorContainer) -> R,
+    ): R = requireContainer().createScope(scopeId, block)
 
     /**
      * Creates a scoped container that you own and manage. Use when you need to hold the scope
      * and resolve dependencies over time (e.g. Activity, screen, session). Release the reference
      * when the scope should end.
      */
-    fun scopedContainer(scopeClass: kotlin.reflect.KClass<*>): AnchorContainer =
-        requireContainer().createScopeContainer(scopeClass)
+    fun scopedContainer(scopeClass: kotlin.reflect.KClass<*>): AnchorContainer = requireContainer().createScopeContainer(scopeClass)
 
     /**
      * Creates a scoped container identified by [scopeId]. Use when the scope ID must match
      * exactly (e.g. custom component scope names from KSP).
      */
-    fun scopedContainer(scopeId: String): AnchorContainer =
-        requireContainer().createScopeContainer(scopeId)
+    fun scopedContainer(scopeId: String): AnchorContainer = requireContainer().createScopeContainer(scopeId)
 
     /**
      * Returns the underlying container for advanced use cases.

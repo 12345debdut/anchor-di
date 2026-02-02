@@ -36,14 +36,15 @@ dependencies {
     kover(project(":anchor-di-ksp"))
 }
 
-val publishableModules = setOf(
-    "anchor-di-api",
-    "anchor-di-core",
-    "anchor-di-ksp",
-    "anchor-di-android",
-    "anchor-di-presentation",
-    "anchor-di-compose"
-)
+val publishableModules =
+    setOf(
+        "anchor-di-api",
+        "anchor-di-core",
+        "anchor-di-ksp",
+        "anchor-di-android",
+        "anchor-di-presentation",
+        "anchor-di-compose",
+    )
 
 subprojects {
     if (name in publishableModules) {

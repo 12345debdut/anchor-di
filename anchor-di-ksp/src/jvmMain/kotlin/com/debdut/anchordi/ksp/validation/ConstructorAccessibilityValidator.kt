@@ -9,10 +9,12 @@ import com.google.devtools.ksp.symbol.Modifier
  * Validates that the @Inject constructor is public (not private or protected).
  */
 object ConstructorAccessibilityValidator {
-
     private const val FQN_INJECT = "com.debdut.anchordi.Inject"
 
-    fun validate(injectClasses: List<KSClassDeclaration>, reporter: ValidationReporter) {
+    fun validate(
+        injectClasses: List<KSClassDeclaration>,
+        reporter: ValidationReporter,
+    ) {
         injectClasses.forEach { classDecl ->
             val constructor = getInjectConstructor(classDecl) ?: return@forEach
             val modifiers = constructor.modifiers
@@ -22,9 +24,9 @@ object ConstructorAccessibilityValidator {
                     reporter.error(
                         ValidationMessageFormat.formatError(
                             summary = "@Inject constructor of $fqn must be public, not private.",
-                            fix = "Make the constructor public so the DI container can instantiate it."
+                            fix = "Make the constructor public so the DI container can instantiate it.",
                         ),
-                        classDecl
+                        classDecl,
                     )
                 }
                 Modifier.PROTECTED in modifiers -> {
@@ -32,9 +34,9 @@ object ConstructorAccessibilityValidator {
                     reporter.error(
                         ValidationMessageFormat.formatError(
                             summary = "@Inject constructor of $fqn must be public, not protected.",
-                            fix = "Make the constructor public so the DI container can instantiate it."
+                            fix = "Make the constructor public so the DI container can instantiate it.",
                         ),
-                        classDecl
+                        classDecl,
                     )
                 }
             }
@@ -48,5 +50,4 @@ object ConstructorAccessibilityValidator {
             .filter { it != classDecl.primaryConstructor && it.simpleName.asString() == "<init>" }
             .firstOrNull { it.hasAnnotation(FQN_INJECT) }
     }
-
 }

@@ -10,10 +10,12 @@ import com.google.devtools.ksp.symbol.Modifier
  * Validates that @Binds implementation type is a concrete class (not interface, abstract, object, or enum).
  */
 object BindsImplementationValidator {
-
     private const val FQN_BINDS = "com.debdut.anchordi.Binds"
 
-    fun validate(moduleClasses: List<KSClassDeclaration>, reporter: ValidationReporter) {
+    fun validate(
+        moduleClasses: List<KSClassDeclaration>,
+        reporter: ValidationReporter,
+    ) {
         moduleClasses.forEach { moduleDecl ->
             val moduleName = moduleDecl.qualifiedName?.asString() ?: "?"
             moduleDecl.declarations
@@ -24,49 +26,54 @@ object BindsImplementationValidator {
                     if (implType is KSClassDeclaration) {
                         val implFqn = implType.qualifiedName?.asString() ?: "?"
                         when (implType.classKind) {
-                            ClassKind.INTERFACE -> reporter.error(
-                                ValidationMessageFormat.formatError(
-                                    summary = "@Binds in $moduleName binds to interface $implFqn.",
-                                    fix = "Implementation type must be a concrete class, not an interface."
-                                ),
-                                func
-                            )
-                            ClassKind.OBJECT -> reporter.error(
-                                ValidationMessageFormat.formatError(
-                                    summary = "@Binds in $moduleName binds to object $implFqn.",
-                                    fix = "Implementation type must be a concrete class, not an object."
-                                ),
-                                func
-                            )
-                            ClassKind.ENUM_CLASS -> reporter.error(
-                                ValidationMessageFormat.formatError(
-                                    summary = "@Binds in $moduleName binds to enum $implFqn.",
-                                    fix = "Implementation type must be a concrete class, not an enum."
-                                ),
-                                func
-                            )
+                            ClassKind.INTERFACE ->
+                                reporter.error(
+                                    ValidationMessageFormat.formatError(
+                                        summary = "@Binds in $moduleName binds to interface $implFqn.",
+                                        fix = "Implementation type must be a concrete class, not an interface.",
+                                    ),
+                                    func,
+                                )
+                            ClassKind.OBJECT ->
+                                reporter.error(
+                                    ValidationMessageFormat.formatError(
+                                        summary = "@Binds in $moduleName binds to object $implFqn.",
+                                        fix = "Implementation type must be a concrete class, not an object.",
+                                    ),
+                                    func,
+                                )
+                            ClassKind.ENUM_CLASS ->
+                                reporter.error(
+                                    ValidationMessageFormat.formatError(
+                                        summary = "@Binds in $moduleName binds to enum $implFqn.",
+                                        fix = "Implementation type must be a concrete class, not an enum.",
+                                    ),
+                                    func,
+                                )
                             ClassKind.CLASS -> {
                                 if (Modifier.ABSTRACT in implType.modifiers) {
                                     reporter.error(
                                         ValidationMessageFormat.formatError(
                                             summary = "@Binds in $moduleName binds to abstract class $implFqn.",
-                                            fix = "Implementation type must be a concrete class, not abstract."
+                                            fix = "Implementation type must be a concrete class, not abstract.",
                                         ),
-                                        func
+                                        func,
                                     )
                                 }
                             }
-                            else -> reporter.error(
-                                ValidationMessageFormat.formatError(
-                                    summary = "@Binds in $moduleName binds to unsupported type $implFqn (${implType.classKind}).",
-                                    fix = "Implementation type must be a concrete class."
-                                ),
-                                func
-                            )
+                            else ->
+                                reporter.error(
+                                    ValidationMessageFormat.formatError(
+                                        summary =
+                                            "@Binds in $moduleName binds to unsupported type $implFqn " +
+                                                "(${implType.classKind}).",
+                                        fix = "Implementation type must be a concrete class.",
+                                    ),
+                                    func,
+                                )
                         }
                     }
                 }
         }
     }
-
 }

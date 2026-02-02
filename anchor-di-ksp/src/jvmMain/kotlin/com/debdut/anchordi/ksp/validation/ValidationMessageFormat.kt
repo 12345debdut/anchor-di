@@ -6,7 +6,6 @@ package com.debdut.anchordi.ksp.validation
  * multi-line will display them clearly; single-line display still has clear sentence boundaries).
  */
 object ValidationMessageFormat {
-
     private const val PREFIX = "[Anchor DI]"
 
     /**
@@ -19,7 +18,7 @@ object ValidationMessageFormat {
     fun formatError(
         summary: String,
         detail: String? = null,
-        fix: String? = null
+        fix: String? = null,
     ): String = buildMessage(PREFIX, summary, detail, fix)
 
     /**
@@ -28,14 +27,14 @@ object ValidationMessageFormat {
     fun formatWarn(
         summary: String,
         detail: String? = null,
-        fix: String? = null
+        fix: String? = null,
     ): String = buildMessage(PREFIX, summary, detail, fix)
 
     private fun buildMessage(
         prefix: String,
         summary: String,
         detail: String?,
-        fix: String?
+        fix: String?,
     ): String {
         val b = StringBuilder().append(prefix).append(" ").append(summary.trim())
         if (!detail.isNullOrBlank()) b.append("\n  Detail: ").append(detail.trim())

@@ -4,8 +4,15 @@ package com.debdut.anchordi.ksp.validation
  * Reports validation errors and warnings. Implementations can log (KSP) or collect (tests).
  */
 interface ValidationReporter {
-    fun error(message: String, element: Any? = null)
-    fun warn(message: String, element: Any? = null)
+    fun error(
+        message: String,
+        element: Any? = null,
+    )
+
+    fun warn(
+        message: String,
+        element: Any? = null,
+    )
 }
 
 /**
@@ -17,11 +24,17 @@ class CollectingReporter : ValidationReporter {
 
     data class ReportedMessage(val message: String, val element: Any?)
 
-    override fun error(message: String, element: Any?) {
+    override fun error(
+        message: String,
+        element: Any?,
+    ) {
         errors.add(ReportedMessage(message, element))
     }
 
-    override fun warn(message: String, element: Any?) {
+    override fun warn(
+        message: String,
+        element: Any?,
+    ) {
         warnings.add(ReportedMessage(message, element))
     }
 }

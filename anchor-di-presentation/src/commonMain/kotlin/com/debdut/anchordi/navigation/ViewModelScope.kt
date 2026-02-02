@@ -31,7 +31,6 @@ import com.debdut.anchordi.runtime.AnchorContainer
  * when the Activity/Fragment is destroyed.
  */
 object ViewModelScope {
-
     /**
      * Returns a holder for the ViewModel scope identified by [scopeKey]. Resolve types with
      * [ViewModelScopeHolder.get]; call [ViewModelScopeHolder.close] when the screen/owner is gone.
@@ -46,7 +45,10 @@ object ViewModelScope {
      * Runs [block] with the ViewModel-scoped container for [scopeKey], then disposes the scope
      * when the block returns (normally or with an exception). Use for one-off or short-lived use.
      */
-    inline fun <R> use(scopeKey: Any, block: (AnchorContainer) -> R): R {
+    inline fun <R> use(
+        scopeKey: Any,
+        block: (AnchorContainer) -> R,
+    ): R {
         val container = ViewModelScopeRegistry.getOrCreate(scopeKey)
         return try {
             block(container)
@@ -62,9 +64,8 @@ object ViewModelScope {
  */
 class ViewModelScopeHolder(
     private val scopeKey: Any,
-    val container: AnchorContainer
+    val container: AnchorContainer,
 ) : AutoCloseable {
-
     /**
      * Resolves an instance of [T] from this ViewModel scope.
      */

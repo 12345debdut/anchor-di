@@ -13,77 +13,86 @@ import kotlin.test.assertTrue
  * createScope, resolveContainer behavior, missing binding.
  */
 class AnchorContainerTest {
-
     private val viewModelScopeId = "com.debdut.anchordi.ViewModelComponent"
 
     private fun containerWithUnscopedOnly(): AnchorContainer {
-        val contributor = object : ComponentBindingContributor {
-            override fun contribute(registry: BindingRegistry) {
-                registry.register(
-                    Key(TestFoo::class.qualifiedName!!),
-                    Binding.Unscoped(object : Factory<Any> {
-                        override fun create(container: AnchorContainer): Any = TestFoo()
-                    })
-                )
+        val contributor =
+            object : ComponentBindingContributor {
+                override fun contribute(registry: BindingRegistry) {
+                    registry.register(
+                        Key(TestFoo::class.qualifiedName!!),
+                        Binding.Unscoped(
+                            object : Factory<Any> {
+                                override fun create(container: AnchorContainer): Any = TestFoo()
+                            },
+                        ),
+                    )
+                }
             }
-        }
         return AnchorContainer(listOf(contributor))
     }
 
     private fun containerWithSingleton(): AnchorContainer {
-        val contributor = object : ComponentBindingContributor {
-            override fun contribute(registry: BindingRegistry) {
-                registry.register(
-                    Key(TestFoo::class.qualifiedName!!),
-                    Binding.Singleton(object : Factory<Any> {
-                        override fun create(container: AnchorContainer): Any = TestFoo()
-                    })
-                )
+        val contributor =
+            object : ComponentBindingContributor {
+                override fun contribute(registry: BindingRegistry) {
+                    registry.register(
+                        Key(TestFoo::class.qualifiedName!!),
+                        Binding.Singleton(
+                            object : Factory<Any> {
+                                override fun create(container: AnchorContainer): Any = TestFoo()
+                            },
+                        ),
+                    )
+                }
             }
-        }
         return AnchorContainer(listOf(contributor))
     }
 
     private fun containerWithScopedBinding(): AnchorContainer {
-        val contributor = object : ComponentBindingContributor {
-            override fun contribute(registry: BindingRegistry) {
-                registry.register(
-                    Key(TestScopedService::class.qualifiedName!!),
-                    Binding.Scoped(
-                        viewModelScopeId,
-                        object : Factory<Any> {
-                            override fun create(container: AnchorContainer): Any = TestScopedService()
-                        }
+        val contributor =
+            object : ComponentBindingContributor {
+                override fun contribute(registry: BindingRegistry) {
+                    registry.register(
+                        Key(TestScopedService::class.qualifiedName!!),
+                        Binding.Scoped(
+                            viewModelScopeId,
+                            object : Factory<Any> {
+                                override fun create(container: AnchorContainer): Any = TestScopedService()
+                            },
+                        ),
                     )
-                )
+                }
             }
-        }
         return AnchorContainer(listOf(contributor))
     }
 
     private fun containerWithUnscopedDependingOnScoped(): AnchorContainer {
-        val contributor = object : ComponentBindingContributor {
-            override fun contribute(registry: BindingRegistry) {
-                registry.register(
-                    Key(TestScopedService::class.qualifiedName!!),
-                    Binding.Scoped(
-                        viewModelScopeId,
-                        object : Factory<Any> {
-                            override fun create(container: AnchorContainer): Any = TestScopedService()
-                        }
+        val contributor =
+            object : ComponentBindingContributor {
+                override fun contribute(registry: BindingRegistry) {
+                    registry.register(
+                        Key(TestScopedService::class.qualifiedName!!),
+                        Binding.Scoped(
+                            viewModelScopeId,
+                            object : Factory<Any> {
+                                override fun create(container: AnchorContainer): Any = TestScopedService()
+                            },
+                        ),
                     )
-                )
-                registry.register(
-                    Key(TestConsumer::class.qualifiedName!!),
-                    Binding.Unscoped(object : Factory<Any> {
-                        override fun create(container: AnchorContainer): Any {
-                            val service = container.get<TestScopedService>()
-                            return TestConsumer(service)
-                        }
-                    })
-                )
+                    registry.register(
+                        Key(TestConsumer::class.qualifiedName!!),
+                        Binding.Unscoped(
+                            object : Factory<Any> {
+                                override fun create(container: AnchorContainer): Any {
+                                    val service = container.get<TestScopedService>()
+                                    return TestConsumer(service)
+                                }
+                            },
+                        ),
+                    )
+                }
             }
-        }
         return AnchorContainer(listOf(contributor))
     }
 
@@ -108,9 +117,10 @@ class AnchorContainerTest {
     @Test
     fun missingBinding_throws() {
         val container = containerWithUnscopedOnly()
-        val ex = assertFailsWith<IllegalStateException> {
-            container.get<TestBar>()
-        }
+        val ex =
+            assertFailsWith<IllegalStateException> {
+                container.get<TestBar>()
+            }
         assertTrue(ex.message!!.contains("No binding found"))
         assertTrue(ex.message!!.contains("TestBar"))
     }
@@ -118,9 +128,10 @@ class AnchorContainerTest {
     @Test
     fun scopedBinding_resolvedOutsideScope_throws() {
         val container = containerWithScopedBinding()
-        val ex = assertFailsWith<IllegalStateException> {
-            container.get<TestScopedService>()
-        }
+        val ex =
+            assertFailsWith<IllegalStateException> {
+                container.get<TestScopedService>()
+            }
         assertTrue(ex.message!!.contains("requires a scope"))
         assertTrue(ex.message!!.contains("ViewModelComponent"), "Message should identify ViewModel scope: ${ex.message}")
     }
@@ -205,16 +216,19 @@ class AnchorContainerTest {
 
     @Test
     fun get_withQualifiedKey_returnsQualifiedBinding() {
-        val contributor = object : ComponentBindingContributor {
-            override fun contribute(registry: BindingRegistry) {
-                registry.register(
-                    Key(TestFoo::class.qualifiedName!!, "main"),
-                    Binding.Unscoped(object : Factory<Any> {
-                        override fun create(container: AnchorContainer): Any = TestFoo()
-                    })
-                )
+        val contributor =
+            object : ComponentBindingContributor {
+                override fun contribute(registry: BindingRegistry) {
+                    registry.register(
+                        Key(TestFoo::class.qualifiedName!!, "main"),
+                        Binding.Unscoped(
+                            object : Factory<Any> {
+                                override fun create(container: AnchorContainer): Any = TestFoo()
+                            },
+                        ),
+                    )
+                }
             }
-        }
         val container = AnchorContainer(listOf(contributor))
         val key = Key(TestFoo::class.qualifiedName!!, "main")
         val foo = container.get(key)
@@ -246,50 +260,61 @@ class AnchorContainerTest {
     fun nestedCreateScope_childResolvesParentScopedBinding() {
         val scopeAId = "com.example.ScopeA"
         val scopeBId = "com.example.ScopeB"
-        val contributor = object : ComponentBindingContributor {
-            override fun contribute(registry: BindingRegistry) {
-                registry.register(
-                    Key(TestScopedA::class.qualifiedName!!),
-                    Binding.Scoped(scopeAId, object : Factory<Any> {
-                        override fun create(container: AnchorContainer): Any = TestScopedA()
-                    })
-                )
-                registry.register(
-                    Key(TestScopedB::class.qualifiedName!!),
-                    Binding.Scoped(scopeBId, object : Factory<Any> {
-                        override fun create(container: AnchorContainer): Any = TestScopedB()
-                    })
-                )
+        val contributor =
+            object : ComponentBindingContributor {
+                override fun contribute(registry: BindingRegistry) {
+                    registry.register(
+                        Key(TestScopedA::class.qualifiedName!!),
+                        Binding.Scoped(
+                            scopeAId,
+                            object : Factory<Any> {
+                                override fun create(container: AnchorContainer): Any = TestScopedA()
+                            },
+                        ),
+                    )
+                    registry.register(
+                        Key(TestScopedB::class.qualifiedName!!),
+                        Binding.Scoped(
+                            scopeBId,
+                            object : Factory<Any> {
+                                override fun create(container: AnchorContainer): Any = TestScopedB()
+                            },
+                        ),
+                    )
+                }
             }
-        }
         val root = AnchorContainer(listOf(contributor))
         var fromA: TestScopedA? = null
-        var fromB_A: TestScopedA? = null
-        var fromB_B: TestScopedB? = null
+        var fromBa: TestScopedA? = null
+        var fromBb: TestScopedB? = null
         root.createScope(scopeAId) { scopeA ->
             fromA = scopeA.get<TestScopedA>()
             scopeA.createScope(scopeBId) { scopeB ->
-                fromB_A = scopeB.get<TestScopedA>()
-                fromB_B = scopeB.get<TestScopedB>()
+                fromBa = scopeB.get<TestScopedA>()
+                fromBb = scopeB.get<TestScopedB>()
             }
         }
-        assertSame(fromA, fromB_A)
-        assertTrue(fromB_B is TestScopedB)
+        assertSame(fromA, fromBa)
+        assertTrue(fromBb is TestScopedB)
     }
 
     @Test
     fun nestedCreateScope_sameScopeTypeDifferentInstances_returnsDifferentScopedInstances() {
         val scopeAId = "com.example.ScopeA"
-        val contributor = object : ComponentBindingContributor {
-            override fun contribute(registry: BindingRegistry) {
-                registry.register(
-                    Key(TestScopedA::class.qualifiedName!!),
-                    Binding.Scoped(scopeAId, object : Factory<Any> {
-                        override fun create(container: AnchorContainer): Any = TestScopedA()
-                    })
-                )
+        val contributor =
+            object : ComponentBindingContributor {
+                override fun contribute(registry: BindingRegistry) {
+                    registry.register(
+                        Key(TestScopedA::class.qualifiedName!!),
+                        Binding.Scoped(
+                            scopeAId,
+                            object : Factory<Any> {
+                                override fun create(container: AnchorContainer): Any = TestScopedA()
+                            },
+                        ),
+                    )
+                }
             }
-        }
         val root = AnchorContainer(listOf(contributor))
         var fromScope1: TestScopedA? = null
         var fromScope2: TestScopedA? = null
@@ -301,9 +326,10 @@ class AnchorContainerTest {
     @Test
     fun missingBinding_messageContainsTroubleshootingHints() {
         val container = containerWithUnscopedOnly()
-        val ex = assertFailsWith<IllegalStateException> {
-            container.get<TestBar>()
-        }
+        val ex =
+            assertFailsWith<IllegalStateException> {
+                container.get<TestBar>()
+            }
         val msg = ex.message!!
         assertTrue(msg.contains("No binding found"))
         assertTrue(msg.contains("Add @Inject") || msg.contains("Add @Provides") || msg.contains("@Binds"))
@@ -352,22 +378,23 @@ class AnchorContainerTest {
 
     @Test
     fun multibindingSet_mergesContributions() {
-        val contributor = object : ComponentBindingContributor {
-            override fun contribute(registry: BindingRegistry) {
-                registry.registerSetContribution(
-                    Key("kotlin.collections.Set<${TestTracker::class.qualifiedName!!}>", null),
-                    object : Factory<Any> {
-                        override fun create(container: AnchorContainer): Any = TestTracker("a")
-                    }
-                )
-                registry.registerSetContribution(
-                    Key("kotlin.collections.Set<${TestTracker::class.qualifiedName!!}>", null),
-                    object : Factory<Any> {
-                        override fun create(container: AnchorContainer): Any = TestTracker("b")
-                    }
-                )
+        val contributor =
+            object : ComponentBindingContributor {
+                override fun contribute(registry: BindingRegistry) {
+                    registry.registerSetContribution(
+                        Key("kotlin.collections.Set<${TestTracker::class.qualifiedName!!}>", null),
+                        object : Factory<Any> {
+                            override fun create(container: AnchorContainer): Any = TestTracker("a")
+                        },
+                    )
+                    registry.registerSetContribution(
+                        Key("kotlin.collections.Set<${TestTracker::class.qualifiedName!!}>", null),
+                        object : Factory<Any> {
+                            override fun create(container: AnchorContainer): Any = TestTracker("b")
+                        },
+                    )
+                }
             }
-        }
         val container = AnchorContainer(listOf(contributor))
         val set = container.getSet<TestTracker>()
         assertEquals(2, set.size)
@@ -378,24 +405,25 @@ class AnchorContainerTest {
 
     @Test
     fun multibindingMap_mergesContributions() {
-        val contributor = object : ComponentBindingContributor {
-            override fun contribute(registry: BindingRegistry) {
-                registry.registerMapContribution(
-                    Key("kotlin.collections.Map<kotlin.String,${TestTracker::class.qualifiedName!!}>", null),
-                    "firebase",
-                    object : Factory<Any> {
-                        override fun create(container: AnchorContainer): Any = TestTracker("firebase")
-                    }
-                )
-                registry.registerMapContribution(
-                    Key("kotlin.collections.Map<kotlin.String,${TestTracker::class.qualifiedName!!}>", null),
-                    "analytics",
-                    object : Factory<Any> {
-                        override fun create(container: AnchorContainer): Any = TestTracker("analytics")
-                    }
-                )
+        val contributor =
+            object : ComponentBindingContributor {
+                override fun contribute(registry: BindingRegistry) {
+                    registry.registerMapContribution(
+                        Key("kotlin.collections.Map<kotlin.String,${TestTracker::class.qualifiedName!!}>", null),
+                        "firebase",
+                        object : Factory<Any> {
+                            override fun create(container: AnchorContainer): Any = TestTracker("firebase")
+                        },
+                    )
+                    registry.registerMapContribution(
+                        Key("kotlin.collections.Map<kotlin.String,${TestTracker::class.qualifiedName!!}>", null),
+                        "analytics",
+                        object : Factory<Any> {
+                            override fun create(container: AnchorContainer): Any = TestTracker("analytics")
+                        },
+                    )
+                }
             }
-        }
         val container = AnchorContainer(listOf(contributor))
         val map = container.getMap<TestTracker>()
         assertEquals(2, map.size)
@@ -407,9 +435,15 @@ class AnchorContainerTest {
 
 // Test types (qualified names used in Key)
 private class TestFoo
+
 private class TestBar
+
 private class TestScopedService
+
 private class TestConsumer(val service: TestScopedService)
+
 private class TestScopedA
+
 private class TestScopedB
+
 private class TestTracker(val id: String)

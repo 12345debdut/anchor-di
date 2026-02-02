@@ -8,8 +8,10 @@ import com.debdut.anchordi.ksp.model.ComponentDescriptor
  * scope resolution ambiguous.
  */
 object UniqueScopeInHierarchyValidator {
-
-    fun validate(components: Map<String, ComponentDescriptor>, reporter: ValidationReporter) {
+    fun validate(
+        components: Map<String, ComponentDescriptor>,
+        reporter: ValidationReporter,
+    ) {
         val scopeIdToComponents = mutableMapOf<String, MutableList<String>>()
         components.keys.forEach { componentFqn ->
             val scopeId = ScopeHierarchy.scopeIdForComponent(componentFqn)
@@ -21,10 +23,14 @@ object UniqueScopeInHierarchyValidator {
                 reporter.error(
                     ValidationMessageFormat.formatError(
                         summary = "Scope '$scopeId' is claimed by more than one component: $names.",
-                        detail = "Each component must have a unique scope identifier so that scoped bindings can be resolved unambiguously.",
-                        fix = "Ensure each @Component class (or built-in component) has a distinct scope; do not reuse the same scope ID for different components."
+                        detail =
+                            "Each component must have a unique scope identifier so that scoped bindings " +
+                                "can be resolved unambiguously.",
+                        fix =
+                            "Ensure each @Component class (or built-in component) has a distinct scope; " +
+                                "do not reuse the same scope ID for different components.",
                     ),
-                    null
+                    null,
                 )
             }
         }
