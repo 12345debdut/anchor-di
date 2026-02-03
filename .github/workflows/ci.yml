@@ -73,7 +73,7 @@ jobs:
           rm -rf gradle.zip gradle-${GRADLE_VERSION}
 
       - name: Build Android (composeApp + androidApp)
-        run: ./gradlew :composeApp:compileKotlinAndroid :androidApp:assembleDebug --no-daemon
+        run: ./gradlew :androidApp:assembleDebug --no-daemon
 
   build-jvm:
     name: Build JVM (Desktop)
