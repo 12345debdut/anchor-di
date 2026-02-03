@@ -22,15 +22,14 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
  * Cycle, ReachableBindings.
  */
 class AnchorDiValidator(
-    private val reporter: ValidationReporter
+    private val reporter: ValidationReporter,
 ) {
-
     /**
      * Runs [ValidationPhase.SYMBOL] passes. Call before [validateAll].
      */
     fun validateSymbols(
         injectClasses: List<KSClassDeclaration>,
-        moduleClasses: List<KSClassDeclaration>
+        moduleClasses: List<KSClassDeclaration>,
     ) {
         ValidationPipeline.runSymbolPhase(injectClasses.distinct(), moduleClasses, reporter)
     }
@@ -45,17 +44,18 @@ class AnchorDiValidator(
         components: Map<String, ComponentDescriptor>,
         providedKeys: Set<String>,
         requirements: List<DependencyRequirement>,
-        dependencyGraph: Map<String, Set<String>>
+        dependencyGraph: Map<String, Set<String>>,
     ) {
-        val context = ValidationModelContext(
-            bindings = bindings,
-            injectClassDescriptors = injectClassDescriptors,
-            moduleDescriptors = moduleDescriptors,
-            components = components,
-            providedKeys = providedKeys,
-            requirements = requirements,
-            dependencyGraph = dependencyGraph
-        )
+        val context =
+            ValidationModelContext(
+                bindings = bindings,
+                injectClassDescriptors = injectClassDescriptors,
+                moduleDescriptors = moduleDescriptors,
+                components = components,
+                providedKeys = providedKeys,
+                requirements = requirements,
+                dependencyGraph = dependencyGraph,
+            )
         ValidationPipeline.runModelPhase(context, reporter)
     }
 }

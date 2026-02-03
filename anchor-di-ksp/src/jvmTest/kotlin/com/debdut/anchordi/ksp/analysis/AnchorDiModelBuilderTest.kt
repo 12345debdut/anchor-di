@@ -12,15 +12,16 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class AnchorDiModelBuilderTest {
-
-    private val resolver = FakeResolver().apply {
-        // Seed @Component symbols so discoverComponentFqns() returns built-ins (single source of truth).
-        symbols[ComponentResolution.FQN_COMPONENT] = listOf(
-            FakeKSClassDeclaration(ValidationConstants.FQN_SINGLETON_COMPONENT, "SingletonComponent"),
-            FakeKSClassDeclaration(ValidationConstants.FQN_VIEW_MODEL_COMPONENT, "ViewModelComponent"),
-            FakeKSClassDeclaration(ValidationConstants.FQN_NAVIGATION_COMPONENT, "NavigationComponent")
-        )
-    }
+    private val resolver =
+        FakeResolver().apply {
+            // Seed @Component symbols so discoverComponentFqns() returns built-ins (single source of truth).
+            symbols[ComponentResolution.FQN_COMPONENT] =
+                listOf(
+                    FakeKSClassDeclaration(ValidationConstants.FQN_SINGLETON_COMPONENT, "SingletonComponent"),
+                    FakeKSClassDeclaration(ValidationConstants.FQN_VIEW_MODEL_COMPONENT, "ViewModelComponent"),
+                    FakeKSClassDeclaration(ValidationConstants.FQN_NAVIGATION_COMPONENT, "NavigationComponent"),
+                )
+        }
     private val builder = AnchorDiModelBuilder(resolver)
 
     // ===================
@@ -31,20 +32,23 @@ class AnchorDiModelBuilderTest {
     fun buildModuleDescriptors_parsesInstallInAndBinds() {
         val module = FakeKSClassDeclaration("com.example.MyModule", "MyModule")
         // @InstallIn(SingletonComponent::class): value resolved via discoverComponentFqns() by simpleName.
-        module.addAnnotation("com.debdut.anchordi.InstallIn", listOf(
-            FakeKSValueArgument(null, "SingletonComponent")
-        ))
+        module.addAnnotation(
+            "com.debdut.anchordi.InstallIn",
+            listOf(
+                FakeKSValueArgument(null, "SingletonComponent"),
+            ),
+        )
 
         // Add @Binds method
         val bindsMethod = FakeKSFunctionDeclaration("com.example.MyModule.bindApi", "bindApi")
         bindsMethod.addAnnotation("com.debdut.anchordi.Binds")
         bindsMethod.addParameter("impl", "com.example.ApiImpl")
-        module._declarations.add(bindsMethod)
+        module.declarationsList.add(bindsMethod)
 
         // Add @Provides method
         val providesMethod = FakeKSFunctionDeclaration("com.example.MyModule.provideRepo", "provideRepo")
         providesMethod.addAnnotation("com.debdut.anchordi.Provides")
-        module._declarations.add(providesMethod)
+        module.declarationsList.add(providesMethod)
 
         val descriptors = builder.buildModuleDescriptors(listOf(module))
 
@@ -53,7 +57,7 @@ class AnchorDiModelBuilderTest {
         assertEquals("com.example.MyModule", desc.moduleName)
         assertEquals(ValidationConstants.FQN_SINGLETON_COMPONENT, desc.installInComponentFqn)
         assertTrue(desc.hasProvidesOrBinds)
-        
+
         assertEquals(1, desc.bindsMethods.size)
         assertEquals("bindApi", desc.bindsMethods[0].methodName)
         assertEquals(1, desc.bindsMethods[0].parameterCount)
@@ -62,13 +66,16 @@ class AnchorDiModelBuilderTest {
     @Test
     fun buildModuleDescriptors_viewModelComponent() {
         val module = FakeKSClassDeclaration("com.example.ViewModelModule", "ViewModelModule")
-        module.addAnnotation("com.debdut.anchordi.InstallIn", listOf(
-            FakeKSValueArgument(null, "ViewModelComponent")
-        ))
+        module.addAnnotation(
+            "com.debdut.anchordi.InstallIn",
+            listOf(
+                FakeKSValueArgument(null, "ViewModelComponent"),
+            ),
+        )
 
         val providesMethod = FakeKSFunctionDeclaration("com.example.ViewModelModule.provideUseCase", "provideUseCase")
         providesMethod.addAnnotation("com.debdut.anchordi.Provides")
-        module._declarations.add(providesMethod)
+        module.declarationsList.add(providesMethod)
 
         val descriptors = builder.buildModuleDescriptors(listOf(module))
 
@@ -79,13 +86,16 @@ class AnchorDiModelBuilderTest {
     @Test
     fun buildModuleDescriptors_navigationComponent() {
         val module = FakeKSClassDeclaration("com.example.NavModule", "NavModule")
-        module.addAnnotation("com.debdut.anchordi.InstallIn", listOf(
-            FakeKSValueArgument(null, "NavigationComponent")
-        ))
+        module.addAnnotation(
+            "com.debdut.anchordi.InstallIn",
+            listOf(
+                FakeKSValueArgument(null, "NavigationComponent"),
+            ),
+        )
 
         val providesMethod = FakeKSFunctionDeclaration("com.example.NavModule.provideState", "provideState")
         providesMethod.addAnnotation("com.debdut.anchordi.Provides")
-        module._declarations.add(providesMethod)
+        module.declarationsList.add(providesMethod)
 
         val descriptors = builder.buildModuleDescriptors(listOf(module))
 
@@ -102,10 +112,10 @@ class AnchorDiModelBuilderTest {
         val injectClass = FakeKSClassDeclaration("com.example.MyService", "MyService")
         // @Singleton
         injectClass.addAnnotation("com.debdut.anchordi.Singleton")
-        
+
         val constructor = FakeKSFunctionDeclaration("com.example.MyService.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
         val bindings = builder.buildBindings(listOf(injectClass), emptyList())
 
@@ -120,10 +130,10 @@ class AnchorDiModelBuilderTest {
     fun buildBindings_viewModelScoped() {
         val injectClass = FakeKSClassDeclaration("com.example.MyViewModel", "MyViewModel")
         injectClass.addAnnotation("com.debdut.anchordi.ViewModelScoped")
-        
+
         val constructor = FakeKSFunctionDeclaration("com.example.MyViewModel.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
         val bindings = builder.buildBindings(listOf(injectClass), emptyList())
 
@@ -138,10 +148,10 @@ class AnchorDiModelBuilderTest {
     fun buildBindings_navigationScoped() {
         val injectClass = FakeKSClassDeclaration("com.example.ScreenState", "ScreenState")
         injectClass.addAnnotation("com.debdut.anchordi.NavigationScoped")
-        
+
         val constructor = FakeKSFunctionDeclaration("com.example.ScreenState.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
         val bindings = builder.buildBindings(listOf(injectClass), emptyList())
 
@@ -156,10 +166,10 @@ class AnchorDiModelBuilderTest {
     fun buildBindings_unscoped() {
         val injectClass = FakeKSClassDeclaration("com.example.UnscopedService", "UnscopedService")
         // No scope annotation
-        
+
         val constructor = FakeKSFunctionDeclaration("com.example.UnscopedService.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
         val bindings = builder.buildBindings(listOf(injectClass), emptyList())
 
@@ -174,13 +184,13 @@ class AnchorDiModelBuilderTest {
         val repoClass = FakeKSClassDeclaration("com.example.Repository", "Repository")
         val repoConstructor = FakeKSFunctionDeclaration("com.example.Repository.<init>", "<init>")
         repoConstructor.addAnnotation("com.debdut.anchordi.Inject")
-        repoClass._primaryConstructor = repoConstructor
+        repoClass.primaryConstructorBacking = repoConstructor
 
         val serviceClass = FakeKSClassDeclaration("com.example.Service", "Service")
         val serviceConstructor = FakeKSFunctionDeclaration("com.example.Service.<init>", "<init>")
         serviceConstructor.addAnnotation("com.debdut.anchordi.Inject")
         serviceConstructor.addParameter("repo", "com.example.Repository")
-        serviceClass._primaryConstructor = serviceConstructor
+        serviceClass.primaryConstructorBacking = serviceConstructor
 
         val bindings = builder.buildBindings(listOf(repoClass, serviceClass), emptyList())
         val graph = builder.buildDependencyGraph(listOf(repoClass, serviceClass), emptyList())
@@ -200,13 +210,13 @@ class AnchorDiModelBuilderTest {
         val repoClass = FakeKSClassDeclaration("com.example.Repository", "Repository")
         val repoConstructor = FakeKSFunctionDeclaration("com.example.Repository.<init>", "<init>")
         repoConstructor.addAnnotation("com.debdut.anchordi.Inject")
-        repoClass._primaryConstructor = repoConstructor
+        repoClass.primaryConstructorBacking = repoConstructor
 
         val serviceClass = FakeKSClassDeclaration("com.example.Service", "Service")
         val serviceConstructor = FakeKSFunctionDeclaration("com.example.Service.<init>", "<init>")
         serviceConstructor.addAnnotation("com.debdut.anchordi.Inject")
         serviceConstructor.addParameter("repo", "com.example.Repository")
-        serviceClass._primaryConstructor = serviceConstructor
+        serviceClass.primaryConstructorBacking = serviceConstructor
 
         val graph = builder.buildDependencyGraph(listOf(serviceClass, repoClass), emptyList())
 
@@ -221,19 +231,19 @@ class AnchorDiModelBuilderTest {
         val apiClass = FakeKSClassDeclaration("com.example.Api", "Api")
         val apiConstructor = FakeKSFunctionDeclaration("com.example.Api.<init>", "<init>")
         apiConstructor.addAnnotation("com.debdut.anchordi.Inject")
-        apiClass._primaryConstructor = apiConstructor
+        apiClass.primaryConstructorBacking = apiConstructor
 
         val repoClass = FakeKSClassDeclaration("com.example.Repository", "Repository")
         val repoConstructor = FakeKSFunctionDeclaration("com.example.Repository.<init>", "<init>")
         repoConstructor.addAnnotation("com.debdut.anchordi.Inject")
         repoConstructor.addParameter("api", "com.example.Api")
-        repoClass._primaryConstructor = repoConstructor
+        repoClass.primaryConstructorBacking = repoConstructor
 
         val serviceClass = FakeKSClassDeclaration("com.example.Service", "Service")
         val serviceConstructor = FakeKSFunctionDeclaration("com.example.Service.<init>", "<init>")
         serviceConstructor.addAnnotation("com.debdut.anchordi.Inject")
         serviceConstructor.addParameter("repo", "com.example.Repository")
-        serviceClass._primaryConstructor = serviceConstructor
+        serviceClass.primaryConstructorBacking = serviceConstructor
 
         val graph = builder.buildDependencyGraph(listOf(serviceClass, repoClass, apiClass), emptyList())
 
@@ -251,29 +261,30 @@ class AnchorDiModelBuilderTest {
         val repoClass = FakeKSClassDeclaration("com.example.Repository", "Repository")
         val repoConstructor = FakeKSFunctionDeclaration("com.example.Repository.<init>", "<init>")
         repoConstructor.addAnnotation("com.debdut.anchordi.Inject")
-        repoClass._primaryConstructor = repoConstructor
+        repoClass.primaryConstructorBacking = repoConstructor
 
         val serviceClass = FakeKSClassDeclaration("com.example.Service", "Service")
         val serviceConstructor = FakeKSFunctionDeclaration("com.example.Service.<init>", "<init>")
         serviceConstructor.addAnnotation("com.debdut.anchordi.Inject")
         serviceConstructor.addParameter("repo", "com.example.Repository")
-        serviceClass._primaryConstructor = serviceConstructor
+        serviceClass.primaryConstructorBacking = serviceConstructor
 
-        val (providedKeys, requirements) = builder.buildProvidedKeysAndRequirements(
-            listOf(serviceClass, repoClass),
-            emptyList()
-        )
+        val (providedKeys, requirements) =
+            builder.buildProvidedKeysAndRequirements(
+                listOf(serviceClass, repoClass),
+                emptyList(),
+            )
 
         assertTrue(providedKeys.contains("com.example.Repository"))
         assertTrue(providedKeys.contains("com.example.Service"))
-        
+
         val serviceReq = requirements.find { it.requester == "com.example.Service" }
         assertNotNull(serviceReq)
         assertEquals("com.example.Repository", serviceReq.requiredType)
     }
 
     // ===================
-    // Inject Class Descriptor Tests  
+    // Inject Class Descriptor Tests
     // ===================
 
     @Test
@@ -281,7 +292,7 @@ class AnchorDiModelBuilderTest {
         val myClass = FakeKSClassDeclaration("com.example.MyClass", "MyClass")
         val constructor = FakeKSFunctionDeclaration("com.example.MyClass.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        myClass._primaryConstructor = constructor
+        myClass.primaryConstructorBacking = constructor
 
         val descriptors = builder.buildInjectClassDescriptors(listOf(myClass))
 

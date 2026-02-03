@@ -1,5 +1,5 @@
-# Run library tests on every push and pull request.
-# To run full build instead: ./gradlew build
+# CI: separate jobs per target to reduce CPU/memory per runner.
+# Ubuntu for format, tests, Android, JVM, Wasm; macOS only for iOS.
 
 name: CI
 
@@ -13,12 +13,11 @@ env:
   JAVA_VERSION: '21'
 
 jobs:
-  test:
-    name: Test
+  validate:
+    name: Validate (format + tests)
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,5 +39,128 @@ jobs:
           mv "$WRAPPER_JAR" gradle/wrapper/gradle-wrapper.jar
           rm -rf gradle.zip gradle-${GRADLE_VERSION}
 
+      - name: Format check (Spotless + ktlint)
+        run: ./gradlew spotlessCheck --no-daemon
+
       - name: Run library tests
         run: ./gradlew :anchor-di-core:jvmTest :anchor-di-ksp:jvmTest --no-daemon
+
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    needs: [validate]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: Bootstrap Gradle wrapper
+        if: hashFiles('gradle/wrapper/gradle-wrapper.jar') == ''
+        run: |
+          GRADLE_VERSION=9.1.0
+          curl -sL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o gradle.zip
+          unzip -q -o gradle.zip
+          WRAPPER_JAR=$(find . -name 'gradle-wrapper-*.jar' -path '*/lib/plugins/*' | head -1)
+          mv "$WRAPPER_JAR" gradle/wrapper/gradle-wrapper.jar
+          rm -rf gradle.zip gradle-${GRADLE_VERSION}
+
+      - name: Build Android (composeApp + androidApp)
+        run: ./gradlew :androidApp:assembleDebug --no-daemon
+
+  build-jvm:
+    name: Build JVM (Desktop)
+    runs-on: ubuntu-latest
+    needs: [validate]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: Bootstrap Gradle wrapper
+        if: hashFiles('gradle/wrapper/gradle-wrapper.jar') == ''
+        run: |
+          GRADLE_VERSION=9.1.0
+          curl -sL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o gradle.zip
+          unzip -q -o gradle.zip
+          WRAPPER_JAR=$(find . -name 'gradle-wrapper-*.jar' -path '*/lib/plugins/*' | head -1)
+          mv "$WRAPPER_JAR" gradle/wrapper/gradle-wrapper.jar
+          rm -rf gradle.zip gradle-${GRADLE_VERSION}
+
+      - name: Build JVM (composeApp desktop)
+        run: ./gradlew :composeApp:compileKotlinJvm :composeApp:jvmJar --no-daemon
+
+  build-wasm:
+    name: Build WasmJs
+    runs-on: ubuntu-latest
+    needs: [validate]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: Bootstrap Gradle wrapper
+        if: hashFiles('gradle/wrapper/gradle-wrapper.jar') == ''
+        run: |
+          GRADLE_VERSION=9.1.0
+          curl -sL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o gradle.zip
+          unzip -q -o gradle.zip
+          WRAPPER_JAR=$(find . -name 'gradle-wrapper-*.jar' -path '*/lib/plugins/*' | head -1)
+          mv "$WRAPPER_JAR" gradle/wrapper/gradle-wrapper.jar
+          rm -rf gradle.zip gradle-${GRADLE_VERSION}
+
+      - name: Build WasmJs (composeApp)
+        run: ./gradlew :composeApp:compileKotlinWasmJs --no-daemon
+
+  build-ios:
+    name: Build iOS
+    runs-on: macos-latest
+    needs: [validate]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: Bootstrap Gradle wrapper
+        if: hashFiles('gradle/wrapper/gradle-wrapper.jar') == ''
+        run: |
+          GRADLE_VERSION=9.1.0
+          curl -sL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o gradle.zip
+          unzip -q -o gradle.zip
+          WRAPPER_JAR=$(find . -name 'gradle-wrapper-*.jar' -path '*/lib/plugins/*' | head -1)
+          mv "$WRAPPER_JAR" gradle/wrapper/gradle-wrapper.jar
+          rm -rf gradle.zip gradle-${GRADLE_VERSION}
+
+      - name: Build iOS (composeApp)
+        run: ./gradlew :composeApp:linkReleaseFrameworkIosArm64 :composeApp:linkReleaseFrameworkIosSimulatorArm64 --no-daemon

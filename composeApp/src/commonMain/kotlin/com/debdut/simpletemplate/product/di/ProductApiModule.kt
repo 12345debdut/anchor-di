@@ -6,8 +6,6 @@ import com.debdut.anchordi.Module
 import com.debdut.anchordi.Provides
 import com.debdut.anchordi.Singleton
 import com.debdut.anchordi.SingletonComponent
-import com.debdut.anchordi.ViewModelComponent
-import com.debdut.anchordi.ViewModelScoped
 import com.debdut.simpletemplate.product.data.ProductApi
 import com.debdut.simpletemplate.product.data.ProductApiImpl
 import com.debdut.simpletemplate.product.data.createHttpClient
@@ -20,7 +18,6 @@ import io.ktor.client.HttpClient
 @Module
 @InstallIn(SingletonComponent::class)
 object ProductApiModule {
-
     @Provides
     @Singleton
     fun provideHttpClient(): HttpClient = createHttpClient()
@@ -32,7 +29,6 @@ object ProductApiModule {
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class ProductApiBindsModule {
-
     @Binds
     @Singleton
     abstract fun bindProductApi(impl: ProductApiImpl): ProductApi

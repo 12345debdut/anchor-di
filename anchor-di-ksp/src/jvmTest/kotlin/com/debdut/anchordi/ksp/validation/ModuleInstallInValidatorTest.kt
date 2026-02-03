@@ -7,17 +7,18 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ModuleInstallInValidatorTest {
-
-    private val knownComponents = mapOf(
-        ValidationConstants.FQN_SINGLETON_COMPONENT to ComponentDescriptor(ValidationConstants.FQN_SINGLETON_COMPONENT),
-        ValidationConstants.FQN_VIEW_MODEL_COMPONENT to ComponentDescriptor(ValidationConstants.FQN_VIEW_MODEL_COMPONENT)
-    )
+    private val knownComponents =
+        mapOf(
+            ValidationConstants.FQN_SINGLETON_COMPONENT to ComponentDescriptor(ValidationConstants.FQN_SINGLETON_COMPONENT),
+            ValidationConstants.FQN_VIEW_MODEL_COMPONENT to ComponentDescriptor(ValidationConstants.FQN_VIEW_MODEL_COMPONENT),
+        )
 
     @Test
     fun moduleWithValidInstallIn_noError() {
-        val modules = listOf(
-            ModuleDescriptor("pkg.AppModule", ValidationConstants.FQN_SINGLETON_COMPONENT, true, emptyList())
-        )
+        val modules =
+            listOf(
+                ModuleDescriptor("pkg.AppModule", ValidationConstants.FQN_SINGLETON_COMPONENT, true, emptyList()),
+            )
         val reporter = CollectingReporter()
         ModuleInstallInValidator.validate(modules, knownComponents, reporter)
         assertTrue(reporter.errors.isEmpty())
@@ -25,9 +26,10 @@ class ModuleInstallInValidatorTest {
 
     @Test
     fun moduleWithNullInstallIn_reportsError() {
-        val modules = listOf(
-            ModuleDescriptor("pkg.AppModule", null, true, emptyList())
-        )
+        val modules =
+            listOf(
+                ModuleDescriptor("pkg.AppModule", null, true, emptyList()),
+            )
         val reporter = CollectingReporter()
         ModuleInstallInValidator.validate(modules, knownComponents, reporter)
         assertEquals(1, reporter.errors.size)
@@ -36,9 +38,10 @@ class ModuleInstallInValidatorTest {
 
     @Test
     fun moduleWithUnknownComponent_reportsError() {
-        val modules = listOf(
-            ModuleDescriptor("pkg.AppModule", "pkg.UnknownScope", true, emptyList())
-        )
+        val modules =
+            listOf(
+                ModuleDescriptor("pkg.AppModule", "pkg.UnknownScope", true, emptyList()),
+            )
         val reporter = CollectingReporter()
         ModuleInstallInValidator.validate(modules, knownComponents, reporter)
         assertEquals(1, reporter.errors.size)

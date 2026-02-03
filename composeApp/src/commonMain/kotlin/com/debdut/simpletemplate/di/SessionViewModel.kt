@@ -14,12 +14,13 @@ import com.debdut.anchordi.compose.AnchorViewModel
  * See docs/SESSION_AND_LOGOUT.md in the repo for disposal semantics.
  */
 @AnchorViewModel
-class SessionViewModel @Inject constructor() : ViewModel() {
+class SessionViewModel
+    @Inject
+    constructor() : ViewModel() {
+        fun getSessionState(): SessionState = SessionHolder.getSessionState()
 
-    fun getSessionState(): SessionState = SessionHolder.getSessionState()
-
-    /** Disposes the current session scope and creates a new one. Call when the user logs out. */
-    fun logout() {
-        SessionHolder.logout()
+        /** Disposes the current session scope and creates a new one. Call when the user logs out. */
+        fun logout() {
+            SessionHolder.logout()
+        }
     }
-}

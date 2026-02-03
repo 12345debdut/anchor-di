@@ -7,6 +7,7 @@ package com.debdut.simpletemplate.product.data
 interface ProductApi {
     /** Fetches all products. GET https://dummyjson.com/products */
     suspend fun getProducts(): ProductsResponse
+
     /** Fetches a single product by id. GET https://dummyjson.com/products/:id */
     suspend fun getProduct(id: String): Product
 }

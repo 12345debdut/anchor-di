@@ -21,7 +21,6 @@ import com.debdut.anchordi.runtime.AnchorContainer
  * Thread safety: All operations are thread-safe. Can be called from any thread.
  */
 object ViewModelScopeRegistry {
-
     /**
      * Returns the ViewModel-scoped container for [scopeKey], creating it if absent.
      * Resolve [ViewModelComponent]-scoped types (e.g. ViewModels) from this container.

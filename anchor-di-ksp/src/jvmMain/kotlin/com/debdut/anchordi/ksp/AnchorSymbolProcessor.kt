@@ -12,12 +12,12 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.validate
+
 class AnchorSymbolProcessor(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
-    private val options: Map<String, String> = emptyMap()
+    private val options: Map<String, String> = emptyMap(),
 ) : SymbolProcessor {
-
     private val reporter: ValidationReporter get() = KspValidationReporter(logger)
 
     companion object {
@@ -89,17 +89,18 @@ class AnchorSymbolProcessor(
             components = components,
             providedKeys = providedKeys,
             requirements = requirements,
-            dependencyGraph = dependencyGraph
+            dependencyGraph = dependencyGraph,
         )
 
         // 5. Generate Code (Phase 4: Codegen) — multiple files for separation of concerns and scaling
         val packageName = "com.debdut.anchordi.generated"
-        val generatedFiles = generator.generateAllFiles(
-            packageName = packageName,
-            injectClasses = distinctInject,
-            moduleClasses = moduleClasses,
-            baseObjectName = generatedObjectName
-        )
+        val generatedFiles =
+            generator.generateAllFiles(
+                packageName = packageName,
+                injectClasses = distinctInject,
+                moduleClasses = moduleClasses,
+                baseObjectName = generatedObjectName,
+            )
 
         val dependencies = com.google.devtools.ksp.processing.Dependencies.ALL_FILES
         generatedFiles.forEach { (fileName, content) ->

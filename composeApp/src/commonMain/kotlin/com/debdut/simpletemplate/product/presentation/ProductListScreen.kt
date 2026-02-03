@@ -5,15 +5,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,7 +31,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.debdut.anchordi.compose.anchorInject
-import com.debdut.anchordi.compose.viewModelAnchor
 import com.debdut.anchordi.navigation.navViewModelAnchor
 import com.debdut.simpletemplate.Platform
 import com.debdut.simpletemplate.di.SessionViewModel
@@ -67,17 +65,19 @@ fun ProductListScreen(
     val platform = anchorInject<Platform>()
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface),
     ) {
         // App bar
         ProductListAppBar()
         // Demo: session (ViewModel + logout) + root inject (Platform)
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 4.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
@@ -107,9 +107,10 @@ fun ProductListScreen(
                 ErrorContent(
                     message = uiState.error!!,
                     onRetry = { viewModel.refresh() },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
                 )
             }
             uiState.products.isEmpty() -> {
@@ -118,20 +119,22 @@ fun ProductListScreen(
             else -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        start = 20.dp,
-                        end = 20.dp,
-                        top = 8.dp,
-                        bottom = 24.dp,
-                    ),
+                    contentPadding =
+                        PaddingValues(
+                            start = 20.dp,
+                            end = 20.dp,
+                            top = 8.dp,
+                            bottom = 24.dp,
+                        ),
                     verticalArrangement = Arrangement.spacedBy(ListItemSpacing),
                 ) {
                     if (uiState.isLoading) {
                         item {
                             Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
                                 contentAlignment = Alignment.Center,
                             ) {
                                 CircularProgressIndicator(
@@ -157,14 +160,13 @@ fun ProductListScreen(
 }
 
 @Composable
-private fun ProductListAppBar(
-    modifier: Modifier = Modifier,
-) {
+private fun ProductListAppBar(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primary)
-            .padding(horizontal = 20.dp, vertical = 24.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.primary)
+                .padding(horizontal = 20.dp, vertical = 24.dp),
     ) {
         Text(
             text = "Products",
@@ -187,26 +189,29 @@ private fun ProductListItem(
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick),
         shape = CardShape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Thumbnail placeholder (replace with image loader when available)
             Box(
-                modifier = Modifier
-                    .size(96.dp)
-                    .clip(ImageShape)
-                    .background(MaterialTheme.colorScheme.outlineVariant),
+                modifier =
+                    Modifier
+                        .size(96.dp)
+                        .clip(ImageShape)
+                        .background(MaterialTheme.colorScheme.outlineVariant),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -241,9 +246,7 @@ private fun ProductListItem(
 }
 
 @Composable
-private fun EmptyContent(
-    modifier: Modifier = Modifier,
-) {
+private fun EmptyContent(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

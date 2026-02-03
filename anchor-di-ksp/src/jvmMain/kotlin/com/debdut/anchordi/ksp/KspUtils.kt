@@ -9,7 +9,6 @@ import com.google.devtools.ksp.symbol.KSTypeReference
  * Shared KSP utility functions for annotation processing.
  */
 object KspUtils {
-
     /**
      * Extracts the scope class name from a @Scoped annotation.
      *
@@ -38,7 +37,10 @@ object KspUtils {
      * @param argIndex The index of the argument (default: 0)
      * @return The string value, trimmed of quotes, or null if not found
      */
-    fun getAnnotationStringValue(annotation: KSAnnotation?, argIndex: Int = 0): String? {
+    fun getAnnotationStringValue(
+        annotation: KSAnnotation?,
+        argIndex: Int = 0,
+    ): String? {
         val arg = annotation?.arguments?.getOrNull(argIndex) ?: return null
         val str = arg.value?.toString() ?: return null
         return str.trim('"')

@@ -9,13 +9,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class InjectableClassKindValidatorTest {
-
     @Test
     fun concreteClass_reportsNoErrors() {
         val injectClass = FakeKSClassDeclaration("com.example.MyService", "MyService", ClassKind.CLASS)
         val constructor = FakeKSFunctionDeclaration("com.example.MyService.<init>", "<init>")
         constructor.addAnnotation("com.debdut.anchordi.Inject")
-        injectClass._primaryConstructor = constructor
+        injectClass.primaryConstructorBacking = constructor
 
         val reporter = CollectingReporter()
         InjectableClassKindValidator.validate(listOf(injectClass), reporter)
@@ -55,7 +54,7 @@ class InjectableClassKindValidatorTest {
     @Test
     fun abstractClass_reportsError() {
         val injectClass = FakeKSClassDeclaration("com.example.BaseService", "BaseService", ClassKind.CLASS)
-        injectClass._modifiers.add(Modifier.ABSTRACT)
+        injectClass.modifiersSet.add(Modifier.ABSTRACT)
         val reporter = CollectingReporter()
         InjectableClassKindValidator.validate(listOf(injectClass), reporter)
         assertEquals(1, reporter.errors.size)

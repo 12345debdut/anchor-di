@@ -16,5 +16,5 @@ data class ValidationModelContext(
     val components: Map<String, ComponentDescriptor>,
     val providedKeys: Set<String>,
     val requirements: List<DependencyRequirement>,
-    val dependencyGraph: Map<String, Set<String>>
+    val dependencyGraph: Map<String, Set<String>>,
 )

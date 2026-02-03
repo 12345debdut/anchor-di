@@ -8,8 +8,10 @@ import com.debdut.anchordi.Singleton
  * Singleton so one instance is shared app-wide.
  */
 @Singleton
-class LoggerImpl @Inject constructor() : Logger {
-    override fun log(message: String) {
-        println("[AnchorDI] $message")
+class LoggerImpl
+    @Inject
+    constructor() : Logger {
+        override fun log(message: String) {
+            println("[AnchorDI] $message")
+        }
     }
-}

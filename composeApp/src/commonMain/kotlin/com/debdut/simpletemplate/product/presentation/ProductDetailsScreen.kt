@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -25,6 +23,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,9 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.debdut.anchordi.compose.viewModelAnchor
 import com.debdut.anchordi.navigation.navViewModelAnchor
@@ -71,9 +69,10 @@ fun ProductDetailsScreen(
     }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface),
     ) {
         // Top app bar with back button
         DetailsAppBar(onBack = onBack)
@@ -92,9 +91,10 @@ fun ProductDetailsScreen(
             }
             uiState.error != null && uiState.product == null -> {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
@@ -112,9 +112,10 @@ fun ProductDetailsScreen(
             uiState.product != null -> {
                 ProductContent(
                     product = uiState.product!!,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState()),
                 )
             }
         }
@@ -133,28 +134,30 @@ private fun DetailsAppBar(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier
-            .statusBarsPadding()
-            .fillMaxWidth()
-            .height(AppBarHeight)
-            .background(MaterialTheme.colorScheme.primary)
-            .padding(horizontal = 4.dp),
+        modifier =
+            modifier
+                .statusBarsPadding()
+                .fillMaxWidth()
+                .height(AppBarHeight)
+                .background(MaterialTheme.colorScheme.primary)
+                .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         IconButton(
             onClick = onBack,
             modifier = Modifier.size(48.dp),
-            colors = IconButtonDefaults.iconButtonColors(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ),
+            colors =
+                IconButtonDefaults.iconButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
         ) {
             Image(
                 painter = painterResource(Res.drawable.arrow_left_thin),
                 contentDescription = "Back",
                 modifier = Modifier.size(24.dp),
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
             )
         }
         Text(
@@ -176,11 +179,12 @@ private fun ProductContent(
     ) {
         // Hero image placeholder
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(HeroHeight)
-                .clip(DetailCardShape)
-                .background(MaterialTheme.colorScheme.outlineVariant),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(HeroHeight)
+                    .clip(DetailCardShape)
+                    .background(MaterialTheme.colorScheme.outlineVariant),
             contentAlignment = Alignment.Center,
         ) {
             Text(

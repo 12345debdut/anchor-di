@@ -8,7 +8,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
  */
 data class SymbolValidationPass(
     val name: String,
-    val run: (List<KSClassDeclaration>, List<KSClassDeclaration>, ValidationReporter) -> Unit
+    val run: (List<KSClassDeclaration>, List<KSClassDeclaration>, ValidationReporter) -> Unit,
 )
 
 /**
@@ -16,5 +16,5 @@ data class SymbolValidationPass(
  */
 data class ModelValidationPass(
     val name: String,
-    val run: (ValidationModelContext, ValidationReporter) -> Unit
+    val run: (ValidationModelContext, ValidationReporter) -> Unit,
 )

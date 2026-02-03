@@ -10,6 +10,24 @@ plugins {
     alias(libs.plugins.androidKmpLibrary) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.kover)
+    alias(libs.plugins.spotless)
+}
+
+spotless {
+    kotlin {
+        target("**/*.kt")
+        targetExclude("**/build/**", "**/generated/**")
+        ktlint() // use Spotless default ktlint version for API compatibility
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target("**/*.gradle.kts")
+        targetExclude("**/build/**")
+        ktlint() // use Spotless default ktlint version for API compatibility
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 // Aggregated test coverage for library modules (JVM tests only)
@@ -18,14 +36,15 @@ dependencies {
     kover(project(":anchor-di-ksp"))
 }
 
-val publishableModules = setOf(
-    "anchor-di-api",
-    "anchor-di-core",
-    "anchor-di-ksp",
-    "anchor-di-android",
-    "anchor-di-presentation",
-    "anchor-di-compose"
-)
+val publishableModules =
+    setOf(
+        "anchor-di-api",
+        "anchor-di-core",
+        "anchor-di-ksp",
+        "anchor-di-android",
+        "anchor-di-presentation",
+        "anchor-di-compose",
+    )
 
 subprojects {
     if (name in publishableModules) {

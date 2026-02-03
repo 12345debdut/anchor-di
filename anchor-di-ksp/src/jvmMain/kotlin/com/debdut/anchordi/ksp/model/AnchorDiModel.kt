@@ -6,7 +6,7 @@ package com.debdut.anchordi.ksp.model
  */
 data class ComponentDescriptor(
     val fqn: String,
-    val dependencies: Set<String> = emptySet()
+    val dependencies: Set<String> = emptySet(),
 )
 
 /**
@@ -20,10 +20,13 @@ data class BindingDescriptor(
     val key: String,
     val qualifier: String?,
     val component: String,
-    val scope: String?, // null = unscoped
+    /** null = unscoped */
+    val scope: String?,
     val source: String,
-    val multibindingKind: String? = null, // "set" or "map"
-    val mapKey: String? = null // for map multibinding, the key value (e.g. from @StringKey)
+    /** "set" or "map" */
+    val multibindingKind: String? = null,
+    /** For map multibinding, the key value (e.g. from @StringKey). */
+    val mapKey: String? = null,
 )
 
 /**
@@ -32,7 +35,7 @@ data class BindingDescriptor(
 data class BindsMethodDescriptor(
     val moduleName: String,
     val methodName: String,
-    val parameterCount: Int
+    val parameterCount: Int,
 )
 
 /**
@@ -42,7 +45,7 @@ data class ModuleDescriptor(
     val moduleName: String,
     val installInComponentFqn: String?,
     val hasProvidesOrBinds: Boolean,
-    val bindsMethods: List<BindsMethodDescriptor>
+    val bindsMethods: List<BindsMethodDescriptor>,
 )
 
 /**
@@ -50,5 +53,5 @@ data class ModuleDescriptor(
  */
 data class DependencyRequirement(
     val requiredType: String,
-    val requester: String
+    val requester: String,
 )

@@ -8,8 +8,6 @@ import kotlin.random.Random
 @Module
 @InstallIn(SessionComponent::class)
 object SessionModule {
-
     @Provides
-    fun provideSessionState(): SessionState =
-        SessionState(sessionId = "session-${Random.nextLong().let { if (it < 0) -it else it }}")
+    fun provideSessionState(): SessionState = SessionState(sessionId = "session-${Random.nextLong().let { if (it < 0) -it else it }}")
 }

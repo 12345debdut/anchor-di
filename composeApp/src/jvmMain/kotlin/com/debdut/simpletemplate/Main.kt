@@ -20,7 +20,7 @@ fun main() {
         Window(
             onCloseRequest = ::exitApplication,
             state = state,
-            title = "Anchor DI - Desktop"
+            title = "Anchor DI - Desktop",
         ) {
             App()
         }

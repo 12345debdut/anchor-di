@@ -13,7 +13,6 @@ import com.debdut.anchordi.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class LoggerModule {
-
     @Binds
     @Singleton
     abstract fun bindLogger(impl: LoggerImpl): Logger

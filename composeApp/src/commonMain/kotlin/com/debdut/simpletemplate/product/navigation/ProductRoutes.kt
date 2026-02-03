@@ -6,9 +6,10 @@ import kotlinx.serialization.Serializable
 /**
  * Navigation 3 routes (NavKey) for the product app.
  * Used with [rememberNavBackStack] and [NavDisplay]; supports Android, iOS, desktop, and web.
+ *
+ * - [ProductListRoute]: list screen (start destination)
+ * - [ProductDetailsRoute]: details screen with product [id]
  */
-
-/** List screen; start destination. */
 @Serializable
 data object ProductListRoute : NavKey
 

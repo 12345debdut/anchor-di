@@ -3,7 +3,6 @@ package com.debdut.simpletemplate.product.di
 import com.debdut.anchordi.Binds
 import com.debdut.anchordi.InstallIn
 import com.debdut.anchordi.Module
-import com.debdut.anchordi.Singleton
 import com.debdut.anchordi.SingletonComponent
 import com.debdut.anchordi.ViewModelComponent
 import com.debdut.simpletemplate.product.domain.ProductRepository
@@ -16,7 +15,6 @@ import com.debdut.simpletemplate.product.domain.ProductRepositoryImpl
 @Module
 @InstallIn(ViewModelComponent::class)
 abstract class ProductRepositoryModule {
-
     @Binds
     abstract fun bindProductRepository(impl: ProductRepositoryImpl): ProductRepository
 }

@@ -9,13 +9,14 @@ package com.debdut.anchordi.runtime
  */
 data class Key(
     val typeName: String,
-    val qualifier: String? = null
+    val qualifier: String? = null,
 ) {
-    override fun toString(): String = if (qualifier != null) {
-        "$typeName[@$qualifier]"
-    } else {
-        typeName
-    }
+    override fun toString(): String =
+        if (qualifier != null) {
+            "$typeName[@$qualifier]"
+        } else {
+            typeName
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

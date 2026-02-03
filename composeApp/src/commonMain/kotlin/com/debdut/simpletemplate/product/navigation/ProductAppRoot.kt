@@ -17,14 +17,16 @@ import kotlinx.serialization.modules.polymorphic
  * Polymorphic serialization for Navigation 3 destination keys (required for non-JVM: iOS, web).
  * See: https://kotlinlang.org/docs/multiplatform/compose-navigation-3.html#polymorphic-serialization-for-destination-keys
  */
-private val productNavConfig = SavedStateConfiguration {
-    serializersModule = SerializersModule {
-        polymorphic(NavKey::class) {
-            subclass(ProductListRoute::class, ProductListRoute.serializer())
-            subclass(ProductDetailsRoute::class, ProductDetailsRoute.serializer())
-        }
+private val productNavConfig =
+    SavedStateConfiguration {
+        serializersModule =
+            SerializersModule {
+                polymorphic(NavKey::class) {
+                    subclass(ProductListRoute::class, ProductListRoute.serializer())
+                    subclass(ProductDetailsRoute::class, ProductDetailsRoute.serializer())
+                }
+            }
     }
-}
 
 /**
  * Root composable for the product app using Navigation 3.
@@ -42,29 +44,30 @@ fun ProductAppRoot(sessionViewModel: SessionViewModel) {
                 is ProductListRoute -> ProductListRoute
                 else -> entry
             }
-        }
+        },
     ) {
         NavDisplay(
             backStack = backStack,
             onBack = { backStack.removeLastOrNull() },
-            entryProvider = entryProvider {
-                entry<ProductListRoute> { key ->
-                    NavigationScopedContent(key) {
-                        ProductListScreen(
-                            sessionViewModel = sessionViewModel,
-                            onProductClick = { id -> backStack.add(ProductDetailsRoute(id)) },
-                        )
+            entryProvider =
+                entryProvider {
+                    entry<ProductListRoute> { key ->
+                        NavigationScopedContent(key) {
+                            ProductListScreen(
+                                sessionViewModel = sessionViewModel,
+                                onProductClick = { id -> backStack.add(ProductDetailsRoute(id)) },
+                            )
+                        }
                     }
-                }
-                entry<ProductDetailsRoute> { key ->
-                    NavigationScopedContent(key) {
-                        ProductDetailsScreen(
-                            productId = key.id,
-                            onBack = { backStack.removeLastOrNull() },
-                        )
+                    entry<ProductDetailsRoute> { key ->
+                        NavigationScopedContent(key) {
+                            ProductDetailsScreen(
+                                productId = key.id,
+                                onBack = { backStack.removeLastOrNull() },
+                            )
+                        }
                     }
-                }
-            },
+                },
         )
     }
 }

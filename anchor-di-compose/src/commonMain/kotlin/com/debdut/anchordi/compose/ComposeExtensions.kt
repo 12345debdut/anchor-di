@@ -53,5 +53,7 @@ inline fun <reified T : Any> anchorInject(key: Any? = null): T = remember(key) {
  * ```
  */
 @Composable
-inline fun <reified T : Any> anchorInject(qualifier: String, key: Any? = null): T =
-    remember(key, qualifier) { Anchor.inject<T>(qualifier) }
+inline fun <reified T : Any> anchorInject(
+    qualifier: String,
+    key: Any? = null,
+): T = remember(key, qualifier) { Anchor.inject<T>(qualifier) }

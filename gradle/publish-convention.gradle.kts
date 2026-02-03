@@ -23,11 +23,13 @@ group = libraryGroup
 version = libraryVersion
 
 val pomName: String = project.findProperty("POM_NAME") as? String ?: "Anchor DI"
-val pomDescription: String = project.findProperty("POM_DESCRIPTION") as? String ?: "Compile-time dependency injection for Kotlin Multiplatform."
+val pomDescription: String =
+    project.findProperty("POM_DESCRIPTION") as? String ?: "Compile-time dependency injection for Kotlin Multiplatform."
 val pomUrl: String = project.findProperty("POM_URL") as? String ?: "https://github.com/12345debdut/anchor-di"
 val pomScmUrl: String = project.findProperty("POM_SCM_URL") as? String ?: pomUrl
 val pomScmConnection: String = project.findProperty("POM_SCM_CONNECTION") as? String ?: "scm:git:git://github.com/12345debdut/anchor-di.git"
-val pomScmDevConnection: String = project.findProperty("POM_SCM_DEV_CONNECTION") as? String ?: "scm:git:ssh://git@github.com/12345debdut/anchor-di.git"
+val pomScmDevConnection: String =
+    project.findProperty("POM_SCM_DEV_CONNECTION") as? String ?: "scm:git:ssh://git@github.com/12345debdut/anchor-di.git"
 val pomLicenseName: String = project.findProperty("POM_LICENSE_NAME") as? String ?: "The Apache License, Version 2.0"
 val pomLicenseUrl: String = project.findProperty("POM_LICENSE_URL") as? String ?: "https://www.apache.org/licenses/LICENSE-2.0.txt"
 val pomDeveloperId: String = project.findProperty("POM_DEVELOPER_ID") as? String ?: "12345debdut"
@@ -38,20 +40,32 @@ plugins.apply("maven-publish")
 
 // Resolve signing from ROOT project so ~/.gradle/gradle.properties is visible (subprojects may not see it).
 val root = rootProject
-val signingKeyId: String? = root.findProperty("signing.keyId") as? String ?: root.findProperty("signingInMemoryKeyId") as? String ?: System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKeyId")?.ifBlank { null }
-val signingPassword: String? = root.findProperty("signing.password") as? String ?: root.findProperty("signingInMemoryKeyPassword") as? String ?: System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKeyPassword")?.ifBlank { null }
+val signingKeyId: String? =
+    root.findProperty("signing.keyId") as? String
+        ?: root.findProperty("signingInMemoryKeyId") as? String
+        ?: System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKeyId")?.ifBlank { null }
+val signingPassword: String? =
+    root.findProperty("signing.password") as? String
+        ?: root.findProperty("signingInMemoryKeyPassword") as? String
+        ?: System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKeyPassword")?.ifBlank { null }
 val keyFilePath: String? = root.findProperty("signing.keyFile") as? String ?: root.findProperty("signing.secretKeyRingFile") as? String
-val keyFileAbsolutePath: String? = keyFilePath?.let { path ->
-    val normalized = if (path.startsWith("~")) {
-        System.getProperty("user.home", "").trimEnd('/') + path.drop(1)
-    } else path
-    val file = java.io.File(normalized)
-    if (file.exists()) file.absolutePath else null
-}
+val keyFileAbsolutePath: String? =
+    keyFilePath?.let { path ->
+        val normalized =
+            if (path.startsWith("~")) {
+                System.getProperty("user.home", "").trimEnd('/') + path.drop(1)
+            } else {
+                path
+            }
+        val file = java.io.File(normalized)
+        if (file.exists()) file.absolutePath else null
+    }
 // Mode A: key file (binary keyring) — Gradle reads the file natively; avoids "Could not read PGP secret key".
 val hasSigningKeyFromFile = keyFileAbsolutePath != null && signingKeyId != null && signingPassword != null
 // Mode B: in-memory key content (CI) — ASCII-armored key in env/property.
-val signingKeyContent: String? = (root.findProperty("signingInMemoryKey") as? String)?.takeIf { it.isNotBlank() } ?: System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKey")?.takeIf { it.isNotBlank() }
+val signingKeyContent: String? =
+    (root.findProperty("signingInMemoryKey") as? String)?.takeIf { it.isNotBlank() }
+        ?: System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKey")?.takeIf { it.isNotBlank() }
 val hasSigningKeyFromContent = signingKeyContent != null && signingPassword != null
 val hasSigningKey = hasSigningKeyFromFile || hasSigningKeyFromContent
 
@@ -66,14 +80,17 @@ if (hasSigningKey) {
 }
 
 // Central Publisher Portal – OSSRH Staging API (use Central Portal user token at central.sonatype.com/usertoken)
-val sonatypeUsername: String? = project.findProperty("SONATYPE_USERNAME") as? String ?: System.getenv("ORG_GRADLE_PROJECT_SONATYPE_USERNAME")?.ifBlank { null }
-val sonatypePassword: String? = project.findProperty("SONATYPE_PASSWORD") as? String ?: System.getenv("ORG_GRADLE_PROJECT_SONATYPE_PASSWORD")?.ifBlank { null }
+val sonatypeUsername: String? =
+    project.findProperty("SONATYPE_USERNAME") as? String ?: System.getenv("ORG_GRADLE_PROJECT_SONATYPE_USERNAME")?.ifBlank { null }
+val sonatypePassword: String? =
+    project.findProperty("SONATYPE_PASSWORD") as? String ?: System.getenv("ORG_GRADLE_PROJECT_SONATYPE_PASSWORD")?.ifBlank { null }
 
 // Maven Central requires a javadoc JAR for each publication. Use an empty JAR for KMP (Dokka optional).
-val emptyJavadocJar = project.tasks.register<Jar>("emptyJavadocJar") {
-    archiveClassifier.set("javadoc")
-    // Empty JAR satisfies "Javadocs must be provided" without Dokka
-}
+val emptyJavadocJar =
+    project.tasks.register<Jar>("emptyJavadocJar") {
+        archiveClassifier.set("javadoc")
+        // Empty JAR satisfies "Javadocs must be provided" without Dokka
+    }
 
 project.extensions.configure<org.gradle.api.publish.PublishingExtension> {
     repositories {
@@ -92,7 +109,7 @@ project.extensions.configure<org.gradle.api.publish.PublishingExtension> {
         groupId = libraryGroup
         version = libraryVersion
         pom {
-            name.set("$pomName - ${artifactId}")
+            name.set("$pomName - $artifactId")
             description.set(pomDescription)
             url.set(pomUrl)
             licenses {
@@ -136,8 +153,10 @@ if (hasSigningKey) {
         }
         // Ensure publish tasks run after all sign tasks (fixes ordering when publications include extra artifacts like javadoc)
         val signTasks = project.tasks.matching { it.name.startsWith("sign") && it.name.endsWith("Publication") }
-        project.tasks.withType<org.gradle.api.Task>().matching { it.name.startsWith("publish") && it.name.contains("PublicationTo") && it.name.endsWith("Repository") }.configureEach {
-            dependsOn(signTasks)
-        }
+        val publishToRepoTasks =
+            project.tasks.withType<org.gradle.api.Task>().matching {
+                it.name.startsWith("publish") && it.name.contains("PublicationTo") && it.name.endsWith("Repository")
+            }
+        publishToRepoTasks.configureEach { dependsOn(signTasks) }
     }
 }

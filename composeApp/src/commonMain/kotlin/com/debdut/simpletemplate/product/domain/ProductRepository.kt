@@ -8,5 +8,6 @@ import com.debdut.simpletemplate.product.data.Product
  */
 interface ProductRepository {
     suspend fun getProducts(): List<Product>
+
     suspend fun getProduct(id: String): Product
 }
