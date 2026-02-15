@@ -1,7 +1,5 @@
 package com.debdut.anchordi.runtime
 
-import kotlin.concurrent.Volatile
-
 /**
  * Entry point for Anchor DI. Initialize at application startup, then use [inject] to resolve dependencies.
  *
@@ -26,7 +24,6 @@ import kotlin.concurrent.Volatile
 object Anchor {
     private val lock = SyncLock()
 
-    @Volatile
     private var container: AnchorContainer? = null
 
     // Reset listeners are called when Anchor.reset() is invoked.
@@ -56,16 +53,18 @@ object Anchor {
      * Returns true if [init] has been called and the container is ready for [inject] / [withScope].
      * Useful for conditional init or tests.
      */
-    fun isInitialized(): Boolean = container != null
+    fun isInitialized(): Boolean = lock.withLock { container != null }
 
     /**
      * Returns the container. Throws if not initialized.
      */
     fun requireContainer(): AnchorContainer {
-        return container ?: error(
-            "Anchor is not initialized. Call Anchor.init(contributors) at application startup " +
-                "(e.g. in Application.onCreate() on Android, or before first composable).",
-        )
+        return lock.withLock {
+            container ?: error(
+                "Anchor is not initialized. Call Anchor.init(contributors) at application startup " +
+                    "(e.g. in Application.onCreate() on Android, or before first composable).",
+            )
+        }
     }
 
     /**

@@ -77,6 +77,15 @@ val emptyJavadocJar =
         archiveClassifier.set("javadoc")
     }
 
+val sourceSetContainer = project.extensions.findByType<org.gradle.api.tasks.SourceSetContainer>()
+val sourcesJar =
+    project.tasks.register<Jar>("sourcesJar") {
+        archiveClassifier.set("sources")
+        if (sourceSetContainer != null) {
+            from(sourceSetContainer.getByName("main").allSource)
+        }
+    }
+
 project.extensions.configure<org.gradle.api.publish.PublishingExtension> {
     repositories {
         maven {
@@ -90,6 +99,7 @@ project.extensions.configure<org.gradle.api.publish.PublishingExtension> {
         mavenLocal()
     }
     publications.withType<org.gradle.api.publish.maven.MavenPublication>().configureEach {
+        artifact(sourcesJar)
         artifact(emptyJavadocJar)
         groupId = project.group.toString()
         version = libraryVersion
