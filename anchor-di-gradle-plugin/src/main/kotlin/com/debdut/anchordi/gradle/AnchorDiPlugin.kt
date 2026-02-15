@@ -104,6 +104,18 @@ class AnchorDiPlugin : Plugin<Project> {
                         .invoke(kspExt, "anchorDiModuleId", moduleId)
                 }
             }
+
+            // Ensure Kotlin compile tasks run after KSP so generated code (e.g. AnchorGenerated_*) is visible
+            project.tasks.configureEach { task ->
+                val name = task.name
+                if (name.startsWith("compile") && name.contains("Kotlin") && !name.contains("Metadata")) {
+                    val kspName = name.replace("compile", "ksp")
+                    val kspTask = project.tasks.findByName(kspName)
+                    if (kspTask != null) {
+                        task.dependsOn(kspTask)
+                    }
+                }
+            }
         }
     }
 }

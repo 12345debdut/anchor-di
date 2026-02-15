@@ -1,6 +1,7 @@
 package com.debdut.simpletemplate.product.presentation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -32,7 +33,7 @@ import androidx.compose.ui.Modifier
 @Composable
 fun BottomNavigationBarWithPadding(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    content: @Composable RowScope.() -> Unit,
 ) {
     NavigationBar(
         modifier =
@@ -50,7 +51,7 @@ fun BottomNavigationBarWithPadding(
 @Composable
 fun BottomNavigationBarWithWindowInsets(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    content: @Composable RowScope.() -> Unit,
 ) {
     NavigationBar(
         modifier =
@@ -67,7 +68,7 @@ fun BottomNavigationBarWithWindowInsets(
 @Composable
 fun BottomNavigationBarWrapped(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    content: @Composable RowScope.() -> Unit,
 ) {
     Box(
         modifier =
