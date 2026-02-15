@@ -30,7 +30,28 @@ object ScopeLifetimeValidator {
                     requiredBindings.filter {
                         ScopeHierarchy.isAncestorOrSelf(it.component, requesterComponent)
                     }
-                if (availableDeps.isEmpty()) return@forEach // ParentComponentValidator handles "no binding in ancestor"
+                if (availableDeps.isEmpty()) {
+                    // Required type is only in descendant/shorter-lived scope (e.g. Singleton depends on ViewModel).
+                    val depBinding = requiredBindings.first()
+                    val depLongevity = ScopeHierarchy.longevityRank(depBinding.component, depBinding.scope)
+                    if (depLongevity < requesterLongevity) {
+                        reporter.error(
+                            "[Anchor DI] A longer-lived scope cannot depend on a shorter-lived scope. " +
+                                "The binding for '$requester' (source: ${reqBinding.source}) is " +
+                                "${ScopeHierarchy.scopeDisplayName(requesterScope)} in " +
+                                "${requesterComponent.substringAfterLast('.')}, but it depends on " +
+                                "'$requiredType' which is " +
+                                "${ScopeHierarchy.scopeDisplayName(depBinding.scope)}. Longer-lived " +
+                                "bindings (e.g. Singleton) must not depend on shorter-lived ones " +
+                                "(e.g. ViewModel-scoped), because the shorter-lived instance may not " +
+                                "exist when the longer-lived one is created. Fix: move the dependency " +
+                                "to a longer-lived scope, or inject Lazy<$requiredType> / " +
+                                "AnchorProvider<$requiredType> to delay access.",
+                            null,
+                        )
+                    }
+                    return@forEach
+                }
 
                 val hasValidDependency =
                     availableDeps.any { dep ->
