@@ -11,51 +11,54 @@ import kotlin.test.assertTrue
 
 class ProductDetailsViewModelTest {
     @Test
-    fun blankIdDoesNothing() = runMainTest {
-        val repository = FakeProductRepository(Result.success(sampleProduct(id = 10)))
-        val viewModel = ProductDetailsViewModel(lazyOf(repository))
+    fun blankIdDoesNothing() =
+        runMainTest {
+            val repository = FakeProductRepository(Result.success(sampleProduct(id = 10)))
+            val viewModel = ProductDetailsViewModel(lazyOf(repository))
 
-        viewModel.loadProduct("")
-        testScheduler.advanceUntilIdle()
+            viewModel.loadProduct("")
+            testScheduler.advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertFalse(state.isLoading)
-        assertNull(state.product)
-        assertNull(state.error)
-        assertEquals(0, repository.getProductCalls)
-    }
-
-    @Test
-    fun loadProductSuccessUpdatesState() = runMainTest {
-        val product = sampleProduct(id = 5, title = "Coffee")
-        val repository = FakeProductRepository(Result.success(product))
-
-        val viewModel = ProductDetailsViewModel(lazyOf(repository))
-        viewModel.loadProduct("5")
-        assertTrue(viewModel.uiState.value.isLoading)
-
-        testScheduler.advanceUntilIdle()
-
-        val state = viewModel.uiState.value
-        assertFalse(state.isLoading)
-        assertEquals(product, state.product)
-        assertNull(state.error)
-        assertEquals(1, repository.getProductCalls)
-    }
+            val state = viewModel.uiState.value
+            assertFalse(state.isLoading)
+            assertNull(state.product)
+            assertNull(state.error)
+            assertEquals(0, repository.getProductCalls)
+        }
 
     @Test
-    fun loadProductFailureShowsError() = runMainTest {
-        val repository = FakeProductRepository(Result.failure(IllegalStateException("Not found")))
+    fun loadProductSuccessUpdatesState() =
+        runMainTest {
+            val product = sampleProduct(id = 5, title = "Coffee")
+            val repository = FakeProductRepository(Result.success(product))
 
-        val viewModel = ProductDetailsViewModel(lazyOf(repository))
-        viewModel.loadProduct("404")
-        testScheduler.advanceUntilIdle()
+            val viewModel = ProductDetailsViewModel(lazyOf(repository))
+            viewModel.loadProduct("5")
+            assertTrue(viewModel.uiState.value.isLoading)
 
-        val state = viewModel.uiState.value
-        assertFalse(state.isLoading)
-        assertEquals("Not found", state.error)
-        assertNull(state.product)
-    }
+            testScheduler.advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertFalse(state.isLoading)
+            assertEquals(product, state.product)
+            assertNull(state.error)
+            assertEquals(1, repository.getProductCalls)
+        }
+
+    @Test
+    fun loadProductFailureShowsError() =
+        runMainTest {
+            val repository = FakeProductRepository(Result.failure(IllegalStateException("Not found")))
+
+            val viewModel = ProductDetailsViewModel(lazyOf(repository))
+            viewModel.loadProduct("404")
+            testScheduler.advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertFalse(state.isLoading)
+            assertEquals("Not found", state.error)
+            assertNull(state.product)
+        }
 
     private class FakeProductRepository(
         private val productResult: Result<Product>,

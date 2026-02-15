@@ -40,11 +40,12 @@ val LocalNavigationScope = compositionLocalOf<AnchorContainer?> { null }
  */
 @Composable
 inline fun <reified T : Any> navigationScopedInject(): T {
-    val container = LocalNavigationScope.current
-        ?: error(
-            "Navigation scope is not available. Wrap destination content in NavigationScopedContent " +
-                "(e.g. NavigationScopedContent(navBackStackEntry) { ... }) so that " +
-                "navigationScopedInject() can resolve NavigationComponent-scoped bindings."
-        )
+    val container =
+        LocalNavigationScope.current
+            ?: error(
+                "Navigation scope is not available. Wrap destination content in NavigationScopedContent " +
+                    "(e.g. NavigationScopedContent(navBackStackEntry) { ... }) so that " +
+                    "navigationScopedInject() can resolve NavigationComponent-scoped bindings.",
+            )
     return remember(container) { container.get<T>() }
 }

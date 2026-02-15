@@ -11,67 +11,71 @@ import kotlin.test.assertTrue
 
 class ProductListViewModelTest {
     @Test
-    fun loadProductsSuccessUpdatesState() = runMainTest {
-        val products = listOf(sampleProduct(id = 1), sampleProduct(id = 2))
-        val repository = FakeProductRepository(productsResult = Result.success(products))
+    fun loadProductsSuccessUpdatesState() =
+        runMainTest {
+            val products = listOf(sampleProduct(id = 1), sampleProduct(id = 2))
+            val repository = FakeProductRepository(productsResult = Result.success(products))
 
-        val viewModel = ProductListViewModel(lazyOf(repository))
+            val viewModel = ProductListViewModel(lazyOf(repository))
 
-        assertTrue(viewModel.uiState.value.isLoading)
-        testScheduler.advanceUntilIdle()
+            assertTrue(viewModel.uiState.value.isLoading)
+            testScheduler.advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertFalse(state.isLoading)
-        assertNull(state.error)
-        assertEquals(products, state.products)
-        assertEquals(1, repository.getProductsCalls)
-    }
+            val state = viewModel.uiState.value
+            assertFalse(state.isLoading)
+            assertNull(state.error)
+            assertEquals(products, state.products)
+            assertEquals(1, repository.getProductsCalls)
+        }
 
     @Test
-    fun loadProductsNetworkErrorShowsFriendlyMessage() = runMainTest {
-        val repository =
-            FakeProductRepository(
-                productsResult = Result.failure(IllegalStateException("Unable to resolve host")),
+    fun loadProductsNetworkErrorShowsFriendlyMessage() =
+        runMainTest {
+            val repository =
+                FakeProductRepository(
+                    productsResult = Result.failure(IllegalStateException("Unable to resolve host")),
+                )
+
+            val viewModel = ProductListViewModel(lazyOf(repository))
+            testScheduler.advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertFalse(state.isLoading)
+            assertEquals(
+                "Can't reach the server. Check your internet connection and try again.",
+                state.error,
             )
-
-        val viewModel = ProductListViewModel(lazyOf(repository))
-        testScheduler.advanceUntilIdle()
-
-        val state = viewModel.uiState.value
-        assertFalse(state.isLoading)
-        assertEquals(
-            "Can't reach the server. Check your internet connection and try again.",
-            state.error,
-        )
-    }
+        }
 
     @Test
-    fun loadProductsUnknownErrorUsesMessage() = runMainTest {
-        val repository =
-            FakeProductRepository(
-                productsResult = Result.failure(IllegalArgumentException("Boom")),
-            )
+    fun loadProductsUnknownErrorUsesMessage() =
+        runMainTest {
+            val repository =
+                FakeProductRepository(
+                    productsResult = Result.failure(IllegalArgumentException("Boom")),
+                )
 
-        val viewModel = ProductListViewModel(lazyOf(repository))
-        testScheduler.advanceUntilIdle()
+            val viewModel = ProductListViewModel(lazyOf(repository))
+            testScheduler.advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertFalse(state.isLoading)
-        assertEquals("Boom", state.error)
-    }
+            val state = viewModel.uiState.value
+            assertFalse(state.isLoading)
+            assertEquals("Boom", state.error)
+        }
 
     @Test
-    fun refreshTriggersReload() = runMainTest {
-        val products = listOf(sampleProduct(id = 3))
-        val repository = FakeProductRepository(productsResult = Result.success(products))
-        val viewModel = ProductListViewModel(lazyOf(repository))
+    fun refreshTriggersReload() =
+        runMainTest {
+            val products = listOf(sampleProduct(id = 3))
+            val repository = FakeProductRepository(productsResult = Result.success(products))
+            val viewModel = ProductListViewModel(lazyOf(repository))
 
-        testScheduler.advanceUntilIdle()
-        viewModel.refresh()
-        testScheduler.advanceUntilIdle()
+            testScheduler.advanceUntilIdle()
+            viewModel.refresh()
+            testScheduler.advanceUntilIdle()
 
-        assertEquals(2, repository.getProductsCalls)
-    }
+            assertEquals(2, repository.getProductsCalls)
+        }
 
     private class FakeProductRepository(
         private val productsResult: Result<List<Product>>,

@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm")  // No version - Kotlin already on classpath from root
+    id("org.jetbrains.kotlin.jvm") // No version - Kotlin already on classpath from root
     `java-gradle-plugin`
     `maven-publish`
 }

@@ -9,24 +9,26 @@ import kotlin.test.assertEquals
 
 class ProductRepositoryImplTest {
     @Test
-    fun getProductsReturnsListFromApi() = runTest {
-        val products = listOf(sampleProduct(id = 1), sampleProduct(id = 2, title = "Second"))
-        val repository = ProductRepositoryImpl(lazyOf(FakeProductApi(products = products)))
+    fun getProductsReturnsListFromApi() =
+        runTest {
+            val products = listOf(sampleProduct(id = 1), sampleProduct(id = 2, title = "Second"))
+            val repository = ProductRepositoryImpl(lazyOf(FakeProductApi(products = products)))
 
-        val result = repository.getProducts()
+            val result = repository.getProducts()
 
-        assertEquals(products, result)
-    }
+            assertEquals(products, result)
+        }
 
     @Test
-    fun getProductReturnsSingleItem() = runTest {
-        val expected = sampleProduct(id = 42, title = "Answer")
-        val repository = ProductRepositoryImpl(lazyOf(FakeProductApi(product = expected)))
+    fun getProductReturnsSingleItem() =
+        runTest {
+            val expected = sampleProduct(id = 42, title = "Answer")
+            val repository = ProductRepositoryImpl(lazyOf(FakeProductApi(product = expected)))
 
-        val result = repository.getProduct("42")
+            val result = repository.getProduct("42")
 
-        assertEquals(expected, result)
-    }
+            assertEquals(expected, result)
+        }
 
     private class FakeProductApi(
         private val products: List<Product> = emptyList(),

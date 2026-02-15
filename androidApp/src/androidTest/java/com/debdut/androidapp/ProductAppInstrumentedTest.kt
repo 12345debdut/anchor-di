@@ -109,8 +109,7 @@ class ProductAppInstrumentedTest {
 
         override suspend fun getProducts(): List<Product> = products
 
-        override suspend fun getProduct(id: String): Product =
-            productById[id] ?: error("Missing product $id")
+        override suspend fun getProduct(id: String): Product = productById[id] ?: error("Missing product $id")
     }
 
     private class ErrorProductRepository(

@@ -7,16 +7,29 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ScopeLifetimeValidatorTest {
-
     @Test
     fun shorterLivedDependsOnLongerLived_reportsNoErrors() {
-        val bindings = listOf(
-            BindingDescriptor("com.example.Api", null, ValidationConstants.FQN_SINGLETON_COMPONENT, ValidationConstants.FQN_SINGLETON, "Api"),
-            BindingDescriptor("com.example.Repo", null, ValidationConstants.FQN_VIEW_MODEL_COMPONENT, ValidationConstants.FQN_VIEW_MODEL_SCOPED, "Repo")
-        )
-        val requirements = listOf(
-            DependencyRequirement("com.example.Api", "com.example.Repo")
-        )
+        val bindings =
+            listOf(
+                BindingDescriptor(
+                    "com.example.Api",
+                    null,
+                    ValidationConstants.FQN_SINGLETON_COMPONENT,
+                    ValidationConstants.FQN_SINGLETON,
+                    "Api",
+                ),
+                BindingDescriptor(
+                    "com.example.Repo",
+                    null,
+                    ValidationConstants.FQN_VIEW_MODEL_COMPONENT,
+                    ValidationConstants.FQN_VIEW_MODEL_SCOPED,
+                    "Repo",
+                ),
+            )
+        val requirements =
+            listOf(
+                DependencyRequirement("com.example.Api", "com.example.Repo"),
+            )
         val reporter = CollectingReporter()
         ScopeLifetimeValidator.validate(bindings, requirements, reporter)
         assertTrue(reporter.errors.isEmpty())
@@ -24,13 +37,27 @@ class ScopeLifetimeValidatorTest {
 
     @Test
     fun longerLivedDependsOnShorterLived_reportsError() {
-        val bindings = listOf(
-            BindingDescriptor("com.example.SingletonService", null, ValidationConstants.FQN_SINGLETON_COMPONENT, ValidationConstants.FQN_SINGLETON, "SingletonService"),
-            BindingDescriptor("com.example.ViewModelHelper", null, ValidationConstants.FQN_VIEW_MODEL_COMPONENT, ValidationConstants.FQN_VIEW_MODEL_SCOPED, "ViewModelHelper")
-        )
-        val requirements = listOf(
-            DependencyRequirement("com.example.ViewModelHelper", "com.example.SingletonService")
-        )
+        val bindings =
+            listOf(
+                BindingDescriptor(
+                    "com.example.SingletonService",
+                    null,
+                    ValidationConstants.FQN_SINGLETON_COMPONENT,
+                    ValidationConstants.FQN_SINGLETON,
+                    "SingletonService",
+                ),
+                BindingDescriptor(
+                    "com.example.ViewModelHelper",
+                    null,
+                    ValidationConstants.FQN_VIEW_MODEL_COMPONENT,
+                    ValidationConstants.FQN_VIEW_MODEL_SCOPED,
+                    "ViewModelHelper",
+                ),
+            )
+        val requirements =
+            listOf(
+                DependencyRequirement("com.example.ViewModelHelper", "com.example.SingletonService"),
+            )
         val reporter = CollectingReporter()
         ScopeLifetimeValidator.validate(bindings, requirements, reporter)
         assertEquals(1, reporter.errors.size)
@@ -41,13 +68,27 @@ class ScopeLifetimeValidatorTest {
 
     @Test
     fun sameScopeDependsOnSame_reportsNoErrors() {
-        val bindings = listOf(
-            BindingDescriptor("com.example.A", null, ValidationConstants.FQN_SINGLETON_COMPONENT, ValidationConstants.FQN_SINGLETON, "A"),
-            BindingDescriptor("com.example.B", null, ValidationConstants.FQN_SINGLETON_COMPONENT, ValidationConstants.FQN_SINGLETON, "B")
-        )
-        val requirements = listOf(
-            DependencyRequirement("com.example.B", "com.example.A")
-        )
+        val bindings =
+            listOf(
+                BindingDescriptor(
+                    "com.example.A",
+                    null,
+                    ValidationConstants.FQN_SINGLETON_COMPONENT,
+                    ValidationConstants.FQN_SINGLETON,
+                    "A",
+                ),
+                BindingDescriptor(
+                    "com.example.B",
+                    null,
+                    ValidationConstants.FQN_SINGLETON_COMPONENT,
+                    ValidationConstants.FQN_SINGLETON,
+                    "B",
+                ),
+            )
+        val requirements =
+            listOf(
+                DependencyRequirement("com.example.B", "com.example.A"),
+            )
         val reporter = CollectingReporter()
         ScopeLifetimeValidator.validate(bindings, requirements, reporter)
         assertTrue(reporter.errors.isEmpty())
@@ -55,12 +96,20 @@ class ScopeLifetimeValidatorTest {
 
     @Test
     fun missingRequiredBinding_skipped() {
-        val bindings = listOf(
-            BindingDescriptor("com.example.Requester", null, ValidationConstants.FQN_SINGLETON_COMPONENT, null, "Requester")
-        )
-        val requirements = listOf(
-            DependencyRequirement("com.example.Missing", "com.example.Requester")
-        )
+        val bindings =
+            listOf(
+                BindingDescriptor(
+                    "com.example.Requester",
+                    null,
+                    ValidationConstants.FQN_SINGLETON_COMPONENT,
+                    null,
+                    "Requester",
+                ),
+            )
+        val requirements =
+            listOf(
+                DependencyRequirement("com.example.Missing", "com.example.Requester"),
+            )
         val reporter = CollectingReporter()
         ScopeLifetimeValidator.validate(bindings, requirements, reporter)
         assertTrue(reporter.errors.isEmpty())

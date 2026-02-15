@@ -1,7 +1,6 @@
 package com.debdut.anchordi.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
@@ -66,7 +65,7 @@ val LocalNavViewModelScope = compositionLocalOf<AnchorContainer?> { null }
 fun <Entry : Any> NavScopeContainer(
     backStack: List<Entry>,
     scopeKeyForEntry: (Entry) -> Any,
-    content: @Composable NavScope<Entry>.() -> Unit = {}
+    content: @Composable NavScope<Entry>.() -> Unit = {},
 ) {
     val navScope = NavScopeImpl(scopeKeyForEntry)
     val previousKeys = remember { mutableSetOf<Any>() }
@@ -87,12 +86,13 @@ fun <Entry : Any> NavScopeContainer(
  */
 @Composable
 inline fun <reified T : Any> navigationScopedInject(): T {
-    val container = LocalNavigationScope.current
-        ?: error(
-            "Navigation scope is not available. Wrap destination content in NavigationScopedContent " +
-                "(e.g. NavigationScopedContent(scopeKey) { ... }) so that " +
-                "navigationScopedInject() can resolve NavigationComponent-scoped bindings."
-        )
+    val container =
+        LocalNavigationScope.current
+            ?: error(
+                "Navigation scope is not available. Wrap destination content in NavigationScopedContent " +
+                    "(e.g. NavigationScopedContent(scopeKey) { ... }) so that " +
+                    "navigationScopedInject() can resolve NavigationComponent-scoped bindings.",
+            )
     return remember(container) { container.get<T>() }
 }
 
@@ -106,10 +106,11 @@ inline fun <reified T : Any> navigationScopedInject(): T {
  */
 @Composable
 inline fun <reified T : ViewModel> navViewModelAnchor(): T {
-    val container = LocalNavViewModelScope.current
-        ?: error(
-            "Navigation ViewModel scope is not available. Wrap destination content in NavigationScopedContent " +
-                "(e.g. NavigationScopedContent(scopeKey) { ... }) so that navViewModelAnchor() can resolve ViewModels."
-        )
+    val container =
+        LocalNavViewModelScope.current
+            ?: error(
+                "Navigation ViewModel scope is not available. Wrap destination content in NavigationScopedContent " +
+                    "(e.g. NavigationScopedContent(scopeKey) { ... }) so that navViewModelAnchor() can resolve ViewModels.",
+            )
     return remember(container) { container.get<T>() }
 }

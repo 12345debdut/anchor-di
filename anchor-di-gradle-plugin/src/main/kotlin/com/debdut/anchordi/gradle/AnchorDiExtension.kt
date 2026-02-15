@@ -1,7 +1,6 @@
 package com.debdut.anchordi.gradle
 
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 
 /**
  * Extension for configuring the Anchor DI Gradle plugin.
@@ -11,7 +10,6 @@ import org.gradle.api.provider.Provider
 abstract class AnchorDiExtension(
     private val project: org.gradle.api.Project,
 ) {
-
     /**
      * Module ID for multi-module projects. When set, KSP will generate
      * `AnchorGenerated_<moduleId>` instead of `AnchorGenerated`.
@@ -41,10 +39,13 @@ abstract class AnchorDiExtension(
                     v != "unspecified" -> v
                     else -> {
                         val rootV = project.rootProject.version.toString()
-                        if (rootV != "unspecified") rootV
-                        else project.rootProject.findProperty("LIBRARY_VERSION")?.toString()
-                            ?: project.findProperty("LIBRARY_VERSION")?.toString()
-                            ?: "0.1.0"
+                        if (rootV != "unspecified") {
+                            rootV
+                        } else {
+                            project.rootProject.findProperty("LIBRARY_VERSION")?.toString()
+                                ?: project.findProperty("LIBRARY_VERSION")?.toString()
+                                ?: "0.1.0"
+                        }
                     }
                 }
             },

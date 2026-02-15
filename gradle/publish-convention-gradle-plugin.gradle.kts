@@ -15,7 +15,9 @@ version = libraryVersion
 
 val pomName: String = project.findProperty("POM_NAME") as? String ?: "Anchor DI"
 val pomDescription: String =
-    project.findProperty("POM_DESCRIPTION") as? String ?: "Gradle plugin for Anchor DI - compile-time dependency injection for Kotlin Multiplatform."
+    project.findProperty(
+        "POM_DESCRIPTION",
+    ) as? String ?: "Gradle plugin for Anchor DI - compile-time dependency injection for Kotlin Multiplatform."
 val pomUrl: String = project.findProperty("POM_URL") as? String ?: "https://github.com/12345debdut/anchor-di"
 val pomScmUrl: String = project.findProperty("POM_SCM_URL") as? String ?: pomUrl
 val pomScmConnection: String = project.findProperty("POM_SCM_CONNECTION") as? String ?: "scm:git:git://github.com/12345debdut/anchor-di.git"
@@ -40,9 +42,12 @@ val signingPassword: String? =
 val keyFilePath: String? = root.findProperty("signing.keyFile") as? String ?: root.findProperty("signing.secretKeyRingFile") as? String
 val keyFileAbsolutePath: String? =
     keyFilePath?.let { path ->
-        val normalized = if (path.startsWith("~")) {
-            System.getProperty("user.home", "").trimEnd('/') + path.drop(1)
-        } else path
+        val normalized =
+            if (path.startsWith("~")) {
+                System.getProperty("user.home", "").trimEnd('/') + path.drop(1)
+            } else {
+                path
+            }
         val file = java.io.File(normalized)
         if (file.exists()) file.absolutePath else null
     }
@@ -67,9 +72,10 @@ val sonatypeUsername: String? =
 val sonatypePassword: String? =
     project.findProperty("SONATYPE_PASSWORD") as? String ?: System.getenv("ORG_GRADLE_PROJECT_SONATYPE_PASSWORD")?.ifBlank { null }
 
-val emptyJavadocJar = project.tasks.register<Jar>("emptyJavadocJar") {
-    archiveClassifier.set("javadoc")
-}
+val emptyJavadocJar =
+    project.tasks.register<Jar>("emptyJavadocJar") {
+        archiveClassifier.set("javadoc")
+    }
 
 project.extensions.configure<org.gradle.api.publish.PublishingExtension> {
     repositories {
@@ -130,9 +136,10 @@ if (hasSigningKey) {
             signingExt.sign(project.extensions.getByType<org.gradle.api.publish.PublishingExtension>().publications)
         }
         val signTasks = project.tasks.matching { it.name.startsWith("sign") && it.name.endsWith("Publication") }
-        val publishToRepoTasks = project.tasks.withType<org.gradle.api.Task>().matching {
-            it.name.startsWith("publish") && it.name.contains("PublicationTo") && it.name.endsWith("Repository")
-        }
+        val publishToRepoTasks =
+            project.tasks.withType<org.gradle.api.Task>().matching {
+                it.name.startsWith("publish") && it.name.contains("PublicationTo") && it.name.endsWith("Repository")
+            }
         publishToRepoTasks.configureEach { dependsOn(signTasks) }
     }
 }
