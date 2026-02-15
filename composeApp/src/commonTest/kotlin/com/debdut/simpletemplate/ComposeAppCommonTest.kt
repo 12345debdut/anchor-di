@@ -1,11 +1,15 @@
 package com.debdut.simpletemplate
 
 import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-class ComposeAppCommonTest {
+class GreetingTest {
     @Test
-    fun example() {
-        assertEquals(3, 1 + 2)
+    fun greetIncludesPlatformName() {
+        val greeting = Greeting().greet()
+        val platformName = getPlatform().name
+
+        assertTrue(greeting.startsWith("Hello, "))
+        assertTrue(greeting.contains(platformName))
     }
 }

@@ -30,7 +30,26 @@ Anchor DI is a **compile-time** DI framework for KMP. It uses **KSP (Kotlin Symb
 
 ## Quick Start
 
-### 1. Add dependencies
+### Option A: Gradle Plugin (recommended)
+
+The Anchor DI Gradle plugin automates KSP setup, dependencies, and configuration:
+
+```kotlin
+// build.gradle.kts (shared module)
+plugins {
+    kotlin("multiplatform")
+    id("com.debdut.anchordi") version "x.x.x"
+}
+
+anchorDi {
+    moduleId.set("myapp")      // For multi-module; optional
+    includeCompose.set(true)  // Add anchor-di-compose; default true
+}
+```
+
+The plugin applies KSP, adds `anchor-di-api`, `anchor-di-core`, `anchor-di-compose`, and KSP processor dependencies for all configured targets (Android, JVM, iOS, Wasm).
+
+### Option B: Manual setup
 
 ```kotlin
 // build.gradle.kts (shared module)
@@ -49,6 +68,8 @@ dependencies {
     add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:x.x.x")
     add("kspIosSimulatorArm64", "io.github.12345debdut:anchor-di-ksp:x.x.x")
 }
+
+// For multi-module: ksp { arg("anchorDiModuleId", "myapp") }
 ```
 
 ### 2. Define and inject
@@ -86,9 +107,9 @@ Call once in `Application.onCreate()` (Android), your app entry (iOS), or before
 
 | Setup | Dependencies |
 |-------|--------------|
-| **KMP + Compose** | `anchor-di-api`, `anchor-di-core`, `anchor-di-compose`, `anchor-di-ksp` |
-| **KMP without Compose** | `anchor-di-api`, `anchor-di-core`, optionally `anchor-di-presentation`, `anchor-di-android` |
-| **Multi-module** | Add `anchorDiModuleId` per module; aggregate contributors in your app |
+| **KMP + Compose** | Use plugin with `includeCompose.set(true)` (default), or add `anchor-di-api`, `anchor-di-core`, `anchor-di-compose`, `anchor-di-ksp` manually |
+| **KMP without Compose** | Use plugin with `includeCompose.set(false)`, or add `anchor-di-api`, `anchor-di-core`, optionally `anchor-di-presentation`, `anchor-di-android` |
+| **Multi-module** | Use `anchorDi { moduleId.set("modulename") }` per module; aggregate contributors in your app |
 
 **Prerequisites:** Kotlin 1.9+, KSP 2.3+, Gradle 8+
 

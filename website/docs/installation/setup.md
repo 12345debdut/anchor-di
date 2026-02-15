@@ -4,7 +4,32 @@ sidebar_position: 1
 
 # Installation Setup
 
-This page walks you through adding Anchor DI to your Kotlin Multiplatform project step by step. Whether you're starting a new project or adding to an existing one, follow these steps to get Anchor DI running.
+This page walks you through adding Anchor DI to your Kotlin Multiplatform project. You can use the **Gradle plugin** (recommended) for one-step setup, or configure dependencies manually.
+
+---
+
+## Option A: Gradle Plugin (Recommended)
+
+The [Anchor DI Gradle plugin](gradle-plugin) automates KSP, dependencies, and configuration:
+
+```kotlin
+// build.gradle.kts (shared module)
+plugins {
+    kotlin("multiplatform")
+    id("com.debdut.anchordi") version "x.x.x"
+}
+
+anchorDi {
+    moduleId.set("myapp")      // For multi-module; optional
+    includeCompose.set(true)   // Default true
+}
+```
+
+See **[Gradle Plugin](gradle-plugin)** for full configuration options. Then skip to [Step 3: Initialize at Startup](#step-3-initialize-at-startup).
+
+---
+
+## Option B: Manual Setup
 
 ---
 
@@ -22,7 +47,7 @@ If you're new to KMP, create a project using the [Kotlin Multiplatform Wizard](h
 
 ---
 
-## Step 1: Add the KSP Plugin
+## Step 1: Add the KSP Plugin (Manual)
 
 KSP (Kotlin Symbol Processing) is required for Anchor DI to generate code at compile time. Add the KSP plugin to your project.
 

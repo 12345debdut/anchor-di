@@ -18,9 +18,25 @@ Each module that has `@Inject` classes or `@Module` classes needs to generate a 
 
 ---
 
-## Step 1: Per-Module KSP Option
+## Step 1: Per-Module Configuration
 
-In each feature or shared module that has DI bindings, add the KSP plugin and the **module ID** option:
+In each feature or shared module that has DI bindings, configure the **module ID**.
+
+### Using the Gradle Plugin (Recommended)
+
+```kotlin
+// feature-auth/build.gradle.kts
+plugins {
+    kotlin("multiplatform")
+    id("com.debdut.anchordi") version "x.x.x"
+}
+
+anchorDi {
+    moduleId.set("auth")
+}
+```
+
+### Manual Setup
 
 ```kotlin
 // feature-auth/build.gradle.kts

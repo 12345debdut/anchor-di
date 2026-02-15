@@ -4,6 +4,23 @@
 
 ### 1. Add dependencies
 
+**Option A: Gradle Plugin (recommended)**
+
+```kotlin
+// build.gradle.kts
+plugins {
+    kotlin("multiplatform")
+    id("com.debdut.anchordi") version "x.x.x"
+}
+
+anchorDi {
+    moduleId.set("myapp")      // For multi-module; optional
+    includeCompose.set(true)  // Default true
+}
+```
+
+**Option B: Manual**
+
 ```kotlin
 // build.gradle.kts
 plugins {

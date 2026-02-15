@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.androidKmpLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.anchorDi)
     alias(libs.plugins.kotlinSerialization)
 }
 
@@ -51,9 +51,6 @@ kotlin {
             implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
-            implementation(project(":anchor-di-api"))
-            implementation(project(":anchor-di-core"))
-            implementation(project(":anchor-di-compose"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
@@ -70,17 +67,9 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
-}
-
-dependencies {
-    add("kspCommonMainMetadata", project(":anchor-di-ksp"))
-    add("kspAndroid", project(":anchor-di-ksp"))
-    add("kspJvm", project(":anchor-di-ksp"))
-    add("kspWasmJs", project(":anchor-di-ksp"))
-    add("kspIosArm64", project(":anchor-di-ksp"))
-    add("kspIosSimulatorArm64", project(":anchor-di-ksp"))
 }
 
 compose.desktop {
@@ -89,8 +78,8 @@ compose.desktop {
     }
 }
 
-// For multi-module projects: set anchorDiModuleId so each module generates a unique contributor.
-// Then combine in getAnchorContributors: arrayOf(AnchorGenerated_composeapp, AnchorGenerated_featureX)
-ksp {
-    arg("anchorDiModuleId", "composeapp")
+// Anchor DI plugin configures: KSP, anchor-di-api, anchor-di-core, anchor-di-compose,
+// KSP dependencies per target, and anchorDiModuleId for multi-module.
+anchorDi {
+    moduleId.set("composeapp")
 }

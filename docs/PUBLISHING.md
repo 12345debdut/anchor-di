@@ -203,7 +203,13 @@ The root `build.gradle.kts` applies the publish convention to:
 - **anchor-di-compose**
 - **anchor-di-presentation**
 
-Each is published with coordinates:
+The **Anchor DI Gradle plugin** is published separately with **`gradle/publish-convention-gradle-plugin.gradle.kts`** (applied from `anchor-di-gradle-plugin/build.gradle.kts`):
+
+- **anchor-di-gradle-plugin** — Group: **`com.debdut.anchordi`** (required for plugin id resolution), Artifact: `com.debdut.anchordi.gradle.plugin`, Version: `LIBRARY_VERSION`
+
+**Namespace:** The plugin must be under group `com.debdut.anchordi` so Gradle can resolve `id("com.debdut.anchordi")`. Ensure the namespace **`com.debdut`** (or `com.debdut.anchordi` if your portal allows it) is verified in the [Central Publisher Portal](https://central.sonatype.com/publishing/namespaces).
+
+Library modules use:
 
 - **Group:** `LIBRARY_GROUP` (e.g. `io.github.12345debdut`)
 - **Artifact:** module name (e.g. `anchor-di-api`, `anchor-di-api-jvm`, `anchor-di-api-android`, …)
@@ -228,6 +234,15 @@ Each is published with coordinates:
 
 - **Per-module:**  
   `./gradlew :anchor-di-api:publishKotlinMultiplatformPublicationToSonatypeRepository` (and similar for other publications).
+
+- **Gradle plugin only (to Maven Central):**
+  ```bash
+  ./gradlew :anchor-di-gradle-plugin:publishAllPublicationsToSonatypeRepository
+  ```
+  Or the plugin marker and main artifact separately:
+  `./gradlew :anchor-di-gradle-plugin:publishPluginMavenPublicationToSonatypeRepository`
+  and
+  `./gradlew :anchor-di-gradle-plugin:publishAnchorDiPluginMarkerMavenPublicationToSonatypeRepository`
 
 ---
 
@@ -301,14 +316,16 @@ Replace `x.x.x` with the published version (see README for single source of vers
 
 ---
 
-## 8. Convention plugin
+## 8. Convention scripts
 
-The logic lives in **`buildSrc/src/main/kotlin/publish-convention.gradle.kts`** (precompiled script plugin, Gradle 10–compatible):
+**Library modules:** The logic lives in **`gradle/publish-convention.gradle.kts`**:
 
 - Sets **group** and **version** from `LIBRARY_GROUP` / `LIBRARY_VERSION`.
 - Applies **maven-publish** and **signing**.
 - Adds the **Central Publisher Portal** (OSSRH Staging API) and **Maven Local** repositories.
 - Configures **POM** (name, description, URL, license, developers, SCM) for all Maven publications.
 - **Signs** all publications when a key is configured (file or in-memory); skips signing when no key is set so that `publishToMavenLocal` works without GPG.
+
+**Gradle plugin:** **`gradle/publish-convention-gradle-plugin.gradle.kts`** does the same (Sonatype repo, signing, POM, javadoc) for the plugin project but keeps **group** as `com.debdut.anchordi` and uses **version** from `LIBRARY_VERSION`.
 
 To change default group, version, or POM metadata, edit **`gradle.properties`** or override via `-P` / environment.

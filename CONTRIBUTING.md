@@ -15,6 +15,7 @@ Thank you for your interest in contributing. This document covers how to run the
 ## Building and running
 
 - **Build all:** `./gradlew build`
+- **Gradle plugin (composeApp uses it):** Publish to Maven Local first: `./gradlew :anchor-di-gradle-plugin:publishToMavenLocal`. Then build the rest.
 - **Run sample app (desktop):** `./gradlew :composeApp:run`
 - **Android:** Open in Android Studio and run `androidApp` or `composeApp` (Compose UI).
 - **iOS:** Open `iosApp/` in Xcode; build and run. Ensure the Kotlin framework is built first (e.g. run the Compose framework Gradle task).
@@ -41,6 +42,7 @@ Run all library tests: `./gradlew :anchor-di-core:test :anchor-di-ksp:test`
   - **anchor-di-ksp:** Symbol processing and codegen; JVM-only.
   - **anchor-di-compose:** Compose helpers (`anchorInject`, `viewModelAnchor`).
   - **anchor-di-presentation:** Presentation-scoped DI (`NavScopeContainer`, `NavigationScopedContent`, disposal when popped).
+  - **anchor-di-gradle-plugin:** Gradle plugin that automates KSP setup and dependencies.
 
 ---
 

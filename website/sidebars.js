@@ -33,6 +33,7 @@ const sidebars = {
       },
       items: [
         'installation/setup',
+        'installation/gradle-plugin',
         'installation/kmp-compose',
         'installation/kmp-without-compose',
         'installation/multi-module',

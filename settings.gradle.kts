@@ -3,6 +3,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
     repositories {
+        mavenLocal()
         google {
             mavenContent {
                 includeGroupAndSubgroups("androidx")
@@ -37,5 +38,6 @@ include(":anchor-di-android")
 include(":anchor-di-presentation")
 include(":anchor-di-compose")
 include(":anchor-di-ksp")
+include(":anchor-di-gradle-plugin")
 include(":composeApp")
 include(":androidApp")

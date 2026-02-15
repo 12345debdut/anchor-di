@@ -15,6 +15,24 @@ This page walks you through a **minimal Anchor DI setup** in four steps. You'll 
 
 Add Anchor DI to your **shared module** (the one with `commonMain`). If you use Compose Multiplatform for UI, add `anchor-di-compose` as well.
 
+### Using the Gradle Plugin (Recommended)
+
+```kotlin
+// build.gradle.kts (shared module)
+plugins {
+    kotlin("multiplatform")
+    id("com.debdut.anchordi") version "x.x.x"
+}
+
+anchorDi {
+    includeCompose.set(true)  // For Compose
+}
+```
+
+See [Gradle Plugin](../installation/gradle-plugin) for full options.
+
+### Manual Setup
+
 ```kotlin
 // build.gradle.kts (shared module or project)
 plugins {

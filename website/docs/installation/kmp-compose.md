@@ -6,7 +6,23 @@ Use Anchor DI in a **Kotlin Multiplatform** project with **Compose Multiplatform
 
 ## Dependencies
 
-Add these dependencies to your shared module (the one with `commonMain` and Compose):
+### Using the Gradle Plugin (Recommended)
+
+```kotlin
+// shared/build.gradle.kts
+plugins {
+    kotlin("multiplatform")
+    id("com.debdut.anchordi") version "x.x.x"
+}
+
+anchorDi {
+    includeCompose.set(true)  // default
+}
+```
+
+See [Gradle Plugin](gradle-plugin) for details.
+
+### Manual Setup
 
 ```kotlin
 // shared/build.gradle.kts (or your compose module)
