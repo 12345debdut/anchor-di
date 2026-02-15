@@ -10,7 +10,7 @@
 // build.gradle.kts
 plugins {
     kotlin("multiplatform")
-    id("com.debdut.anchordi") version "x.x.x"
+    id("io.github.12345debdut.anchordi") version "x.x.x"
 }
 
 anchorDi {

@@ -16,7 +16,7 @@ Add the plugin to your shared module (the one with `commonMain`):
 // build.gradle.kts (shared module)
 plugins {
     kotlin("multiplatform")
-    id("com.debdut.anchordi") version "x.x.x"
+    id("io.github.12345debdut.anchordi") version "x.x.x"
 }
 
 anchorDi {
@@ -67,7 +67,7 @@ In each module that contributes DI bindings, set a unique `moduleId`:
 // feature-auth/build.gradle.kts
 plugins {
     kotlin("multiplatform")
-    id("com.debdut.anchordi") version "x.x.x"
+    id("io.github.12345debdut.anchordi") version "x.x.x"
 }
 
 anchorDi {
@@ -86,7 +86,7 @@ If you use a [Gradle version catalog](https://docs.gradle.org/current/userguide/
 ```toml
 # gradle/libs.versions.toml
 [plugins]
-anchorDi = { id = "com.debdut.anchordi", version = "x.x.x" }
+anchorDi = { id = "io.github.12345debdut.anchordi", version = "x.x.x" }
 ```
 
 Then in your module:

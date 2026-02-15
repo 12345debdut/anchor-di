@@ -38,7 +38,7 @@ The Anchor DI Gradle plugin automates KSP setup, dependencies, and configuration
 // build.gradle.kts (shared module)
 plugins {
     kotlin("multiplatform")
-    id("com.debdut.anchordi") version "x.x.x"
+    id("io.github.12345debdut.anchordi") version "x.x.x"
 }
 
 anchorDi {

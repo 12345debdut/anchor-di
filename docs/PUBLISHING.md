@@ -205,9 +205,9 @@ The root `build.gradle.kts` applies the publish convention to:
 
 The **Anchor DI Gradle plugin** is published separately with **`gradle/publish-convention-gradle-plugin.gradle.kts`** (applied from `anchor-di-gradle-plugin/build.gradle.kts`):
 
-- **anchor-di-gradle-plugin** — Group: **`com.debdut.anchordi`** (required for plugin id resolution), Artifact: `com.debdut.anchordi.gradle.plugin`, Version: `LIBRARY_VERSION`
+- **anchor-di-gradle-plugin** — Group: **`io.github.12345debdut`** (verified namespace), Plugin id: `io.github.12345debdut.anchordi`, Artifact: `io.github.12345debdut.anchordi.gradle.plugin`, Version: `LIBRARY_VERSION`
 
-**Namespace:** The plugin must be under group `com.debdut.anchordi` so Gradle can resolve `id("com.debdut.anchordi")`. Ensure the namespace **`com.debdut`** (or `com.debdut.anchordi` if your portal allows it) is verified in the [Central Publisher Portal](https://central.sonatype.com/publishing/namespaces).
+**Namespace:** The plugin is published under `io.github.12345debdut` so it resolves with `id("io.github.12345debdut.anchordi")`. Ensure the namespace **`io.github.12345debdut`** is verified in the [Central Publisher Portal](https://central.sonatype.com/publishing/namespaces).
 
 Library modules use:
 
@@ -326,6 +326,6 @@ Replace `x.x.x` with the published version (see README for single source of vers
 - Configures **POM** (name, description, URL, license, developers, SCM) for all Maven publications.
 - **Signs** all publications when a key is configured (file or in-memory); skips signing when no key is set so that `publishToMavenLocal` works without GPG.
 
-**Gradle plugin:** **`gradle/publish-convention-gradle-plugin.gradle.kts`** does the same (Sonatype repo, signing, POM, javadoc) for the plugin project but keeps **group** as `com.debdut.anchordi` and uses **version** from `LIBRARY_VERSION`.
+**Gradle plugin:** **`gradle/publish-convention-gradle-plugin.gradle.kts`** does the same (Sonatype repo, signing, POM, javadoc) for the plugin project; **group** is `io.github.12345debdut` and **version** from `LIBRARY_VERSION`.
 
 To change default group, version, or POM metadata, edit **`gradle.properties`** or override via `-P` / environment.

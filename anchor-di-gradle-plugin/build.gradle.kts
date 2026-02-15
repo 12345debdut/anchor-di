@@ -4,16 +4,15 @@ plugins {
     `maven-publish`
 }
 
-// Group must be 'com.debdut.anchordi' so Gradle can resolve plugin id("com.debdut.anchordi")
-// as com.debdut.anchordi:com.debdut.anchordi.gradle.plugin
-group = "com.debdut.anchordi"
+// Group must match plugin id prefix so Gradle resolves from Maven Central (verified namespace).
+group = "io.github.12345debdut"
 version = project.findProperty("LIBRARY_VERSION")?.toString()
     ?: project.findProperty("VERSION")?.toString() ?: "0.1.0"
 
 gradlePlugin {
     plugins {
         create("anchorDi") {
-            id = "com.debdut.anchordi"
+            id = "io.github.12345debdut.anchordi"
             displayName = "Anchor DI"
             description = "Gradle plugin for Anchor DI - compile-time dependency injection for Kotlin Multiplatform"
             implementationClass = "com.debdut.anchordi.gradle.AnchorDiPlugin"

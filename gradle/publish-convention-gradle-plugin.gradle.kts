@@ -136,10 +136,10 @@ if (hasSigningKey) {
             signingExt.sign(project.extensions.getByType<org.gradle.api.publish.PublishingExtension>().publications)
         }
         val signTasks = project.tasks.matching { it.name.startsWith("sign") && it.name.endsWith("Publication") }
-        val publishToRepoTasks =
+        val publishTasks =
             project.tasks.withType<org.gradle.api.Task>().matching {
-                it.name.startsWith("publish") && it.name.contains("PublicationTo") && it.name.endsWith("Repository")
+                it.name.startsWith("publish") && it.name.contains("PublicationTo")
             }
-        publishToRepoTasks.configureEach { dependsOn(signTasks) }
+        publishTasks.configureEach { dependsOn(signTasks) }
     }
 }

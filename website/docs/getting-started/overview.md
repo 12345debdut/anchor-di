@@ -88,7 +88,7 @@ Anchor DI is split into multiple artifacts so you only include what you need:
 | `anchor-di-android` | `ActivityScope` and Android-specific helpers. | When you need Activity-scoped DI on Android (with or without Compose). |
 | `anchor-di-presentation` | `NavigationScopeRegistry` (Compose-free). | When you use KMP without Compose but need navigation-scoped DI (e.g. SwiftUI, Views). |
 
-**Typical setup for Compose Multiplatform:** Use the [Gradle plugin](../installation/gradle-plugin) (`id("com.debdut.anchordi")`), or add `anchor-di-api` + `anchor-di-core` + `anchor-di-compose` + `anchor-di-ksp` manually.
+**Typical setup for Compose Multiplatform:** Use the [Gradle plugin](../installation/gradle-plugin) (`id("io.github.12345debdut.anchordi")`), or add `anchor-di-api` + `anchor-di-core` + `anchor-di-compose` + `anchor-di-ksp` manually.
 
 ---
 
