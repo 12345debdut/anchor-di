@@ -1,0 +1,417 @@
+public final class com/debdut/anchordi/ksp/AnchorSymbolProcessor : com/google/devtools/ksp/processing/SymbolProcessor {
+	public static final field Companion Lcom/debdut/anchordi/ksp/AnchorSymbolProcessor$Companion;
+	public fun <init> (Lcom/google/devtools/ksp/processing/CodeGenerator;Lcom/google/devtools/ksp/processing/KSPLogger;Ljava/util/Map;)V
+	public synthetic fun <init> (Lcom/google/devtools/ksp/processing/CodeGenerator;Lcom/google/devtools/ksp/processing/KSPLogger;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun finish ()V
+	public fun onError ()V
+	public fun process (Lcom/google/devtools/ksp/processing/Resolver;)Ljava/util/List;
+}
+
+public final class com/debdut/anchordi/ksp/AnchorSymbolProcessor$Companion {
+}
+
+public final class com/debdut/anchordi/ksp/AnchorSymbolProcessorProvider : com/google/devtools/ksp/processing/SymbolProcessorProvider {
+	public fun <init> ()V
+	public fun create (Lcom/google/devtools/ksp/processing/SymbolProcessorEnvironment;)Lcom/google/devtools/ksp/processing/SymbolProcessor;
+}
+
+public final class com/debdut/anchordi/ksp/KspUtils {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/KspUtils;
+	public final fun getAnnotationStringValue (Lcom/google/devtools/ksp/symbol/KSAnnotation;I)Ljava/lang/String;
+	public static synthetic fun getAnnotationStringValue$default (Lcom/debdut/anchordi/ksp/KspUtils;Lcom/google/devtools/ksp/symbol/KSAnnotation;IILjava/lang/Object;)Ljava/lang/String;
+	public final fun getScopedClassName (Lcom/google/devtools/ksp/symbol/KSAnnotation;)Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/KspUtilsKt {
+	public static final fun findAnnotation (Lcom/google/devtools/ksp/symbol/KSAnnotated;Ljava/lang/String;)Lcom/google/devtools/ksp/symbol/KSAnnotation;
+	public static final fun hasAnnotation (Lcom/google/devtools/ksp/symbol/KSAnnotated;Ljava/lang/String;)Z
+}
+
+public final class com/debdut/anchordi/ksp/analysis/AnchorDiModelBuilder {
+	public static final field Companion Lcom/debdut/anchordi/ksp/analysis/AnchorDiModelBuilder$Companion;
+	public fun <init> (Lcom/google/devtools/ksp/processing/Resolver;)V
+	public final fun buildBindings (Ljava/util/List;Ljava/util/List;)Ljava/util/List;
+	public final fun buildComponents ()Ljava/util/Map;
+	public final fun buildDependencyGraph (Ljava/util/List;Ljava/util/List;)Ljava/util/Map;
+	public final fun buildInjectClassDescriptors (Ljava/util/List;)Ljava/util/List;
+	public final fun buildModuleDescriptors (Ljava/util/List;)Ljava/util/List;
+	public final fun buildProvidedKeysAndRequirements (Ljava/util/List;Ljava/util/List;)Lkotlin/Pair;
+	public final fun getBindsImplComponentMap (Ljava/util/List;)Ljava/util/Map;
+	public final fun getBindsImplModuleMap (Ljava/util/List;)Ljava/util/Map;
+	public final fun getComponentScopeIdFromInstallIn (Lcom/google/devtools/ksp/symbol/KSAnnotation;)Ljava/lang/String;
+	public final fun resolveParameterType (Lcom/google/devtools/ksp/symbol/KSValueParameter;)Lkotlin/Triple;
+}
+
+public final class com/debdut/anchordi/ksp/analysis/AnchorDiModelBuilder$Companion {
+}
+
+public final class com/debdut/anchordi/ksp/analysis/ComponentResolution {
+	public static final field FQN_COMPONENT Ljava/lang/String;
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/analysis/ComponentResolution;
+	public final fun discoverComponentDescriptors (Lcom/google/devtools/ksp/processing/Resolver;)Ljava/util/Map;
+	public final fun discoverComponentFqns (Lcom/google/devtools/ksp/processing/Resolver;)Ljava/util/Set;
+	public final fun isComponent (Lcom/google/devtools/ksp/symbol/KSClassDeclaration;)Z
+}
+
+public final class com/debdut/anchordi/ksp/codegen/AnchorDiCodeGenerator {
+	public static final field Companion Lcom/debdut/anchordi/ksp/codegen/AnchorDiCodeGenerator$Companion;
+	public fun <init> (Lcom/debdut/anchordi/ksp/analysis/AnchorDiModelBuilder;)V
+	public final fun buildGroupedRegistrations (Ljava/util/List;Ljava/util/List;)Ljava/util/Map;
+	public final fun generateAggregatorFile (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)Ljava/lang/String;
+	public final fun generateAllFiles (Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/lang/String;)Ljava/util/List;
+	public final fun generateAnchorContributor (Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/lang/String;)Ljava/lang/String;
+	public final fun generateContributorFile (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)Ljava/lang/String;
+	public final fun generateFactoriesFile (Ljava/lang/String;Ljava/util/List;)Ljava/lang/String;
+	public final fun groupInjectClassesByModule (Ljava/util/List;Ljava/util/List;)Ljava/util/Map;
+}
+
+public final class com/debdut/anchordi/ksp/codegen/AnchorDiCodeGenerator$Companion {
+}
+
+public final class com/debdut/anchordi/ksp/codegen/GeneratedFile {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/debdut/anchordi/ksp/codegen/GeneratedFile;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/ksp/codegen/GeneratedFile;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/debdut/anchordi/ksp/codegen/GeneratedFile;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContent ()Ljava/lang/String;
+	public final fun getFileName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/codegen/GroupedRegistrationsKt {
+	public static final fun componentIdToFileSuffix (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/model/BindingDescriptor {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/debdut/anchordi/ksp/model/BindingDescriptor;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/ksp/model/BindingDescriptor;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/debdut/anchordi/ksp/model/BindingDescriptor;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getComponent ()Ljava/lang/String;
+	public final fun getKey ()Ljava/lang/String;
+	public final fun getMapKey ()Ljava/lang/String;
+	public final fun getMultibindingKind ()Ljava/lang/String;
+	public final fun getQualifier ()Ljava/lang/String;
+	public final fun getScope ()Ljava/lang/String;
+	public final fun getSource ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/model/BindsMethodDescriptor {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;I)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()I
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;I)Lcom/debdut/anchordi/ksp/model/BindsMethodDescriptor;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/ksp/model/BindsMethodDescriptor;Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)Lcom/debdut/anchordi/ksp/model/BindsMethodDescriptor;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMethodName ()Ljava/lang/String;
+	public final fun getModuleName ()Ljava/lang/String;
+	public final fun getParameterCount ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/model/ComponentDescriptor {
+	public fun <init> (Ljava/lang/String;Ljava/util/Set;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/Set;
+	public final fun copy (Ljava/lang/String;Ljava/util/Set;)Lcom/debdut/anchordi/ksp/model/ComponentDescriptor;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/ksp/model/ComponentDescriptor;Ljava/lang/String;Ljava/util/Set;ILjava/lang/Object;)Lcom/debdut/anchordi/ksp/model/ComponentDescriptor;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDependencies ()Ljava/util/Set;
+	public final fun getFqn ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/model/DependencyRequirement {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/debdut/anchordi/ksp/model/DependencyRequirement;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/ksp/model/DependencyRequirement;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/debdut/anchordi/ksp/model/DependencyRequirement;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRequester ()Ljava/lang/String;
+	public final fun getRequiredType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/model/ModuleDescriptor {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Z
+	public final fun component4 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;)Lcom/debdut/anchordi/ksp/model/ModuleDescriptor;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/ksp/model/ModuleDescriptor;Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;ILjava/lang/Object;)Lcom/debdut/anchordi/ksp/model/ModuleDescriptor;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBindsMethods ()Ljava/util/List;
+	public final fun getHasProvidesOrBinds ()Z
+	public final fun getInstallInComponentFqn ()Ljava/lang/String;
+	public final fun getModuleName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/validation/AnchorDiValidator {
+	public fun <init> (Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+	public final fun validateAll (Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;Ljava/util/Map;)V
+	public final fun validateSymbols (Ljava/util/List;Ljava/util/List;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/AnchorViewModelValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/AnchorViewModelValidator;
+	public final fun validate (Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/BindsImplementationValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/BindsImplementationValidator;
+	public final fun validate (Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/CollectingReporter : com/debdut/anchordi/ksp/validation/ValidationReporter {
+	public fun <init> ()V
+	public fun error (Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun getErrors ()Ljava/util/List;
+	public final fun getWarnings ()Ljava/util/List;
+	public fun warn (Ljava/lang/String;Ljava/lang/Object;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/CollectingReporter$ReportedMessage {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/String;Ljava/lang/Object;)Lcom/debdut/anchordi/ksp/validation/CollectingReporter$ReportedMessage;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/ksp/validation/CollectingReporter$ReportedMessage;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)Lcom/debdut/anchordi/ksp/validation/CollectingReporter$ReportedMessage;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getElement ()Ljava/lang/Object;
+	public final fun getMessage ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/validation/ConstructorAccessibilityValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ConstructorAccessibilityValidator;
+	public final fun validate (Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/CycleValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/CycleValidator;
+	public final fun validate (Ljava/util/Map;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/DuplicateBindingValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/DuplicateBindingValidator;
+	public final fun validate (Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/InjectClassDescriptor {
+	public fun <init> (Ljava/lang/String;ZZLjava/lang/String;Z)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Z
+	public final fun component3 ()Z
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Z
+	public final fun copy (Ljava/lang/String;ZZLjava/lang/String;Z)Lcom/debdut/anchordi/ksp/validation/InjectClassDescriptor;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/ksp/validation/InjectClassDescriptor;Ljava/lang/String;ZZLjava/lang/String;ZILjava/lang/Object;)Lcom/debdut/anchordi/ksp/validation/InjectClassDescriptor;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getComponent ()Ljava/lang/String;
+	public final fun getHasAnchorViewModel ()Z
+	public final fun getHasInjectConstructor ()Z
+	public final fun getHasViewModelScoped ()Z
+	public final fun getSimpleName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/validation/InjectableClassKindValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/InjectableClassKindValidator;
+	public final fun validate (Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/KspValidationReporter : com/debdut/anchordi/ksp/validation/ValidationReporter {
+	public fun <init> (Lcom/google/devtools/ksp/processing/KSPLogger;)V
+	public fun error (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun warn (Ljava/lang/String;Ljava/lang/Object;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/MissingBindingValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/MissingBindingValidator;
+	public final fun validate (Ljava/util/Set;Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/ModelValidationPass {
+	public fun <init> (Ljava/lang/String;Lkotlin/jvm/functions/Function2;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lkotlin/jvm/functions/Function2;
+	public final fun copy (Ljava/lang/String;Lkotlin/jvm/functions/Function2;)Lcom/debdut/anchordi/ksp/validation/ModelValidationPass;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/ksp/validation/ModelValidationPass;Ljava/lang/String;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lcom/debdut/anchordi/ksp/validation/ModelValidationPass;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getName ()Ljava/lang/String;
+	public final fun getRun ()Lkotlin/jvm/functions/Function2;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/validation/ModuleBindsValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ModuleBindsValidator;
+	public final fun validate (Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/ModuleInstallInValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ModuleInstallInValidator;
+	public final fun validate (Ljava/util/List;Ljava/util/Map;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/MultipleInjectConstructorValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/MultipleInjectConstructorValidator;
+	public final fun validate (Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/ParentComponentValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ParentComponentValidator;
+	public final fun validate (Ljava/util/List;Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/ReachableBindingsValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ReachableBindingsValidator;
+	public final fun validate (Ljava/util/List;Ljava/util/Map;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/ScopeComponentCompatibilityValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ScopeComponentCompatibilityValidator;
+	public final fun validate (Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/ScopeHierarchy {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ScopeHierarchy;
+	public static final field SCOPE_ID_NAVIGATION Ljava/lang/String;
+	public static final field SCOPE_ID_SINGLETON Ljava/lang/String;
+	public static final field SCOPE_ID_VIEW_MODEL Ljava/lang/String;
+	public final fun isAncestorOrSelf (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun longevityRank (Ljava/lang/String;Ljava/lang/String;)I
+	public final fun parentOf (Ljava/lang/String;)Ljava/lang/String;
+	public final fun scopeAllowedInComponent (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun scopeDisplayName (Ljava/lang/String;)Ljava/lang/String;
+	public final fun scopeIdForComponent (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/validation/ScopeLifetimeValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ScopeLifetimeValidator;
+	public final fun validate (Ljava/util/List;Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/ScopeLifetimeViolationValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ScopeLifetimeViolationValidator;
+	public final fun validate (Ljava/util/List;Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/SingleScopeValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/SingleScopeValidator;
+	public final fun validate (Ljava/util/List;Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/SymbolValidationPass {
+	public fun <init> (Ljava/lang/String;Lkotlin/jvm/functions/Function3;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lkotlin/jvm/functions/Function3;
+	public final fun copy (Ljava/lang/String;Lkotlin/jvm/functions/Function3;)Lcom/debdut/anchordi/ksp/validation/SymbolValidationPass;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/ksp/validation/SymbolValidationPass;Ljava/lang/String;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)Lcom/debdut/anchordi/ksp/validation/SymbolValidationPass;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getName ()Ljava/lang/String;
+	public final fun getRun ()Lkotlin/jvm/functions/Function3;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/validation/UniqueScopeInHierarchyValidator {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/UniqueScopeInHierarchyValidator;
+	public final fun validate (Ljava/util/Map;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/ValidationConstants {
+	public static final field FQN_ANCHOR_VIEW_MODEL Ljava/lang/String;
+	public static final field FQN_NAVIGATION_COMPONENT Ljava/lang/String;
+	public static final field FQN_NAVIGATION_SCOPED Ljava/lang/String;
+	public static final field FQN_SINGLETON Ljava/lang/String;
+	public static final field FQN_SINGLETON_COMPONENT Ljava/lang/String;
+	public static final field FQN_VIEW_MODEL_COMPONENT Ljava/lang/String;
+	public static final field FQN_VIEW_MODEL_SCOPED Ljava/lang/String;
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ValidationConstants;
+	public final fun getBUILT_IN_COMPONENT_FQNS ()Ljava/util/Set;
+	public final fun getSKIPPED_TYPES ()Ljava/util/Set;
+}
+
+public final class com/debdut/anchordi/ksp/validation/ValidationMessageFormat {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ValidationMessageFormat;
+	public final fun formatError (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun formatError$default (Lcom/debdut/anchordi/ksp/validation/ValidationMessageFormat;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun formatWarn (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun formatWarn$default (Lcom/debdut/anchordi/ksp/validation/ValidationMessageFormat;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/validation/ValidationModelContext {
+	public fun <init> (Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;Ljava/util/Map;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Ljava/util/Map;
+	public final fun component5 ()Ljava/util/Set;
+	public final fun component6 ()Ljava/util/List;
+	public final fun component7 ()Ljava/util/Map;
+	public final fun copy (Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;Ljava/util/Map;)Lcom/debdut/anchordi/ksp/validation/ValidationModelContext;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/ksp/validation/ValidationModelContext;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;Ljava/util/Map;ILjava/lang/Object;)Lcom/debdut/anchordi/ksp/validation/ValidationModelContext;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBindings ()Ljava/util/List;
+	public final fun getComponents ()Ljava/util/Map;
+	public final fun getDependencyGraph ()Ljava/util/Map;
+	public final fun getInjectClassDescriptors ()Ljava/util/List;
+	public final fun getModuleDescriptors ()Ljava/util/List;
+	public final fun getProvidedKeys ()Ljava/util/Set;
+	public final fun getRequirements ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ksp/validation/ValidationPhase : java/lang/Enum {
+	public static final field MODEL Lcom/debdut/anchordi/ksp/validation/ValidationPhase;
+	public static final field SYMBOL Lcom/debdut/anchordi/ksp/validation/ValidationPhase;
+	public final fun getDescription ()Ljava/lang/String;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/debdut/anchordi/ksp/validation/ValidationPhase;
+	public static fun values ()[Lcom/debdut/anchordi/ksp/validation/ValidationPhase;
+}
+
+public final class com/debdut/anchordi/ksp/validation/ValidationPipeline {
+	public static final field INSTANCE Lcom/debdut/anchordi/ksp/validation/ValidationPipeline;
+	public final fun runModelPhase (Lcom/debdut/anchordi/ksp/validation/ValidationModelContext;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+	public final fun runSymbolPhase (Ljava/util/List;Ljava/util/List;Lcom/debdut/anchordi/ksp/validation/ValidationReporter;)V
+}
+
+public abstract interface class com/debdut/anchordi/ksp/validation/ValidationReporter {
+	public abstract fun error (Ljava/lang/String;Ljava/lang/Object;)V
+	public static synthetic fun error$default (Lcom/debdut/anchordi/ksp/validation/ValidationReporter;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)V
+	public abstract fun warn (Ljava/lang/String;Ljava/lang/Object;)V
+	public static synthetic fun warn$default (Lcom/debdut/anchordi/ksp/validation/ValidationReporter;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)V
+}
+
+public final class com/debdut/anchordi/ksp/validation/ValidationReporter$DefaultImpls {
+	public static synthetic fun error$default (Lcom/debdut/anchordi/ksp/validation/ValidationReporter;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)V
+	public static synthetic fun warn$default (Lcom/debdut/anchordi/ksp/validation/ValidationReporter;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)V
+}
+

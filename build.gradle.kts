@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.kover)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.bcv)
 }
 
 spotless {
@@ -34,6 +35,10 @@ spotless {
 dependencies {
     kover(project(":anchor-di-core"))
     kover(project(":anchor-di-ksp"))
+}
+
+apiValidation {
+    ignoredProjects += listOf("composeApp", "androidApp")
 }
 
 val publishableModules =

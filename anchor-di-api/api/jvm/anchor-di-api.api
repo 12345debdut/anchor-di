@@ -1,0 +1,76 @@
+public abstract interface annotation class com/debdut/anchordi/Binds : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/debdut/anchordi/Component : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/debdut/anchordi/ExperimentalAnchorApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/debdut/anchordi/Inject : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/debdut/anchordi/InstallIn : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/Class;
+}
+
+public abstract interface annotation class com/debdut/anchordi/InternalAnchorApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/debdut/anchordi/IntoMap : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/debdut/anchordi/IntoSet : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/debdut/anchordi/Module : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/debdut/anchordi/Named : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface class com/debdut/anchordi/NavigationComponent {
+	public static final field Companion Lcom/debdut/anchordi/NavigationComponent$Companion;
+	public static final field SCOPE_ID Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/NavigationComponent$Companion {
+	public static final field SCOPE_ID Ljava/lang/String;
+}
+
+public abstract interface annotation class com/debdut/anchordi/NavigationScoped : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/debdut/anchordi/Provides : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/debdut/anchordi/Qualifier : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/debdut/anchordi/Scoped : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/Class;
+}
+
+public abstract interface annotation class com/debdut/anchordi/Singleton : java/lang/annotation/Annotation {
+}
+
+public abstract interface class com/debdut/anchordi/SingletonComponent {
+}
+
+public abstract interface annotation class com/debdut/anchordi/StringKey : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface class com/debdut/anchordi/ViewModelComponent {
+	public static final field Companion Lcom/debdut/anchordi/ViewModelComponent$Companion;
+	public static final field SCOPE_ID Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/ViewModelComponent$Companion {
+	public static final field SCOPE_ID Ljava/lang/String;
+}
+
+public abstract interface annotation class com/debdut/anchordi/ViewModelScoped : java/lang/annotation/Annotation {
+}
+

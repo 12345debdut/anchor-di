@@ -42,6 +42,9 @@ jobs:
       - name: Format check (Spotless + ktlint)
         run: ./gradlew spotlessCheck --no-daemon
 
+      - name: API compatibility check (BCV)
+        run: ./gradlew apiCheck --no-daemon
+
       - name: Run library tests
         run: ./gradlew :anchor-di-core:jvmTest :anchor-di-ksp:jvmTest --no-daemon
 

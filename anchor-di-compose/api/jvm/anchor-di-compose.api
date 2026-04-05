@@ -1,0 +1,31 @@
+public abstract interface annotation class com/debdut/anchordi/compose/AnchorViewModel : java/lang/annotation/Annotation {
+}
+
+public final class com/debdut/anchordi/navigation/ComposableSingletons$NavigationScopeComposeKt {
+	public static final field INSTANCE Lcom/debdut/anchordi/navigation/ComposableSingletons$NavigationScopeComposeKt;
+	public fun <init> ()V
+	public final fun getLambda$952831826$anchor_di_compose ()Lkotlin/jvm/functions/Function3;
+}
+
+public abstract interface class com/debdut/anchordi/navigation/NavScope {
+	public fun NavigationScopedContent (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+	public abstract fun getScopeKeyForEntry ()Lkotlin/jvm/functions/Function1;
+}
+
+public final class com/debdut/anchordi/navigation/NavScope$DefaultImpls {
+	public static fun NavigationScopedContent (Lcom/debdut/anchordi/navigation/NavScope;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+}
+
+public final class com/debdut/anchordi/navigation/NavScopeImpl : com/debdut/anchordi/navigation/NavScope {
+	public static final field $stable I
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public fun NavigationScopedContent (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+	public fun getScopeKeyForEntry ()Lkotlin/jvm/functions/Function1;
+}
+
+public final class com/debdut/anchordi/navigation/NavigationScopeComposeKt {
+	public static final fun NavScopeContainer (Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun getLocalNavViewModelScope ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+	public static final fun getLocalNavigationScope ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+}
+

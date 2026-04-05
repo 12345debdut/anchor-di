@@ -18,7 +18,9 @@ junit = "4.13.2"
 kotlin = "2.3.0"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.7.3"
+kotlinx-atomicfu = "0.27.0"
 ksp = "2.3.5"
+bcv = "0.17.0"
 ktor = "3.0.3"
 material3 = "1.10.0-alpha05"
 multiplatform-nav3-ui = "1.0.0-alpha06"
@@ -26,6 +28,7 @@ lifecycleRuntimeKtx = "2.10.0"
 composeBom = "2026.01.00"
 
 [libraries]
+kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "kotlinx-atomicfu" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -77,3 +80,4 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+bcv = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "bcv" }

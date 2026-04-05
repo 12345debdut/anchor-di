@@ -1,0 +1,123 @@
+public final class com/debdut/anchordi/runtime/Anchor {
+	public static final field INSTANCE Lcom/debdut/anchordi/runtime/Anchor;
+	public final fun addResetListener (Lkotlin/jvm/functions/Function0;)V
+	public final fun getContainer ()Lcom/debdut/anchordi/runtime/AnchorContainer;
+	public final fun init ([Lcom/debdut/anchordi/runtime/ComponentBindingContributor;)V
+	public final fun isInitialized ()Z
+	public final fun requireContainer ()Lcom/debdut/anchordi/runtime/AnchorContainer;
+	public final fun reset ()V
+	public final fun scopedContainer (Ljava/lang/String;)Lcom/debdut/anchordi/runtime/AnchorContainer;
+	public final fun scopedContainer (Lkotlin/reflect/KClass;)Lcom/debdut/anchordi/runtime/AnchorContainer;
+	public final fun withScope (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun withScope (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class com/debdut/anchordi/runtime/AnchorContainer {
+	public fun <init> (Ljava/util/List;Lcom/debdut/anchordi/runtime/AnchorContainer;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/util/List;Lcom/debdut/anchordi/runtime/AnchorContainer;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun createScope (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun createScope (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun createScopeContainer (Ljava/lang/String;)Lcom/debdut/anchordi/runtime/AnchorContainer;
+	public final fun createScopeContainer (Lkotlin/reflect/KClass;)Lcom/debdut/anchordi/runtime/AnchorContainer;
+	public final fun get (Lcom/debdut/anchordi/runtime/Key;)Ljava/lang/Object;
+	public final fun getBindings ()Ljava/util/Map;
+}
+
+public abstract interface class com/debdut/anchordi/runtime/AnchorProvider {
+	public abstract fun get ()Ljava/lang/Object;
+}
+
+public abstract class com/debdut/anchordi/runtime/Binding {
+}
+
+public final class com/debdut/anchordi/runtime/Binding$MultibindingMap : com/debdut/anchordi/runtime/Binding {
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lcom/debdut/anchordi/runtime/Binding$MultibindingMap;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/runtime/Binding$MultibindingMap;Ljava/util/List;ILjava/lang/Object;)Lcom/debdut/anchordi/runtime/Binding$MultibindingMap;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContributions ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/runtime/Binding$MultibindingSet : com/debdut/anchordi/runtime/Binding {
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lcom/debdut/anchordi/runtime/Binding$MultibindingSet;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/runtime/Binding$MultibindingSet;Ljava/util/List;ILjava/lang/Object;)Lcom/debdut/anchordi/runtime/Binding$MultibindingSet;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContributions ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/runtime/Binding$Scoped : com/debdut/anchordi/runtime/Binding {
+	public fun <init> (Ljava/lang/String;Lcom/debdut/anchordi/runtime/Factory;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/debdut/anchordi/runtime/Factory;
+	public final fun copy (Ljava/lang/String;Lcom/debdut/anchordi/runtime/Factory;)Lcom/debdut/anchordi/runtime/Binding$Scoped;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/runtime/Binding$Scoped;Ljava/lang/String;Lcom/debdut/anchordi/runtime/Factory;ILjava/lang/Object;)Lcom/debdut/anchordi/runtime/Binding$Scoped;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFactory ()Lcom/debdut/anchordi/runtime/Factory;
+	public final fun getScopeClassName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/runtime/Binding$Singleton : com/debdut/anchordi/runtime/Binding {
+	public fun <init> (Lcom/debdut/anchordi/runtime/Factory;)V
+	public final fun component1 ()Lcom/debdut/anchordi/runtime/Factory;
+	public final fun copy (Lcom/debdut/anchordi/runtime/Factory;)Lcom/debdut/anchordi/runtime/Binding$Singleton;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/runtime/Binding$Singleton;Lcom/debdut/anchordi/runtime/Factory;ILjava/lang/Object;)Lcom/debdut/anchordi/runtime/Binding$Singleton;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFactory ()Lcom/debdut/anchordi/runtime/Factory;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/runtime/Binding$Unscoped : com/debdut/anchordi/runtime/Binding {
+	public fun <init> (Lcom/debdut/anchordi/runtime/Factory;)V
+	public final fun component1 ()Lcom/debdut/anchordi/runtime/Factory;
+	public final fun copy (Lcom/debdut/anchordi/runtime/Factory;)Lcom/debdut/anchordi/runtime/Binding$Unscoped;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/runtime/Binding$Unscoped;Lcom/debdut/anchordi/runtime/Factory;ILjava/lang/Object;)Lcom/debdut/anchordi/runtime/Binding$Unscoped;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFactory ()Lcom/debdut/anchordi/runtime/Factory;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/debdut/anchordi/runtime/BindingRegistry {
+	public abstract fun register (Lcom/debdut/anchordi/runtime/Key;Lcom/debdut/anchordi/runtime/Binding;)V
+	public abstract fun registerMapContribution (Lcom/debdut/anchordi/runtime/Key;Ljava/lang/Object;Lcom/debdut/anchordi/runtime/Factory;)V
+	public abstract fun registerSetContribution (Lcom/debdut/anchordi/runtime/Key;Lcom/debdut/anchordi/runtime/Factory;)V
+}
+
+public abstract interface class com/debdut/anchordi/runtime/ComponentBindingContributor {
+	public abstract fun contribute (Lcom/debdut/anchordi/runtime/BindingRegistry;)V
+}
+
+public abstract interface class com/debdut/anchordi/runtime/Factory {
+	public abstract fun create (Lcom/debdut/anchordi/runtime/AnchorContainer;)Ljava/lang/Object;
+}
+
+public final class com/debdut/anchordi/runtime/Key {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/debdut/anchordi/runtime/Key;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/runtime/Key;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/debdut/anchordi/runtime/Key;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getQualifier ()Ljava/lang/String;
+	public final fun getTypeName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/runtime/SyncLock {
+	public fun <init> ()V
+	public final fun withLock (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+}
+
