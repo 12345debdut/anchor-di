@@ -1,0 +1,38 @@
+public final class com/debdut/anchordi/navigation/NavigationScopeEntry {
+	public fun <init> (Lcom/debdut/anchordi/runtime/AnchorContainer;Lcom/debdut/anchordi/runtime/AnchorContainer;)V
+	public final fun component1 ()Lcom/debdut/anchordi/runtime/AnchorContainer;
+	public final fun component2 ()Lcom/debdut/anchordi/runtime/AnchorContainer;
+	public final fun copy (Lcom/debdut/anchordi/runtime/AnchorContainer;Lcom/debdut/anchordi/runtime/AnchorContainer;)Lcom/debdut/anchordi/navigation/NavigationScopeEntry;
+	public static synthetic fun copy$default (Lcom/debdut/anchordi/navigation/NavigationScopeEntry;Lcom/debdut/anchordi/runtime/AnchorContainer;Lcom/debdut/anchordi/runtime/AnchorContainer;ILjava/lang/Object;)Lcom/debdut/anchordi/navigation/NavigationScopeEntry;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNavContainer ()Lcom/debdut/anchordi/runtime/AnchorContainer;
+	public final fun getViewModelContainer ()Lcom/debdut/anchordi/runtime/AnchorContainer;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/debdut/anchordi/navigation/NavigationScopeRegistry {
+	public static final field INSTANCE Lcom/debdut/anchordi/navigation/NavigationScopeRegistry;
+	public final fun clear ()V
+	public final fun dispose (Ljava/lang/Object;)V
+	public final fun getOrCreate (Ljava/lang/Object;)Lcom/debdut/anchordi/navigation/NavigationScopeEntry;
+}
+
+public final class com/debdut/anchordi/navigation/ViewModelScope {
+	public static final field INSTANCE Lcom/debdut/anchordi/navigation/ViewModelScope;
+	public final fun holder (Ljava/lang/Object;)Lcom/debdut/anchordi/navigation/ViewModelScopeHolder;
+	public final fun use (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class com/debdut/anchordi/navigation/ViewModelScopeHolder : java/lang/AutoCloseable {
+	public fun <init> (Ljava/lang/Object;Lcom/debdut/anchordi/runtime/AnchorContainer;)V
+	public fun close ()V
+	public final fun getContainer ()Lcom/debdut/anchordi/runtime/AnchorContainer;
+}
+
+public final class com/debdut/anchordi/navigation/ViewModelScopeRegistry {
+	public static final field INSTANCE Lcom/debdut/anchordi/navigation/ViewModelScopeRegistry;
+	public final fun dispose (Ljava/lang/Object;)V
+	public final fun getOrCreate (Ljava/lang/Object;)Lcom/debdut/anchordi/runtime/AnchorContainer;
+}
+

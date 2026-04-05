@@ -4,22 +4,16 @@ package com.debdut.anchordi
  * Marks an annotation as a qualifier for disambiguating multiple bindings
  * of the same type.
  *
- * Create your own qualifiers:
- * ```
- * @Qualifier
- * @Retention(AnnotationRetention.BINARY)
- * @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
- * annotation class ApiKey(val value: String)
+ * **Note:** Custom qualifiers created with `@Qualifier` are experimental.
+ * Currently, only the built-in [Named] qualifier is fully supported by the
+ * KSP processor. Custom qualifier support is planned for a future release.
  *
- * @Provides @ApiKey("prod") fun provideProdApi(): Api = ProdApi()
- * @Inject constructor(@ApiKey("prod") api: Api)
- * ```
- *
- * Or use the built-in [Named]:
+ * For now, use the built-in [Named]:
  * ```
  * @Provides @Named("api") fun provideApi(): Api = ApiImpl()
  * ```
  */
+@ExperimentalAnchorApi
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 @Retention(AnnotationRetention.BINARY)
 @MustBeDocumented

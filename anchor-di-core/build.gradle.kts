@@ -31,6 +31,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":anchor-di-api"))
+            implementation(libs.kotlinx.atomicfu)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
