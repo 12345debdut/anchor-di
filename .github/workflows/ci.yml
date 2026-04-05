@@ -46,7 +46,7 @@ jobs:
         run: ./gradlew apiCheck --no-daemon
 
       - name: Run library tests
-        run: ./gradlew :anchor-di-core:jvmTest :anchor-di-ksp:jvmTest --no-daemon
+        run: ./gradlew :anchor-di-core:jvmTest :anchor-di-ksp:jvmTest :anchor-di-presentation:jvmTest :anchor-di-integration-tests:jvmTest --no-daemon
 
   build-android:
     name: Build Android

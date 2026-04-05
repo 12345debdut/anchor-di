@@ -35,10 +35,11 @@ spotless {
 dependencies {
     kover(project(":anchor-di-core"))
     kover(project(":anchor-di-ksp"))
+    kover(project(":anchor-di-presentation"))
 }
 
 apiValidation {
-    ignoredProjects += listOf("composeApp", "androidApp")
+    ignoredProjects += listOf("composeApp", "androidApp", "anchor-di-integration-tests")
 }
 
 val publishableModules =
