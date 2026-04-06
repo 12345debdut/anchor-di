@@ -4,6 +4,7 @@ import com.debdut.anchordi.ksp.KspUtils
 import com.debdut.anchordi.ksp.analysis.AnchorDiModelBuilder
 import com.debdut.anchordi.ksp.findAnnotation
 import com.debdut.anchordi.ksp.hasAnnotation
+import com.debdut.anchordi.ksp.resolveQualifier
 import com.debdut.anchordi.ksp.validation.ValidationConstants
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -179,7 +180,7 @@ class AnchorDiCodeGenerator(
                         }
                     }
                 }
-            val qualifier = KspUtils.getAnnotationStringValue(classDecl.findAnnotation(FQN_NAMED))
+            val qualifier = classDecl.resolveQualifier()
             val keyQualifier = if (qualifier != null) "\"$qualifier\"" else "null"
             val groupKey = implFqnToModule[qualifiedName] ?: INJECT_GROUP_KEY
             addBlock(groupKey, listOf("registry.register(Key(\"$qualifiedName\", $keyQualifier), $binding)"))
@@ -330,7 +331,7 @@ class AnchorDiCodeGenerator(
         params.forEachIndexed { i, param ->
             val name = paramNames[i]
             val (resolvedType, isLazy, isProvider) = builder.resolveParameterType(param)
-            val qualifier = KspUtils.getAnnotationStringValue(param.findAnnotation(FQN_NAMED))
+            val qualifier = param.resolveQualifier()
             when {
                 isLazy -> sb.appendLine("        val $name = lazy { container.get<$resolvedType>() }")
                 isProvider ->
@@ -372,7 +373,7 @@ class AnchorDiCodeGenerator(
         factoryLines.add("            override fun create(container: com.debdut.anchordi.runtime.AnchorContainer): Any {")
         paramNames.forEachIndexed { i, name ->
             val pType = func.parameters[i].type.resolve().declaration.qualifiedName?.asString() ?: "Any"
-            val pQualifier = KspUtils.getAnnotationStringValue(func.parameters[i].findAnnotation(FQN_NAMED))
+            val pQualifier = func.parameters[i].resolveQualifier()
             val getCall = if (pQualifier != null) "container.get<$pType>(\"$pQualifier\")" else "container.get<$pType>()"
             factoryLines.add("                val $name = $getCall")
         }
@@ -424,7 +425,7 @@ class AnchorDiCodeGenerator(
                         hasSingleton -> "Binding.Singleton(" to ")"
                         else -> "Binding.Unscoped(" to ")"
                     }
-                val qualifier = KspUtils.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
+                val qualifier = func.resolveQualifier()
                 val keyQualifier = if (qualifier != null) ", \"$qualifier\"" else ", null"
                 mutableListOf<String>().apply {
                     add("registry.register(Key(\"$returnType\"$keyQualifier), ${bindingPrefix}${factoryLines.first()}")
@@ -450,9 +451,9 @@ class AnchorDiCodeGenerator(
                 hasSingleton -> "Binding.Singleton("
                 else -> "Binding.Unscoped("
             }
-        val qualifier = KspUtils.getAnnotationStringValue(func.findAnnotation(FQN_NAMED))
+        val qualifier = func.resolveQualifier()
         val keyQualifier = if (qualifier != null) ", \"$qualifier\"" else ", null"
-        val implQualifier = KspUtils.getAnnotationStringValue(func.parameters.single().findAnnotation(FQN_NAMED))
+        val implQualifier = func.parameters.single().resolveQualifier()
         val getCall =
             if (implQualifier != null) {
                 "container.get<$implType>(\"$implQualifier\")"

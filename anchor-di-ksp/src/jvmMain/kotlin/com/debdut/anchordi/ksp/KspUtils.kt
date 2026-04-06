@@ -58,3 +58,40 @@ fun KSAnnotated.hasAnnotation(fqn: String): Boolean =
  */
 fun KSAnnotated.findAnnotation(fqn: String): KSAnnotation? =
     annotations.find { it.annotationType.resolve().declaration.qualifiedName?.asString() == fqn }
+
+/**
+ * Resolves the qualifier string for an annotated element.
+ *
+ * Checks in order:
+ * 1. `@Named("value")` — returns the string value
+ * 2. Any annotation that is itself annotated with `@Qualifier` — returns
+ *    `"AnnotationFqn(value)"` if it has a `value` parameter, or `"AnnotationFqn"` for markers.
+ *
+ * @return The qualifier string, or null if no qualifier annotation is present.
+ */
+fun KSAnnotated.resolveQualifier(): String? {
+    // 1. Check for @Named first (most common)
+    val named = findAnnotation("com.debdut.anchordi.Named")
+    if (named != null) {
+        return KspUtils.getAnnotationStringValue(named)
+    }
+
+    // 2. Check for any custom @Qualifier-annotated annotation
+    for (annotation in annotations) {
+        val annotationDecl = annotation.annotationType.resolve().declaration
+        if (annotationDecl is KSClassDeclaration &&
+            annotationDecl.hasAnnotation("com.debdut.anchordi.Qualifier")
+        ) {
+            val fqn = annotationDecl.qualifiedName?.asString() ?: continue
+            // If the annotation has a "value" argument, include it
+            val valueArg = annotation.arguments.firstOrNull { it.name?.asString() == "value" }
+            return if (valueArg?.value != null) {
+                "$fqn(${valueArg.value.toString().trim('"')})"
+            } else {
+                fqn
+            }
+        }
+    }
+
+    return null
+}
