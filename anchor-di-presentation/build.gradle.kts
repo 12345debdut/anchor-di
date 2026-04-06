@@ -3,6 +3,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKmpLibrary)
+    alias(libs.plugins.kover)
     id("signing")
 }
 
@@ -31,6 +32,9 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":anchor-di-api"))
             implementation(project(":anchor-di-core"))
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
         }
     }
 }

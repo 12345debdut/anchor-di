@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Binary Compatibility Validator (BCV):** Public API changes are now tracked via `.api` files. CI will fail if public API is changed without updating the API dump.
 - **API stability annotations:** `@ExperimentalAnchorApi` and `@InternalAnchorApi` opt-in annotations for marking unstable or internal surfaces.
 - **ProGuard/R8 consumer rules:** All Android modules now ship consumer ProGuard rules to prevent R8 from stripping generated code or runtime classes.
+- **End-to-end integration tests:** New `anchor-di-integration-tests` module with 12 tests verifying the full runtime pipeline (singleton identity, unscoped per-call, scoped caching, qualifiers, providers, multibinding, multi-module, nested scopes, error messages, reset/reinit).
+- **Presentation module tests:** `NavigationScopeRegistryTest` (11 tests) and `ViewModelScopeTest` (7 tests) covering getOrCreate, dispose, caching, isolation, auto-dispose, and reset behavior.
+- **Kover coverage expansion:** `anchor-di-presentation` added to aggregated code coverage reporting.
 - **CHANGELOG.md:** This file, following Keep a Changelog format.
 
 ### Changed
