@@ -1,5 +1,6 @@
 package com.debdut.anchordi.runtime
 
+import com.debdut.anchordi.InternalAnchorApi
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 
@@ -13,7 +14,10 @@ import kotlinx.atomicfu.locks.synchronized
  *
  * This ensures correct behavior on all platforms, including Kotlin/Native with the
  * new memory model where coroutines can run on multiple threads.
+ *
+ * This is an internal implementation detail and should not be used by library consumers.
  */
+@InternalAnchorApi
 class SyncLock : SynchronizedObject() {
     fun <T> withLock(block: () -> T): T = synchronized(this) { block() }
 }

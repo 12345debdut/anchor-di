@@ -1,3 +1,5 @@
+@file:OptIn(com.debdut.anchordi.InternalAnchorApi::class)
+
 package com.debdut.anchordi.runtime
 
 import kotlin.concurrent.Volatile
