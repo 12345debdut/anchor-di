@@ -8,7 +8,7 @@
  *   - Signing: signing.keyId, signing.password, signing.keyFile (binary key) or signingInMemoryKey* (CI)
  */
 val libraryGroup: String = project.findProperty("LIBRARY_GROUP") as? String ?: "io.github.12345debdut"
-val libraryVersion: String = project.findProperty("LIBRARY_VERSION") as? String ?: project.findProperty("VERSION") as? String ?: "0.1.0"
+val libraryVersion: String = project.findProperty("LIBRARY_VERSION") as? String ?: project.findProperty("VERSION") as? String ?: "1.0.0"
 
 group = libraryGroup
 version = libraryVersion

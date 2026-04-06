@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (e.g. 0.1.0). Do not use -SNAPSHOT for a release.'
+        description: 'Version to publish (e.g. 1.0.0). Do not use -SNAPSHOT for a release.'
         required: true
-        default: '0.1.0'
+        default: '1.0.0'
         type: string
       namespace:
         description: 'Central Portal namespace (e.g. io.github.USERNAME). Must match https://central.sonatype.com/publishing/namespaces'
