@@ -57,7 +57,7 @@ subprojects {
     if (name in publishableModules) {
         group = project.findProperty("LIBRARY_GROUP")?.toString() ?: "io.github.12345debdut"
         version = project.findProperty("LIBRARY_VERSION")?.toString()
-            ?: project.findProperty("VERSION")?.toString() ?: "0.1.0"
+            ?: project.findProperty("VERSION")?.toString() ?: "1.0.0"
         apply(plugin = "publish-convention")
         // Dokka generates per-module API docs; root aggregates into multi-module site.
         if (name != "anchor-di-bom") {

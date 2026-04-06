@@ -6,7 +6,7 @@ plugins {
 val libraryGroup: String = project.findProperty("LIBRARY_GROUP") as? String ?: "io.github.12345debdut"
 val libraryVersion: String =
     project.findProperty("LIBRARY_VERSION") as? String
-        ?: project.findProperty("VERSION") as? String ?: "0.1.0"
+        ?: project.findProperty("VERSION") as? String ?: "1.0.0"
 
 group = libraryGroup
 version = libraryVersion
