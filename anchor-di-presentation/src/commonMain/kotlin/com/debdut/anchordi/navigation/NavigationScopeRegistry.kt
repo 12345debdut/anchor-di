@@ -1,3 +1,5 @@
+@file:OptIn(com.debdut.anchordi.InternalAnchorApi::class)
+
 package com.debdut.anchordi.navigation
 
 import com.debdut.anchordi.NavigationComponent
