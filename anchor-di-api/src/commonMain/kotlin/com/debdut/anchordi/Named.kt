@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalAnchorApi::class)
-
 package com.debdut.anchordi
 
 /**

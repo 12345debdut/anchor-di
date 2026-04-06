@@ -25,6 +25,7 @@ public final class com/debdut/anchordi/ksp/KspUtils {
 public final class com/debdut/anchordi/ksp/KspUtilsKt {
 	public static final fun findAnnotation (Lcom/google/devtools/ksp/symbol/KSAnnotated;Ljava/lang/String;)Lcom/google/devtools/ksp/symbol/KSAnnotation;
 	public static final fun hasAnnotation (Lcom/google/devtools/ksp/symbol/KSAnnotated;Ljava/lang/String;)Z
+	public static final fun resolveQualifier (Lcom/google/devtools/ksp/symbol/KSAnnotated;)Ljava/lang/String;
 }
 
 public final class com/debdut/anchordi/ksp/analysis/AnchorDiModelBuilder {
