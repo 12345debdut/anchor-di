@@ -8,14 +8,28 @@ Use Anchor DI in a **Kotlin Multiplatform** project that does **not** use Compos
 
 Add these dependencies to your shared module:
 
+### Quick Setup (Convention Plugin)
+
+```kotlin
+// shared/build.gradle.kts
+plugins {
+    id("anchor-di-convention")
+}
+
+// compose defaults to false — no extra config needed
+```
+
+### Manual Setup
+
 ```kotlin
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.12345debdut:anchor-di-api:x.x.x")
-            implementation("io.github.12345debdut:anchor-di-core:x.x.x")
-            implementation("io.github.12345debdut:anchor-di-presentation:x.x.x")  // Optional: NavigationScopeRegistry
-            implementation("io.github.12345debdut:anchor-di-android:x.x.x")       // Optional: ActivityScope (Android)
+            implementation(platform("io.github.12345debdut:anchor-di-bom:x.x.x"))
+            implementation("io.github.12345debdut:anchor-di-api")
+            implementation("io.github.12345debdut:anchor-di-core")
+            implementation("io.github.12345debdut:anchor-di-presentation")  // Optional: NavigationScopeRegistry
+            implementation("io.github.12345debdut:anchor-di-android")       // Optional: ActivityScope (Android)
         }
     }
 }

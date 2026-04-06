@@ -25,7 +25,7 @@ Dependency Injection in Kotlin Multiplatform is still a hard problem. Here's how
 
 | Existing Solution | Limitation | Why It Matters |
 |-------------------|------------|----------------|
-| **Koin** | Runtime DI, slower startup, can fail at runtime | Your app might crash in production when a dependency is missing. Startup is slower because Koin builds the graph at launch. |
+| **Koin** | Runtime DI, [~5x slower startup](guides/benchmarks), can fail at runtime | Your app might crash in production when a dependency is missing. Startup is slower because Koin builds the graph at launch. |
 | **Hilt / Dagger** | Android-only | You can't use them in shared KMP code; iOS and other platforms are left out. |
 | **Manual DI** | Boilerplate-heavy, error-prone | You write factory classes, pass dependencies through constructors manually — tedious and easy to get wrong. |
 | **Reflection-based DI** | Not multiplatform-safe | Reflection is limited or unavailable on Kotlin/Native (iOS) and Kotlin/Wasm (Web). |
@@ -88,3 +88,5 @@ Ready to get started? Here's the recommended path:
 - **[Quick Example](getting-started/quick-example)** — A minimal setup you can copy and run
 - **[Installation](installation/setup)** — Add Anchor DI to your KMP project step by step
 - **[Core Concepts](core/concepts)** — Components, scopes, and how the dependency graph works
+- **[Migrating from Koin](guides/koin-migration)** — Side-by-side migration guide if you're coming from Koin
+- **[Benchmarks](guides/benchmarks)** — Performance comparison: Anchor DI vs Koin

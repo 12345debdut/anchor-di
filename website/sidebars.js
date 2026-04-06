@@ -110,6 +110,8 @@ const sidebars = {
       items: [
         'guides/real-world-example',
         'guides/testing',
+        'guides/koin-migration',
+        'guides/benchmarks',
       ],
     },
     'troubleshooting',

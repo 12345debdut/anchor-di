@@ -81,6 +81,7 @@ Anchor DI is split into multiple artifacts so you only include what you need:
 
 | Artifact | Purpose | When to Use |
 |----------|---------|-------------|
+| `anchor-di-bom` | Bill of Materials. Aligns all module versions with one declaration. | Recommended — simplifies dependency management. |
 | `anchor-di-api` | Annotations only (`@Inject`, `@Module`, `@Provides`, etc.). No runtime dependency. | Always — your code references these. |
 | `anchor-di-core` | Container, runtime resolution, `Anchor` object. | Always — this is the runtime. |
 | `anchor-di-ksp` | KSP processor. Generates code at compile time. | Always — needed for codegen. |
@@ -88,7 +89,11 @@ Anchor DI is split into multiple artifacts so you only include what you need:
 | `anchor-di-android` | `ActivityScope` and Android-specific helpers. | When you need Activity-scoped DI on Android (with or without Compose). |
 | `anchor-di-presentation` | `NavigationScopeRegistry` (Compose-free). | When you use KMP without Compose but need navigation-scoped DI (e.g. SwiftUI, Views). |
 
-**Typical setup for Compose Multiplatform:** `anchor-di-api` + `anchor-di-core` + `anchor-di-compose` + `anchor-di-ksp`.
+**Typical setup for Compose Multiplatform:** `anchor-di-bom` + `anchor-di-api` + `anchor-di-core` + `anchor-di-compose` + `anchor-di-ksp`.
+
+:::tip Convention Plugin
+For the fastest setup, use the `anchor-di-convention` Gradle plugin — it handles KSP wiring and dependencies automatically. See [Installation Setup](../installation/setup).
+:::
 
 ---
 

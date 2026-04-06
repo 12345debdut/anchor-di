@@ -22,7 +22,50 @@ If you're new to KMP, create a project using the [Kotlin Multiplatform Wizard](h
 
 ---
 
-## Step 1: Add the KSP Plugin
+## Option A: Convention Plugin (Recommended)
+
+The fastest way to set up Anchor DI. The convention plugin handles KSP wiring, dependencies, and multi-module configuration automatically.
+
+**In your shared module's `build.gradle.kts`:**
+
+```kotlin
+plugins {
+    id("anchor-di-convention")
+}
+
+// Optional configuration (defaults shown):
+anchorDi {
+    compose = true          // adds anchor-di-compose + anchor-di-presentation
+    moduleId = project.name // override for multi-module projects
+}
+```
+
+That's it. The plugin auto-applies KSP, adds `anchor-di-api` and `anchor-di-core` to `commonMain`, and wires the KSP processor to all active KMP targets.
+
+:::tip BOM for Version Alignment
+Use the BOM to align all Anchor DI module versions with a single declaration:
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(platform("io.github.12345debdut:anchor-di-bom:x.x.x"))
+            // Now you can omit versions on individual modules:
+            implementation("io.github.12345debdut:anchor-di-api")
+            implementation("io.github.12345debdut:anchor-di-core")
+        }
+    }
+}
+```
+:::
+
+---
+
+## Option B: Manual Setup
+
+If you prefer full control over dependencies and KSP configuration, follow these steps.
+
+### Step 1: Add the KSP Plugin
 
 KSP (Kotlin Symbol Processing) is required for Anchor DI to generate code at compile time. Add the KSP plugin to your project.
 
@@ -36,13 +79,11 @@ plugins {
 
 The `apply false` means the plugin is available to subprojects but not applied at the project level. You'll apply it in the module that uses Anchor DI.
 
----
-
-## Step 2: Add Dependencies to Your Shared Module
+### Step 2: Add Dependencies to Your Shared Module
 
 Add Anchor DI dependencies to the module that contains your shared code (typically the one with `commonMain`).
 
-### For KMP + Compose Multiplatform
+#### For KMP + Compose Multiplatform
 
 If you use **Compose Multiplatform** for UI (Android, iOS, Desktop, Web), add these dependencies:
 
@@ -59,9 +100,10 @@ repositories {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.12345debdut:anchor-di-api:x.x.x")
-            implementation("io.github.12345debdut:anchor-di-core:x.x.x")
-            implementation("io.github.12345debdut:anchor-di-compose:x.x.x")
+            implementation(platform("io.github.12345debdut:anchor-di-bom:x.x.x"))
+            implementation("io.github.12345debdut:anchor-di-api")
+            implementation("io.github.12345debdut:anchor-di-core")
+            implementation("io.github.12345debdut:anchor-di-compose")
         }
     }
 }
@@ -76,21 +118,23 @@ dependencies {
 
 **What each dependency does:**
 
+- `anchor-di-bom` — Bill of Materials. Aligns all module versions so you only specify one version.
 - `anchor-di-api` — Annotations. No runtime dependency; your code references these.
 - `anchor-di-core` — Runtime container and `Anchor` object.
 - `anchor-di-compose` — `anchorInject()`, `viewModelAnchor()`, `NavigationScopedContent`, `navigationScopedInject()`.
 - `anchor-di-ksp` — KSP processor. Must be added for each Kotlin target you use (`kspCommonMainMetadata`, `kspAndroid`, `kspIosArm64`, `kspIosSimulatorArm64`, etc.).
 
-### For KMP Without Compose
+#### For KMP Without Compose
 
 If you use **native UI** (SwiftUI on iOS, Views on Android) or **shared logic only**, omit `anchor-di-compose` and add:
 
 ```kotlin
 commonMain.dependencies {
-    implementation("io.github.12345debdut:anchor-di-api:x.x.x")
-    implementation("io.github.12345debdut:anchor-di-core:x.x.x")
-    implementation("io.github.12345debdut:anchor-di-presentation:x.x.x")  // Optional: NavigationScopeRegistry
-    implementation("io.github.12345debdut:anchor-di-android:x.x.x")       // Optional: ActivityScope (Android)
+    implementation(platform("io.github.12345debdut:anchor-di-bom:x.x.x"))
+    implementation("io.github.12345debdut:anchor-di-api")
+    implementation("io.github.12345debdut:anchor-di-core")
+    implementation("io.github.12345debdut:anchor-di-presentation")  // Optional: NavigationScopeRegistry
+    implementation("io.github.12345debdut:anchor-di-android")       // Optional: ActivityScope (Android)
 }
 ```
 

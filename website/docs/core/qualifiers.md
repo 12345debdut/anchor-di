@@ -85,6 +85,38 @@ class ApiClient @Inject constructor(
 
 ---
 
+## Parameterized Custom Qualifiers
+
+Custom qualifiers can also accept parameters, combining the type safety of annotations with the flexibility of `@Named`:
+
+```kotlin
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ApiKey(val value: String)
+```
+
+```kotlin
+@Module
+@InstallIn(SingletonComponent::class)
+object KeysModule {
+    @Provides
+    @ApiKey("prod")
+    fun provideProdKey(): String = "pk_live_abc123"
+
+    @Provides
+    @ApiKey("staging")
+    fun provideStagingKey(): String = "pk_test_xyz789"
+}
+
+class PaymentClient @Inject constructor(
+    @ApiKey("prod") private val apiKey: String
+)
+```
+
+The KSP processor resolves parameterized qualifiers using the fully qualified annotation name combined with the parameter value (e.g., `com.example.ApiKey(prod)`), ensuring unique bindings.
+
+---
+
 ## When to Use Qualifiers
 
 | Scenario | Example |
