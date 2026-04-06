@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.spotless)
     alias(libs.plugins.bcv)
+    alias(libs.plugins.dokka)
 }
 
 spotless {
@@ -39,7 +40,7 @@ dependencies {
 }
 
 apiValidation {
-    ignoredProjects += listOf("composeApp", "androidApp", "anchor-di-integration-tests")
+    ignoredProjects += listOf("composeApp", "androidApp", "anchor-di-integration-tests", "anchor-di-bom", "benchmarks")
 }
 
 val publishableModules =
@@ -58,5 +59,9 @@ subprojects {
         version = project.findProperty("LIBRARY_VERSION")?.toString()
             ?: project.findProperty("VERSION")?.toString() ?: "0.1.0"
         apply(plugin = "publish-convention")
+        // Dokka generates per-module API docs; root aggregates into multi-module site.
+        if (name != "anchor-di-bom") {
+            apply(plugin = "org.jetbrains.dokka")
+        }
     }
 }
