@@ -20,7 +20,24 @@ Each module that has `@Inject` classes or `@Module` classes needs to generate a 
 
 ## Step 1: Per-Module KSP Option
 
-In each feature or shared module that has DI bindings, add the KSP plugin and the **module ID** option:
+In each feature or shared module that has DI bindings, add the KSP plugin and the **module ID** option.
+
+### With Convention Plugin (Recommended)
+
+```kotlin
+// feature-auth/build.gradle.kts
+plugins {
+    id("anchor-di-convention")
+}
+
+anchorDi {
+    moduleId = "auth"
+}
+```
+
+The convention plugin handles KSP wiring, dependencies, and target detection automatically.
+
+### Manual Setup
 
 ```kotlin
 // feature-auth/build.gradle.kts
@@ -29,8 +46,9 @@ plugins {
 }
 
 dependencies {
-    implementation("io.github.12345debdut:anchor-di-api:x.x.x")
-    implementation("io.github.12345debdut:anchor-di-core:x.x.x")
+    implementation(platform("io.github.12345debdut:anchor-di-bom:x.x.x"))
+    implementation("io.github.12345debdut:anchor-di-api")
+    implementation("io.github.12345debdut:anchor-di-core")
     add("kspCommonMainMetadata", "io.github.12345debdut:anchor-di-ksp:x.x.x")
     add("kspAndroid", "io.github.12345debdut:anchor-di-ksp:x.x.x")
     add("kspIosArm64", "io.github.12345debdut:anchor-di-ksp:x.x.x")

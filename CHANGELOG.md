@@ -7,29 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-04-06
+
 ### Fixed
 - **iOS thread safety:** `SyncLock` on Kotlin/Native now uses a real mutex via `kotlinx.atomicfu` instead of a no-op. Fixes potential data races when accessing the DI container from background coroutines on iOS under the new memory model.
-
-### Added
-- **Custom qualifier support:** `@Qualifier` meta-annotation is now fully functional. Define custom qualifiers with parameters (e.g., `@ApiKey("prod")`) or as markers (e.g., `@Production`), and the KSP processor will resolve them correctly on `@Provides`, `@Binds`, and `@Inject` sites.
-- **Convention plugin:** `anchor-di-convention` precompiled Gradle script plugin for zero-config setup. Replaces ~12 lines of manual KSP wiring with a single plugin application.
-- **Binary Compatibility Validator (BCV):** Public API changes are now tracked via `.api` files. CI will fail if public API is changed without updating the API dump.
-- **API stability annotations:** `@ExperimentalAnchorApi` and `@InternalAnchorApi` opt-in annotations for marking unstable or internal surfaces.
-- **ProGuard/R8 consumer rules:** All Android modules now ship consumer ProGuard rules to prevent R8 from stripping generated code or runtime classes.
-- **End-to-end integration tests:** New `anchor-di-integration-tests` module with 12 tests verifying the full runtime pipeline (singleton identity, unscoped per-call, scoped caching, qualifiers, providers, multibinding, multi-module, nested scopes, error messages, reset/reinit).
-- **Presentation module tests:** `NavigationScopeRegistryTest` (11 tests) and `ViewModelScopeTest` (7 tests) covering getOrCreate, dispose, caching, isolation, auto-dispose, and reset behavior.
-- **Kover coverage expansion:** `anchor-di-presentation` added to aggregated code coverage reporting.
-- **Benchmarks vs Koin:** New `benchmarks/` module using kotlinx-benchmark (JMH). Anchor DI initializes ~5x faster than Koin across 10/100/500 bindings. Resolution speed is comparable. Results published in `docs/BENCHMARKS.md`.
-- **Dokka API documentation:** Dokka plugin configured for all library modules. Run `./gradlew dokkaHtmlMultiModule` to generate HTML API docs.
-- **Gradle BOM:** New `anchor-di-bom` module (`java-platform`) for version alignment. Consumers can use `implementation(platform("...:anchor-di-bom:x.y.z"))` to omit versions on individual modules.
-- **Koin migration guide:** Comprehensive `docs/MIGRATION_FROM_KOIN.md` covering all major patterns: singletons, factories, interface bindings, qualifiers, ViewModel scoping, multibinding, custom scopes, testing, and Compose integration.
-- **CHANGELOG.md:** This file, following Keep a Changelog format.
-
-### Changed
-- `@Qualifier` meta-annotation is no longer experimental — custom qualifiers are fully supported by the KSP processor alongside `@Named`.
-- `SyncLock` is no longer an `expect/actual` class. It uses `kotlinx.atomicfu.locks.SynchronizedObject` in common code, providing correct synchronization on all platforms.
-
-## [0.1.0] - 2025-05-01
 
 ### Added
 - Initial public release of Anchor DI.
@@ -38,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Module system with `@Module`, `@InstallIn`, `@Provides`, `@Binds`.
 - Scoping: `@Singleton`, `@ViewModelScoped`, `@NavigationScoped`, custom scopes via `@Scoped`.
 - Qualifiers: `@Named` for disambiguating bindings.
+- **Custom qualifier support:** `@Qualifier` meta-annotation is fully functional. Define custom qualifiers with parameters (e.g., `@ApiKey("prod")`) or as markers (e.g., `@Production`), and the KSP processor will resolve them correctly on `@Provides`, `@Binds`, and `@Inject` sites.
 - Lazy injection: `Lazy<T>` and `AnchorProvider<T>`.
 - Multibinding: `@IntoSet` and `@IntoMap` with `@StringKey`.
 - Compose Multiplatform integration: `anchorInject()`, `viewModelAnchor()`, `navigationScopedInject()`.
@@ -47,7 +29,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-module support via `anchorDiModuleId` KSP option.
 - Testing support: `Anchor.reset()` and contributor overrides.
 - Platform targets: Android, iOS (arm64 + simulator), JVM, WasmJs.
-- Published to Maven Central under `io.github.12345debdut`.
+- **Convention plugin:** `anchor-di-convention` precompiled Gradle script plugin for zero-config setup. Replaces ~12 lines of manual KSP wiring with a single plugin application.
+- **Gradle BOM:** `anchor-di-bom` module (`java-platform`) for version alignment. Consumers can use `implementation(platform("...:anchor-di-bom:1.0.0"))` to omit versions on individual modules.
+- **Binary Compatibility Validator (BCV):** Public API changes tracked via `.api` files. CI fails if public API is changed without updating the API dump.
+- **API stability annotations:** `@ExperimentalAnchorApi` and `@InternalAnchorApi` opt-in annotations for marking unstable or internal surfaces.
+- **ProGuard/R8 consumer rules:** All Android modules ship consumer ProGuard rules to prevent R8 from stripping generated code or runtime classes.
+- **Benchmarks vs Koin:** `benchmarks/` module using kotlinx-benchmark (JMH). Anchor DI initializes ~5x faster than Koin across 10/100/500 bindings. Resolution speed is comparable.
+- **Dokka API documentation:** Dokka plugin configured for all library modules. Run `./gradlew dokkaHtmlMultiModule` to generate HTML API docs.
+- **Koin migration guide:** Comprehensive `docs/MIGRATION_FROM_KOIN.md` covering all major patterns: singletons, factories, interface bindings, qualifiers, ViewModel scoping, multibinding, custom scopes, testing, and Compose integration.
+- **End-to-end integration tests:** `anchor-di-integration-tests` module with 12 tests verifying the full runtime pipeline.
+- **Presentation module tests:** `NavigationScopeRegistryTest` (11 tests) and `ViewModelScopeTest` (7 tests).
+- **Kover coverage expansion:** `anchor-di-presentation` added to aggregated code coverage reporting.
+- **SECURITY.md:** Vulnerability disclosure policy.
+- **GitHub issue templates:** Bug report and feature request templates.
+- **Website documentation:** Convention plugin setup, BOM usage, benchmarks, Koin migration guide, parameterized custom qualifiers.
 
-[Unreleased]: https://github.com/12345debdut/anchor-di/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/12345debdut/anchor-di/releases/tag/v0.1.0
+### Changed
+- `SyncLock` uses `kotlinx.atomicfu.locks.SynchronizedObject` in common code (no longer `expect/actual`), providing correct synchronization on all platforms.
+- `SyncLock` marked `@InternalAnchorApi` — internal implementation detail, not part of the public API contract.
+
+[Unreleased]: https://github.com/12345debdut/anchor-di/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/12345debdut/anchor-di/releases/tag/v1.0.0

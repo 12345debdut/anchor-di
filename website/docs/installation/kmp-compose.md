@@ -8,6 +8,21 @@ Use Anchor DI in a **Kotlin Multiplatform** project with **Compose Multiplatform
 
 Add these dependencies to your shared module (the one with `commonMain` and Compose):
 
+### Quick Setup (Convention Plugin)
+
+```kotlin
+// shared/build.gradle.kts
+plugins {
+    id("anchor-di-convention")
+}
+
+anchorDi {
+    compose = true
+}
+```
+
+### Manual Setup
+
 ```kotlin
 // shared/build.gradle.kts (or your compose module)
 plugins {
@@ -21,9 +36,10 @@ repositories {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.12345debdut:anchor-di-api:x.x.x")
-            implementation("io.github.12345debdut:anchor-di-core:x.x.x")
-            implementation("io.github.12345debdut:anchor-di-compose:x.x.x")
+            implementation(platform("io.github.12345debdut:anchor-di-bom:x.x.x"))
+            implementation("io.github.12345debdut:anchor-di-api")
+            implementation("io.github.12345debdut:anchor-di-core")
+            implementation("io.github.12345debdut:anchor-di-compose")
         }
     }
 }
@@ -38,6 +54,7 @@ dependencies {
 
 **What each dependency does:**
 
+- `anchor-di-bom` — Aligns all module versions with a single declaration.
 - `anchor-di-api` — Annotations (`@Inject`, `@Module`, etc.).
 - `anchor-di-core` — Runtime container and `Anchor` object.
 - `anchor-di-compose` — `anchorInject()`, `viewModelAnchor()`, `NavigationScopedContent`, `navigationScopedInject()`.
